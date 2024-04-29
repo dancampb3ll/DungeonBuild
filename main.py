@@ -7,7 +7,7 @@ TILE_SIZE = 16
 TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
 PLAYERSPEED = 1
 CAMERASPEED = PLAYERSPEED
-
+WALKABLE = overworldtiles.walkable
 
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
@@ -34,19 +34,34 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = SCREEN_HEIGHT // 2
         self.debug = ""
 
-    def move_player(self):
+    def move_player(self, overworldmapdict, tile_mappings):
         key = pygame.key.get_pressed()
+        #left
         if key[pygame.K_a]:
-            self.rect.x -= PLAYERSPEED
+            check = self.rect.midleft
+            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
+            if tilename in WALKABLE:
+                self.rect.x -= PLAYERSPEED
+        #right
         elif key[pygame.K_d]:
-            self.rect.x += PLAYERSPEED
+            check = self.rect.midright
+            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
+            if tilename in WALKABLE:
+                self.rect.x += PLAYERSPEED
+        #down
         if key[pygame.K_s]:
-            self.rect.y += PLAYERSPEED
+            check = self.rect.midbottom
+            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
+            if tilename in WALKABLE:
+                self.rect.y += PLAYERSPEED
+        #up
         elif key[pygame.K_w]:
-            self.rect.y -= PLAYERSPEED
+            check = self.rect.midtop
+            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
+            if tilename in WALKABLE:
+                self.rect.y -= PLAYERSPEED
 
     def update(self):
-        self.move_player()
         #print((self.rect.x // TILE_SIZE, self.rect.y // TILE_SIZE))
         debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // TILE_SIZE}"
         if debug != self.debug:
@@ -75,9 +90,12 @@ class CameraGroup(pygame.sprite.Group):
 class DebugText(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.font = pygame.font.SysFont("Arial", 12)
-        self.font_colour = (255, 255, 255)
+        self.font_size = 12
+        self.font = pygame.font.SysFont("Arial", self.font_size)
         
+        self.font_colour = (255, 255, 255)
+    
+
     def update(self, playergridx, playergridy, mapdict, tiledict):
         self.playergridx = playergridx
         self.playergridy = playergridy
@@ -136,10 +154,12 @@ while running:
     screen.fill((10, 10, 18))
 
 
+    player.move_player(overworldmapdict, tile_mappings)
+
     cameragroup.update()
     cameragroup.custom_draw(player)
 
-    debugtext.update(player.rect.x // TILE_SIZE, player.rect.y // TILE_SIZE, overworldmapdict, tile_mappings)
+    debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)
     
 
