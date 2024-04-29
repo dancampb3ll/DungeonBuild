@@ -1,4 +1,5 @@
 import pygame
+import overworldtiles
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
@@ -24,15 +25,14 @@ class OutdoorTile(pygame.sprite.Sprite):
     
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, gridx, gridy, pygame_group):
+    def __init__(self, pygame_group):
         super().__init__(pygame_group)
         self.image = pygame.image.load("assets/player.png").convert()
         self.image.set_colorkey((255,255,255))
         self.rect = self.image.get_rect()
-        self.gridx = gridx
-        self.gridy = gridy
-        self.rect.x = gridx * TILE_SIZE
-        self.rect.y = gridy * TILE_SIZE
+        self.rect.x = SCREEN_WIDTH // 2
+        self.rect.y = SCREEN_HEIGHT // 2
+        self.debug = ""
 
     def move_player(self):
         key = pygame.key.get_pressed()
@@ -47,6 +47,11 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.move_player()
+        #print((self.rect.x // TILE_SIZE, self.rect.y // TILE_SIZE))
+        debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // TILE_SIZE}"
+        if debug != self.debug:
+            self.debug = debug
+            print(self.debug)
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -62,10 +67,26 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.y = target.rect.centery - self.half_h
 
     def custom_draw(self, target):
-        self.offset = pygame.math.Vector2(-target.rect.x, -target.rect.y)
+        self.center_target_camera(target)
         for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft + self.offset
+            offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+
+class DebugText(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.font = pygame.font.SysFont("Arial", 12)
+        self.font_colour = (255, 255, 255)
+        
+    def update(self, playergridx, playergridy, mapdict, tiledict):
+        self.playergridx = playergridx
+        self.playergridy = playergridy
+        self.tile = mapdict.get((playergridx, playergridy), "error")
+        self.material = tiledict[self.tile]
+        self.text = f"Player x on grid: {self.playergridx} | Player y on grid: {self.playergridy} | Map material at x,y: {self.material}"
+        self.image = self.font.render(self.text, True, self.font_colour)
+        self.rect = self.image.get_rect(topleft = (5, 5))
+
 
 pygame.init()
  
@@ -79,17 +100,32 @@ pygame.display.set_caption('DungeonBuild')
 cameragroup = CameraGroup()
 
 #Drawing tiles
-for i in range(15, 30):
-    for j in range(15, 30):
-        OutdoorTile(i, j, "overgroundGrass", cameragroup)
-for i in range(27, 29):
-    for j in range(27, 29):
-        OutdoorTile(i, j, "overgroundWater", cameragroup)
+#debug grid
+debuggrid = False
+if debuggrid:
+    for i in range(0, 40):
+        for j in range(0, 40):
+            OutdoorTile(i, j, "overgroundGrid", cameragroup)
+
+overworldmap = overworldtiles.overworldmap
+overworldmapdict = overworldtiles.overworldmapdict
+tile_mappings = overworldtiles.tile_mappings
+
+for tile in overworldmap:
+    i = tile[0]
+    j = tile[1]
+    tiletype = tile[2]
+    if tiletype != 0:
+        tilename = tile_mappings[tiletype]
+        OutdoorTile(i, j, tilename, cameragroup)
+    
 
 
-player = Player(22, 22, cameragroup)
+player = Player(cameragroup)
 
-
+debugtext = DebugText()
+screentext = pygame.sprite.Group()
+screentext.add(debugtext)
 
 running = True
 while running:
@@ -100,9 +136,11 @@ while running:
     screen.fill((10, 10, 18))
 
 
-    cameragroup.custom_draw(player)
     cameragroup.update()
-    
+    cameragroup.custom_draw(player)
+
+    debugtext.update(player.rect.x // TILE_SIZE, player.rect.y // TILE_SIZE, overworldmapdict, tile_mappings)
+    screentext.draw(screen)
     
 
     pygame.display.update()
