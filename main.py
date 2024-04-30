@@ -143,19 +143,17 @@ if debuggrid:
         for j in range(0, 40):
             OutdoorTile(i, j, "overgroundGrid", cameragroup)
 
-overworldmap = overworldtiles.overworldmap
 overworldmapdict = overworldtiles.overworldmapdict
 tile_mappings = overworldtiles.tile_mappings
 
-for tile in overworldmap:
-    i = tile[0]
-    j = tile[1]
-    tiletype = tile[2]
+    
+for coord in overworldmapdict.keys():
+    x = coord[0]
+    y = coord[1]
+    tiletype = overworldmapdict[(x, y)]
     if tiletype != 0:
         tilename = tile_mappings[tiletype]
-        OutdoorTile(i, j, tilename, cameragroup)
-    
-
+        OutdoorTile(x, y, tilename, cameragroup)
 
 player = Player(cameragroup)
 

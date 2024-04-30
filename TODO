@@ -1,5 +1,5 @@
 Short term
-Change logic to check collision based on true xy, not grid xy
+Add collisions with out of bounds
 Get free 16x16 player sprites
 Add some free music to randomly play https://soundimage.org/fantasywonder/
 Free coin sounds

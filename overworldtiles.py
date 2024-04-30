@@ -5,6 +5,9 @@ for i in range(0, 40):
             overworldmap.append([i, j, 3])
         elif (i >= 15 and i <= 30) and (j >= 15 and j <= 30):
             overworldmap.append([i, j, 2])
+        #Defining world border
+        elif (i == 0 or j == 0 or i == 39 or j == 39):
+            overworldmap.append([i, j, 4])
         else:
             overworldmap.append([i, j, 0])
 overworldmap.append([34, 34, 3])
@@ -14,11 +17,15 @@ overworldmapdict = {}
 for tile in overworldmap:
     overworldmapdict[(tile[0], tile[1])] = tile[2]
 
+overworldmapdict[(16, 16)] = 4
+
+
 tile_mappings = {
     0: None,
     1: "overgroundGrid",
     2: "overgroundGrass",
-    3: "overgroundWater"
+    3: "overgroundWater",
+    4: "overgroundBorder"
 }
 
 walkable = ["overgroundGrass"]
