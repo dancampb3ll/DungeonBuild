@@ -7,13 +7,15 @@ TILE_SIZE = 16
 TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
 PLAYERSPEED = 1
 CAMERASPEED = PLAYERSPEED
-WALKABLE = overworldtiles.walkable
+WALKABLE_TILES = overworldtiles.walkable
 
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
     def __init__(self, gridx, gridy, tile, pygame_group):
         super().__init__(pygame_group)
-        self.image = pygame.image.load(f"assets/{tile}.png").convert()
+        self.type = "tile"
+        self.tile = tile
+        self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
         self.rect = self.image.get_rect()
         self.gridx = gridx
         self.gridy = gridy
@@ -27,6 +29,7 @@ class OutdoorTile(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group):
         super().__init__(pygame_group)
+        self.type = "player"
         self.image = pygame.image.load("assets/player.png").convert()
         self.image.set_colorkey((255,255,255))
         self.rect = self.image.get_rect()
@@ -34,39 +37,52 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = SCREEN_HEIGHT // 2
         self.debug = ""
 
-    def move_player(self, overworldmapdict, tile_mappings):
+    def detect_tile_collisions(self, camera_group, xspeed, yspeed):
+        collide_count = 0
+        for sprite in camera_group:
+            if sprite.type == "tile":
+                collide = sprite.rect.colliderect(self.rect)
+                if collide:
+                    collide_count += 0
+                    if sprite.tile not in WALKABLE_TILES:
+                        if xspeed > 0:
+                            self.rect.right = sprite.rect.left
+                        elif xspeed < 0:
+                            self.rect.left = sprite.rect.right
+                        if yspeed > 0:
+                            self.rect.bottom = sprite.rect.top
+                        elif yspeed < 0:
+                            self.rect.top = sprite.rect.bottom
+
+
+
+    def move_player(self, camera_group):
         key = pygame.key.get_pressed()
         #left
         if key[pygame.K_a]:
-            check = self.rect.midleft
-            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
-            if tilename in WALKABLE:
-                self.rect.x -= PLAYERSPEED
+            self.rect.x -= PLAYERSPEED
+            self.detect_tile_collisions(camera_group, -PLAYERSPEED, 0)
         #right
         elif key[pygame.K_d]:
-            check = self.rect.midright
-            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
-            if tilename in WALKABLE:
-                self.rect.x += PLAYERSPEED
+            self.rect.x += PLAYERSPEED
+            self.detect_tile_collisions(camera_group, PLAYERSPEED, 0)
         #down
         if key[pygame.K_s]:
-            check = self.rect.midbottom
-            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
-            if tilename in WALKABLE:
-                self.rect.y += PLAYERSPEED
+            self.rect.y += PLAYERSPEED
+            self.detect_tile_collisions(camera_group, 0, PLAYERSPEED)
         #up
         elif key[pygame.K_w]:
-            check = self.rect.midtop
-            tilename = overworldtiles.get_world_tilename_at_xy_from_mappingsdict(check, overworldmapdict, tile_mappings, TILE_SIZE)
-            if tilename in WALKABLE:
-                self.rect.y -= PLAYERSPEED
+            self.rect.y -= PLAYERSPEED
+            self.detect_tile_collisions(camera_group, 0, -PLAYERSPEED)
+
 
     def update(self):
+        None
         #print((self.rect.x // TILE_SIZE, self.rect.y // TILE_SIZE))
-        debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // TILE_SIZE}"
-        if debug != self.debug:
-            self.debug = debug
-            print(self.debug)
+        #debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // TILE_SIZE}"
+        #if debug != self.debug:
+        #    self.debug = debug
+        #    print(self.debug)
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -104,6 +120,8 @@ class DebugText(pygame.sprite.Sprite):
         self.text = f"Player x on grid: {self.playergridx} | Player y on grid: {self.playergridy} | Map material at x,y: {self.material}"
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (5, 5))
+
+
 
 
 pygame.init()
@@ -154,10 +172,13 @@ while running:
     screen.fill((10, 10, 18))
 
 
-    player.move_player(overworldmapdict, tile_mappings)
+
+    #Cameragroup contains tile sprites, which are used to detect collisions.
+    player.move_player(cameragroup)
 
     cameragroup.update()
     cameragroup.custom_draw(player)
+
 
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)

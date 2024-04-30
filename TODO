@@ -1,0 +1,24 @@
+Short term
+Change logic to check collision based on true xy, not grid xy
+Get free 16x16 player sprites
+Add some free music to randomly play https://soundimage.org/fantasywonder/
+Free coin sounds
+    - https://soundimage.org/sfx-coins/
+
+Long term
+Create a dungeon entrance that loads into the dungeon loop.
+Make dungeons work
+    - Should they be similar to the tile based world outside or more close up?
+Create saves
+Create inventory
+    - Shows gold, shows land
+
+Create npc to sell land
+
+Create logic for npcs to spawn if enough spare land
+
+Create far out natural structures that can be built to?
+    - Special items, special dungeons, etc
+    - Special companions?
+
+Create times in overworld?
