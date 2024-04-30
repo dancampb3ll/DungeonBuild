@@ -1,11 +1,12 @@
 Short term
-Add collisions with out of bounds
+Create build/money logic
 Get free 16x16 player sprites
 Add some free music to randomly play https://soundimage.org/fantasywonder/
 Free coin sounds
     - https://soundimage.org/sfx-coins/
 
 Long term
+Work out algorithm for optimising large maps (to avoid all sprites being created - only the screen should be created.)
 Create a dungeon entrance that loads into the dungeon loop.
 Make dungeons work
     - Should they be similar to the tile based world outside or more close up?

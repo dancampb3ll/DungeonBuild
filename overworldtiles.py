@@ -14,11 +14,16 @@ overworldmap.append([34, 34, 3])
 
 #Overworldmapdict is the ultimate world map. The world map above is just a quick way of initialising. I should rename the above and call the below overworldmap.
 overworldmapdict = {}
+#The format (x, y) = tilenum must be maintained.
 for tile in overworldmap:
     overworldmapdict[(tile[0], tile[1])] = tile[2]
 
 overworldmapdict[(16, 16)] = 4
 
+overworldmapdict_test = {}
+for i in range(0, 100):
+    for j in range(0, 100):
+        overworldmapdict_test[(i, j)] = 2
 
 tile_mappings = {
     0: None,

@@ -5,7 +5,7 @@ SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
 TILE_SIZE = 16
 TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
-PLAYERSPEED = 1
+PLAYERSPEED = 2
 CAMERASPEED = PLAYERSPEED
 WALKABLE_TILES = overworldtiles.walkable
 
@@ -121,19 +121,30 @@ class DebugText(pygame.sprite.Sprite):
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (5, 5))
 
-
+class FloatingHud(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.type = "hud"
+        self.image = pygame.image.load("assets/hud/hudbar.png").convert()
+        self.image.set_colorkey((255,255,255))
+        self.rect = self.image.get_rect()
+        self.rect.x = SCREEN_WIDTH - self.rect.w
+        self.rect.y = SCREEN_HEIGHT - self.rect.h
 
 
 pygame.init()
  
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
-
 pygame.display.set_caption('DungeonBuild')
 
 
 #Camera must be defined first
 cameragroup = CameraGroup()
+
+
+floatinghud = pygame.sprite.Group()
+floatinghud.add(FloatingHud())
 
 #Drawing tiles
 #debug grid
@@ -180,6 +191,8 @@ while running:
 
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)
+
+    floatinghud.draw(screen)
     
 
     pygame.display.update()
