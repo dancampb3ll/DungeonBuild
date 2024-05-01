@@ -18,7 +18,8 @@ overworldmapdict = {}
 for tile in overworldmap:
     overworldmapdict[(tile[0], tile[1])] = tile[2]
 
-overworldmapdict[(16, 16)] = 4
+overworldmapdict[(16, 16)] = 5
+overworldmapdict[(17, 16)] = 6
 
 overworldmapdict_test = {}
 for i in range(0, 100):
@@ -30,7 +31,9 @@ tile_mappings = {
     1: "overgroundGrid",
     2: "overgroundGrass",
     3: "overgroundWater",
-    4: "overgroundBorder"
+    4: "overgroundBorder",
+    5: "overgroundSmallDungeonLeft",
+    6: "overgroundSmallDungeonRight"
 }
 
 walkable = ["overgroundGrass"]

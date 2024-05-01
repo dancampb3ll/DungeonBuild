@@ -15,7 +15,9 @@ class OutdoorTile(pygame.sprite.Sprite):
         super().__init__(pygame_group)
         self.type = "tile"
         self.tile = tile
+        self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
         self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
+        self.image.set_colorkey(self.ignorecolour)
         self.rect = self.image.get_rect()
         self.gridx = gridx
         self.gridy = gridy
@@ -35,7 +37,10 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = SCREEN_WIDTH // 2
         self.rect.y = SCREEN_HEIGHT // 2
+        self.speed = PLAYERSPEED
         self.debug = ""
+        self.buildmode = False
+        self.B_key_down = False
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
@@ -55,26 +60,41 @@ class Player(pygame.sprite.Sprite):
                             self.rect.top = sprite.rect.bottom
 
 
-
     def move_player(self, camera_group):
         key = pygame.key.get_pressed()
         #left
         if key[pygame.K_a]:
-            self.rect.x -= PLAYERSPEED
-            self.detect_tile_collisions(camera_group, -PLAYERSPEED, 0)
+            self.rect.x -= self.speed
+            self.detect_tile_collisions(camera_group, -self.speed, 0)
         #right
         elif key[pygame.K_d]:
-            self.rect.x += PLAYERSPEED
-            self.detect_tile_collisions(camera_group, PLAYERSPEED, 0)
+            self.rect.x += self.speed
+            self.detect_tile_collisions(camera_group, self.speed, 0)
         #down
         if key[pygame.K_s]:
-            self.rect.y += PLAYERSPEED
-            self.detect_tile_collisions(camera_group, 0, PLAYERSPEED)
+            self.rect.y += self.speed
+            self.detect_tile_collisions(camera_group, 0, self.speed)
         #up
         elif key[pygame.K_w]:
-            self.rect.y -= PLAYERSPEED
-            self.detect_tile_collisions(camera_group, 0, -PLAYERSPEED)
+            self.rect.y -= self.speed
+            self.detect_tile_collisions(camera_group, 0, -self.speed)
 
+    def check_build_mode(self, input_events):
+        for event in input_events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b and not self.B_key_down:
+                    self.toggle_build_mode()
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_b:
+                    self.B_key_down = False
+
+    def toggle_build_mode(self):
+        if self.buildmode == False:
+            self.buildmode = True
+            self.speed = 0
+        else:
+            self.buildmode = False
+            self.speed = PLAYERSPEED
 
     def update(self):
         None
@@ -131,6 +151,29 @@ class FloatingHud(pygame.sprite.Sprite):
         self.rect.x = SCREEN_WIDTH - self.rect.w
         self.rect.y = SCREEN_HEIGHT - self.rect.h
 
+class CoinText(pygame.sprite.Sprite):
+    def __init__(self, hudx, hudy):
+        super().__init__()
+        self.font_size = 12
+        self.font = pygame.font.SysFont("Calibri", self.font_size)
+        self.font_colour = (0, 0, 0)
+        self.hudx = hudx
+        self.hudy = hudy
+        self.hud_xoffset = 150
+        self.hud_yoffset = 15
+        self.coincount = 0
+        self.update_coin_display()
+
+    def update_coin_display(self):
+        self.text = str(self.coincount)
+        self.image = self.font.render(self.text, True, self.font_colour)
+        self.rect = self.image.get_rect(topleft = (self.hudx + self.hud_xoffset, self.hudy + self.hud_yoffset))
+
+    def update_coin_count(self, newcoincount):
+        self.coincount = newcoincount
+        self.update_coin_display()
+        
+
 
 pygame.init()
  
@@ -143,8 +186,11 @@ pygame.display.set_caption('DungeonBuild')
 cameragroup = CameraGroup()
 
 
-floatinghud = pygame.sprite.Group()
-floatinghud.add(FloatingHud())
+hud = pygame.sprite.Group()
+hudbar = FloatingHud()
+cointext = CoinText(hudbar.rect.topleft[0], hudbar.rect.topleft[1])
+hud.add(hudbar)
+hud.add(cointext)
 
 #Drawing tiles
 #debug grid
@@ -174,7 +220,8 @@ screentext.add(debugtext)
 
 running = True
 while running:
-    for event in pygame.event.get():
+    input_events = pygame.event.get()
+    for event in input_events:
         if event.type == pygame.QUIT:
             running = False
 
@@ -184,6 +231,7 @@ while running:
 
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
+    player.check_build_mode(input_events)
 
     cameragroup.update()
     cameragroup.custom_draw(player)
@@ -192,8 +240,8 @@ while running:
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)
 
-    floatinghud.draw(screen)
-    
+    hud.draw(screen)
+    cointext.update_coin_count(999)
 
     pygame.display.update()
     clock.tick(60)
