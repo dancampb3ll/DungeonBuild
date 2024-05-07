@@ -23,7 +23,8 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = gridx * TILE_SIZE
         self.rect.y = gridy * TILE_SIZE
-    
+
+
     def update(self):
         None   
 
@@ -57,7 +58,6 @@ class Player(pygame.sprite.Sprite):
                             self.rect.bottom = sprite.rect.top
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
-
 
     def move_player(self, camera_group):
         if self.buildmode:
@@ -94,8 +94,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
 
-
-
     def check_build_mode(self, input_events, buildhud):
         for event in input_events:
             if event.type == pygame.KEYDOWN:
@@ -112,6 +110,24 @@ class Player(pygame.sprite.Sprite):
         else:
             self.buildmode = False
             buildhud.hide()
+    
+    def place_building_get_coords(self, input_events, camera_group):
+        if not self.buildmode:
+            return None
+        gridx = 0
+        gridy = 0
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for sprite in camera_group:
+                    if sprite.rect.collidepoint(event.pos) and sprite.type == "tile":
+                        print("Sprite clicked!")
+                        # Access attributes of the clicked sprite
+                        print("Sprite position:", (sprite.gridx, sprite.gridy))
+                        gridx = sprite.gridx
+                        gridy = sprite.gridy
+
+        gridcoords = (gridx, gridy)
+        return gridcoords
 
     def update(self):
         None
@@ -254,6 +270,8 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
     """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
     Returns the new world map.
     """
+    if topleftplacementcoord == None:
+        return mapdict
     newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
     if changes == None:
         return mapdict
@@ -267,9 +285,8 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
         spriteDict[(change[0][0], change[0][1])] = OutdoorTile(x, y, tilename, cameragroup)
     return newmap
 
-print([i for i in cameragroup])
 overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", (23, 23))
-print([i for i in cameragroup])
+
 
 player = Player(cameragroup)
 
@@ -289,6 +306,9 @@ while running:
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
     player.check_build_mode(input_events, buildhud)
+    
+    player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
+    build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
 
     cameragroup.update()
     cameragroup.custom_draw(player)
