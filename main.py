@@ -1,5 +1,5 @@
 import pygame
-import overworldtiles
+import overworldTiles
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
@@ -7,7 +7,7 @@ TILE_SIZE = 16
 TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
 PLAYERSPEED = 2
 CAMERASPEED = PLAYERSPEED
-WALKABLE_TILES = overworldtiles.walkable
+WALKABLE_TILES = overworldTiles.WALKABLE
 
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
@@ -61,6 +61,8 @@ class Player(pygame.sprite.Sprite):
 
 
     def move_player(self, camera_group):
+        if self.buildmode:
+            return
         key = pygame.key.get_pressed()
         
         #Detection for diagonal speed reduction. 
@@ -68,13 +70,13 @@ class Player(pygame.sprite.Sprite):
         horizontal = False
         if key[pygame.K_w] or key[pygame.K_s]:
             vertical = True
-        
         if key[pygame.K_a] or key[pygame.K_d]:
             horizontal = True
-
         if vertical and horizontal:
             #Multiply speed by the inverse of sqrt of 2 if moving diagonally
             self.speed = PLAYERSPEED * 0.707
+        else:
+            self.speed = PLAYERSPEED
 
         #left
         if key[pygame.K_a]:
@@ -93,7 +95,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
 
-        self.speed = PLAYERSPEED
 
 
     def check_build_mode(self, input_events, buildhud):
@@ -108,11 +109,9 @@ class Player(pygame.sprite.Sprite):
     def toggle_build_mode(self, buildhud):
         if self.buildmode == False:
             self.buildmode = True
-            self.speed = 0
             buildhud.show()
         else:
             self.buildmode = False
-            self.speed = PLAYERSPEED
             buildhud.hide()
 
     def update(self):
@@ -239,9 +238,10 @@ if debuggrid:
         for j in range(0, 40):
             OutdoorTile(i, j, "overgroundGrid", cameragroup)
 
-overworldmapdict = overworldtiles.overworldmapdict
-tile_mappings = overworldtiles.tile_mappings
+overworldmapdict = overworldTiles.overworldmapdict
+tile_mappings = overworldTiles.TILE_MAPPINGS
 
+overworldmapdict = overworldTiles.detect_building_worldmap_collision_and_place(overworldmapdict, "smallDungeon", (23, 23))
     
 for coord in overworldmapdict.keys():
     x = coord[0]
@@ -256,6 +256,8 @@ player = Player(cameragroup)
 debugtext = DebugText()
 screentext = pygame.sprite.Group()
 screentext.add(debugtext)
+
+
 
 running = True
 while running:

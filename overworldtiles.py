@@ -1,3 +1,39 @@
+import overworldBuildings
+
+
+def detect_building_worldmap_collision_and_place(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
+    """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
+    The building type looks up functions from the overworldbuildings page, and 
+    Returns a tile dictionary
+    """
+    #dynamic method invocation
+    building_functions = {
+        "smallDungeon": overworldBuildings.get_smallDungeon_tiles
+    }
+    
+    building_function = building_functions.get(overworldbuilding)
+    
+    if building_function is not None:
+        coordDict = building_function(topleftTile)
+    else:
+        raise ValueError("Unknown building type: {}".format(overworldbuilding))
+
+    for coordinate in coordDict.keys():
+        tilenum = worldmapdict.get(coordinate)
+        tilename = TILE_MAPPINGS[tilenum]
+        if tilename != "overgroundGrass":
+            #Returns the original worldmapdict (unedited)
+            return worldmapdict
+        else:
+            worldmapdict[coordinate] = coordDict[coordinate]
+    #The changed worldmapdict
+    return worldmapdict
+    
+
+
+
+
+
 overworldmap = []
 for i in range(0, 40):
     for j in range(0, 40):
@@ -26,7 +62,7 @@ for i in range(0, 100):
     for j in range(0, 100):
         overworldmapdict_test[(i, j)] = 2
 
-tile_mappings = {
+TILE_MAPPINGS = {
     0: None,
     1: "overgroundGrid",
     2: "overgroundGrass",
@@ -36,8 +72,9 @@ tile_mappings = {
     6: "overgroundSmallDungeonRight"
 }
 
-walkable = ["overgroundGrass"]
 
+WALKABLE = ["overgroundGrass"]
+BUILDABLE = ["overgroundGrass"]
 
 #Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
 #This can be used to check if the map tile is walkable.
