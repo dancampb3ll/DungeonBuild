@@ -1,10 +1,10 @@
 import overworldBuildings
 
 
-def detect_building_worldmap_collision_and_place(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
+def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
     The building type looks up functions from the overworldbuildings page, and 
-    Returns a tile dictionary
+    Returns a tile dictionary, coordinate changes. A change is given in format [(x,y), changenum]
     """
     #dynamic method invocation
     building_functions = {
@@ -18,16 +18,18 @@ def detect_building_worldmap_collision_and_place(worldmapdict, overworldbuilding
     else:
         raise ValueError("Unknown building type: {}".format(overworldbuilding))
 
+    changes = []
     for coordinate in coordDict.keys():
         tilenum = worldmapdict.get(coordinate)
         tilename = TILE_MAPPINGS[tilenum]
         if tilename != "overgroundGrass":
             #Returns the original worldmapdict (unedited)
-            return worldmapdict
+            return worldmapdict, None
         else:
             worldmapdict[coordinate] = coordDict[coordinate]
-    #The changed worldmapdict
-    return worldmapdict
+            changes.append([coordinate, coordDict[coordinate]])
+    #The changed worldmapdict and coordinate changes
+    return worldmapdict, changes
     
 
 

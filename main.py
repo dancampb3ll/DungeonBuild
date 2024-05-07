@@ -11,10 +11,10 @@ WALKABLE_TILES = overworldTiles.WALKABLE
 
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
-    def __init__(self, gridx, gridy, tile, pygame_group):
+    def __init__(self, gridx, gridy, tiletypename, pygame_group):
         super().__init__(pygame_group)
         self.type = "tile"
-        self.tile = tile
+        self.tile = tiletypename
         self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
         self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
         self.image.set_colorkey(self.ignorecolour)
@@ -25,8 +25,7 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.rect.y = gridy * TILE_SIZE
     
     def update(self):
-        None
-    
+        None   
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group):
@@ -185,8 +184,6 @@ class BuildHud(pygame.sprite.Sprite):
         #There must be a better way to do this
         self.rect.x = 2*SCREEN_WIDTH
 
-
-
 class CoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy):
         super().__init__()
@@ -210,17 +207,14 @@ class CoinText(pygame.sprite.Sprite):
         self.update_coin_display()
 
 
-
 pygame.init()
  
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption('DungeonBuild')
 
-
 #Camera must be defined first
 cameragroup = CameraGroup()
-
 
 hud = pygame.sprite.Group()
 hudbar = FloatingHud()
@@ -241,23 +235,47 @@ if debuggrid:
 overworldmapdict = overworldTiles.overworldmapdict
 tile_mappings = overworldTiles.TILE_MAPPINGS
 
-overworldmapdict = overworldTiles.detect_building_worldmap_collision_and_place(overworldmapdict, "smallDungeon", (23, 23))
-    
+
+#overworldmapdict = overworldTiles.detect_building_worldmap_collision_place_and_changes(overworldmapdict, "smallDungeon", (23, 23))[0]
+
+#Used to maintain sprites at given locations.
+spriteDict = {}
+
+#Map initialisation - creates sprites for tiles that aren't blanks (value 0)
 for coord in overworldmapdict.keys():
     x = coord[0]
     y = coord[1]
     tiletype = overworldmapdict[(x, y)]
     if tiletype != 0:
         tilename = tile_mappings[tiletype]
-        OutdoorTile(x, y, tilename, cameragroup)
+        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
+
+def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
+    """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
+    Returns the new world map.
+    """
+    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
+    if changes == None:
+        return mapdict
+    #A change is given in format [(x,y), tilenum]
+    for change in changes:
+        x = change[0][0]
+        y = change[0][1]
+        tilenum = change[1]
+        tilename = tile_mappings[tilenum]
+        spriteDict[(change[0][0], change[0][1])].kill()
+        spriteDict[(change[0][0], change[0][1])] = OutdoorTile(x, y, tilename, cameragroup)
+    return newmap
+
+print([i for i in cameragroup])
+overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", (23, 23))
+print([i for i in cameragroup])
 
 player = Player(cameragroup)
 
 debugtext = DebugText()
 screentext = pygame.sprite.Group()
 screentext.add(debugtext)
-
-
 
 running = True
 while running:
@@ -267,8 +285,6 @@ while running:
             running = False
 
     screen.fill((10, 10, 18))
-
-
 
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
