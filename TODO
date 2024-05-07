@@ -1,4 +1,11 @@
 Short term
+Need to fix build placement (currently is offset by camera) -> need to make separate tile group?
+Fix build hover logic (currently is movement only)
+Make build work for grass (will need to be new function)
+Make build structures be stored somewhere (so they can later be removed and replaced with grass if wished)
+
+
+
 Create build/money logic
 Get free 16x16 player sprites
 Add some free music to randomly play https://soundimage.org/fantasywonder/

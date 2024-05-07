@@ -9,6 +9,9 @@ PLAYERSPEED = 2
 CAMERASPEED = PLAYERSPEED
 WALKABLE_TILES = overworldTiles.WALKABLE
 
+
+LIGHT_BLUE = (173, 216, 230)
+
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
     def __init__(self, gridx, gridy, tiletypename, pygame_group):
@@ -23,6 +26,7 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = gridx * TILE_SIZE
         self.rect.y = gridy * TILE_SIZE
+        self.original_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
 
 
     def update(self):
@@ -116,15 +120,28 @@ class Player(pygame.sprite.Sprite):
             return None
         gridx = 0
         gridy = 0
+        top_left_highlighted_sprite = None #Used for hovering in build mode to show the player where the object will be placed. Need to work on this.
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sprite in camera_group:
-                    if sprite.rect.collidepoint(event.pos) and sprite.type == "tile":
-                        print("Sprite clicked!")
-                        # Access attributes of the clicked sprite
-                        print("Sprite position:", (sprite.gridx, sprite.gridy))
-                        gridx = sprite.gridx
-                        gridy = sprite.gridy
+                    if sprite.type == "tile":
+                        if sprite.rect.collidepoint(event.pos):
+                            gridx = sprite.gridx
+                            gridy = sprite.gridy
+            elif event.type == pygame.MOUSEMOTION:
+                top_left_highlighted_sprite = None
+                for sprite in camera_group:
+                    if sprite.type == "tile":
+                        if sprite.rect.collidepoint(event.pos):
+                            top_left_highlighted_sprite = sprite
+                            sprite.image.fill(LIGHT_BLUE, special_flags=pygame.BLEND_ADD)
+                        else:
+                            sprite.image = sprite.original_image.copy()
+
+        if top_left_highlighted_sprite is None:
+            for sprite in camera_group:
+                if sprite.type == "tile":
+                    sprite.image = sprite.original_image.copy()
 
         gridcoords = (gridx, gridy)
         return gridcoords
