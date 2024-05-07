@@ -62,6 +62,20 @@ class Player(pygame.sprite.Sprite):
 
     def move_player(self, camera_group):
         key = pygame.key.get_pressed()
+        
+        #Detection for diagonal speed reduction. 
+        vertical = False
+        horizontal = False
+        if key[pygame.K_w] or key[pygame.K_s]:
+            vertical = True
+        
+        if key[pygame.K_a] or key[pygame.K_d]:
+            horizontal = True
+
+        if vertical and horizontal:
+            #Multiply speed by the inverse of sqrt of 2 if moving diagonally
+            self.speed = PLAYERSPEED * 0.707
+
         #left
         if key[pygame.K_a]:
             self.rect.x -= self.speed
@@ -78,6 +92,9 @@ class Player(pygame.sprite.Sprite):
         elif key[pygame.K_w]:
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
+
+        self.speed = PLAYERSPEED
+
 
     def check_build_mode(self, input_events, buildhud):
         for event in input_events:
