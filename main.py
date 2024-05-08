@@ -43,8 +43,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = SCREEN_HEIGHT // 2
         self.speed = PLAYERSPEED
         self.debug = ""
+        
         self.buildmode = False
         self.B_key_down = False
+        self.top_left_highlighted_sprite = None
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
@@ -131,7 +133,6 @@ class Player(pygame.sprite.Sprite):
         gridx = 0
         gridy = 0
         #Highlighted sprite is needed to unhighlight a cell if the mouse scrolls off the tile.
-        top_left_highlighted_sprite = None
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sprite in camera_group:
@@ -143,21 +144,20 @@ class Player(pygame.sprite.Sprite):
                             gridy = sprite.gridy
 
             elif event.type == pygame.MOUSEMOTION:
-                top_left_highlighted_sprite = None
                 for sprite in camera_group:
                     if sprite.type == "tile":
                         raw_mouse_pos = event.pos
                         offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
                         if sprite.rect.collidepoint(offset_adjusted_mouse_pos):
-                            top_left_highlighted_sprite = sprite
-                            sprite.image.fill(LIGHT_BLUE, special_flags=pygame.BLEND_ADD)
-                        else:
-                            sprite.image = sprite.original_image.copy()
+                            new_top_left_highlighted_sprite = (sprite.gridx, sprite.gridy)
+                            if new_top_left_highlighted_sprite != self.top_left_highlighted_sprite:
+                                sprite.image.fill(LIGHT_BLUE, special_flags=pygame.BLEND_ADD)
+                                self.top_left_highlighted_sprite = new_top_left_highlighted_sprite
 
-        if top_left_highlighted_sprite is None:
             for sprite in camera_group:
                 if sprite.type == "tile":
-                    sprite.image = sprite.original_image.copy()
+                    if (sprite.gridx, sprite.gridy) != self.top_left_highlighted_sprite: 
+                        sprite.image = sprite.original_image.copy()
 
         gridcoords = (gridx, gridy)
         return gridcoords
@@ -277,7 +277,9 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
     return newmap
 
 pygame.init()
- 
+
+pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption('DungeonBuild')
