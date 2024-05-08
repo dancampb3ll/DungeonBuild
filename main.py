@@ -116,6 +116,8 @@ class Player(pygame.sprite.Sprite):
             buildhud.hide()
     
     def place_building_get_coords(self, input_events, camera_group):
+        """Highlights tiles in build mode and returns clicked tiles.
+        """
         if not self.buildmode:
             return None
         gridx = 0
@@ -128,11 +130,14 @@ class Player(pygame.sprite.Sprite):
                         if sprite.rect.collidepoint(event.pos):
                             gridx = sprite.gridx
                             gridy = sprite.gridy
+
             elif event.type == pygame.MOUSEMOTION:
                 top_left_highlighted_sprite = None
                 for sprite in camera_group:
                     if sprite.type == "tile":
-                        if sprite.rect.collidepoint(event.pos):
+                        raw_mouse_pos = event.pos
+                        offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
+                        if sprite.rect.collidepoint(offset_adjusted_mouse_pos):
                             top_left_highlighted_sprite = sprite
                             sprite.image.fill(LIGHT_BLUE, special_flags=pygame.BLEND_ADD)
                         else:
@@ -173,6 +178,7 @@ class CameraGroup(pygame.sprite.Group):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
+    
 class DebugText(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -329,7 +335,6 @@ while running:
 
     cameragroup.update()
     cameragroup.custom_draw(player)
-
 
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)

@@ -1,6 +1,11 @@
 Short term
-Need to fix build placement (currently is offset by camera) -> need to make separate tile group?
-Fix build hover logic (currently is movement only)
+place_building_get_coords
+    - Expand to get selected build type
+    - Fix build hover logic (currently is movement only)
+    - Hover should hover the whole building
+    - Should be colour coded where you cant place
+    - Don't allow building on player
+
 Make build work for grass (will need to be new function)
 Make build structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 
