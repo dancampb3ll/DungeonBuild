@@ -278,8 +278,6 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
 
 pygame.init()
 
-pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption('DungeonBuild')
