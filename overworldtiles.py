@@ -1,5 +1,7 @@
 import overworldBuildings
 
+WALKABLE = ["overgroundGrass"]
+BUILDABLE = ["overgroundGrass"]
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
@@ -7,9 +9,7 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
     Returns a tile dictionary, coordinate changes. A change is given in format [(x,y), changenum]
     """
     #dynamic method invocation
-    building_functions = {
-        "smallDungeon": overworldBuildings.get_smallDungeon_tiles
-    }
+    building_functions = overworldBuildings.building_functions
     
     building_function = building_functions.get(overworldbuilding)
     
@@ -30,11 +30,6 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
             changes.append([coordinate, coordDict[coordinate]])
     #The changed worldmapdict and coordinate changes
     return worldmapdict, changes
-    
-
-
-
-
 
 overworldmap = []
 for i in range(0, 40):
@@ -74,9 +69,6 @@ TILE_MAPPINGS = {
     6: "overgroundSmallDungeonRight"
 }
 
-
-WALKABLE = ["overgroundGrass"]
-BUILDABLE = ["overgroundGrass"]
 
 #Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
 #This can be used to check if the map tile is walkable.

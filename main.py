@@ -134,7 +134,7 @@ class Player(pygame.sprite.Sprite):
         gridy = 0
         #Highlighted sprite is needed to unhighlight a cell if the mouse scrolls off the tile.
         for event in input_events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for sprite in camera_group:
                     if sprite.type == "tile":
                         raw_mouse_pos = event.pos
@@ -159,8 +159,29 @@ class Player(pygame.sprite.Sprite):
                     if (sprite.gridx, sprite.gridy) != self.top_left_highlighted_sprite: 
                         sprite.image = sprite.original_image.copy()
 
-        gridcoords = (gridx, gridy)
-        return gridcoords
+        if (gridx, gridy) == (0, 0):
+            return None
+        
+        topleft_placement_coords = (gridx, gridy)
+        return topleft_placement_coords
+
+    def place_grass_block_get_coords(self, input_events, camera_group):
+        if not self.buildmode:
+            return None
+        placement_coords = None
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                raw_mouse_pos = event.pos
+                offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
+                placement_coords = (offset_adjusted_mouse_pos[0] // TILE_SIZE, offset_adjusted_mouse_pos[1] // TILE_SIZE)
+        
+        if placement_coords is None:
+            return None
+
+        print(placement_coords)
+        return placement_coords
+        #Will work by checking if tile is made of border. If yes, replace with grass.
+        #Will need to add function in gameloop which checks world and applies border to adjacent cells
 
     def update(self):
         None
@@ -342,6 +363,11 @@ while running:
     
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
     build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
+
+    player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
+    build_and_perform_tile_sprite_updates(overworldmapdict, "Grass", player_placement_coords_topleft)
+
+    
 
     cameragroup.update()
     cameragroup.custom_draw(player)

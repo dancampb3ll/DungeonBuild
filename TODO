@@ -7,8 +7,13 @@ place_building_get_coords
     - Don't allow building on player
 
 Make build work for grass (will need to be new function)
+    - Will work by checking if tile is made of border. If yes, replace with grass.
+    - Will need to add function in gameloop which checks world and applies border to adjacent cells
+        - NOPE - just get mouse location on screen + offset then divide by tile size ******************************************
+
 Make build structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 
+Optimise some functions to stop passing in whole classes, only certain parameters to promote "loose coupling"
 
 
 Create build/money logic
