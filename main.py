@@ -19,6 +19,8 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.type = "tile"
         self.tile = tiletypename
         self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
+        if self.tile == "overgroundBorder":
+            self.ignorecolour = (0, 0, 0)
         self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
         self.image.set_colorkey(self.ignorecolour)
         self.rect = self.image.get_rect()
