@@ -305,8 +305,8 @@ def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
 
         check_sprite = spriteDict.get((checkx, checky), None)
         if check_sprite is None:
-            spriteDict[(checky, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup)
-            mapdict[(checky, checky)] = 4
+            spriteDict[(checkx, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup)
+            mapdict[(checkx, checky)] = 4
         else:
             print("Debug " + str(check_sprite.tile))
 

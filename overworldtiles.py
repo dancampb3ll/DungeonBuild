@@ -48,19 +48,21 @@ for i in range(0, 40):
             overworldmap.append([i, j, 3])
         elif (i >= 15 and i <= 30) and (j >= 15 and j <= 30):
             overworldmap.append([i, j, 2])
-        #Defining world border
-        elif (i == 14 or j == 14 or i == 31 or j == 31):
-            overworldmap.append([i, j, 4])
-overworldmap.append([34, 34, 3])
 
 #Overworldmapdict is the ultimate world map. The world map above is just a quick way of initialising. I should rename the above and call the below overworldmap.
 overworldmapdict = {}
 #The format (x, y) = tilenum must be maintained.
+worldborderquick = []
+for i in range(14, 32):
+    for j in range(14, 32):
+        worldborderquick.append([i, j, 4])
+
+for tile in worldborderquick:
+    overworldmapdict[(tile[0], tile[1])] = tile[2]
+
 for tile in overworldmap:
     overworldmapdict[(tile[0], tile[1])] = tile[2]
 
-overworldmapdict[(16, 16)] = 5
-overworldmapdict[(17, 16)] = 6
 
 
 
