@@ -282,6 +282,7 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
     """
     if topleftplacementcoord == None:
         return mapdict
+
     newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
     if changes == None:
         return mapdict
@@ -292,10 +293,19 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
         tilenum = change[1]
         tilename = tile_mappings[tilenum]
         #Kills the original sprite before generating a new tile to replace it.
-        spriteDict[(change[0][0], change[0][1])].kill()
+        spriteDict[(x, y)].kill()
         #Creates an instance of the new tile.
-        spriteDict[(change[0][0], change[0][1])] = OutdoorTile(x, y, tilename, cameragroup)
+        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
     return newmap
+
+def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
+    if placementcoord is None:
+        return mapdict
+    x = placementcoord[0]
+    y = placementcoord[1]
+    spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup)
+    mapdict[(x, y)] = 2
+    return mapdict
 
 pygame.init()
 
@@ -344,6 +354,7 @@ overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smal
 
 player = Player(cameragroup)
 
+
 debugtext = DebugText()
 screentext = pygame.sprite.Group()
 screentext.add(debugtext)
@@ -362,10 +373,10 @@ while running:
     player.check_build_mode(input_events, buildhud, cameragroup)
     
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
-    build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
+    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
 
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
-    build_and_perform_tile_sprite_updates(overworldmapdict, "Grass", player_placement_coords_topleft)
+    overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
 
     
 

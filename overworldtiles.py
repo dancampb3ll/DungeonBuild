@@ -2,6 +2,16 @@ import overworldBuildings
 
 WALKABLE = ["overgroundGrass"]
 BUILDABLE = ["overgroundGrass"]
+TILE_MAPPINGS = {
+    0: None,
+    1: "overgroundGrid",
+    2: "overgroundGrass",
+    3: "overgroundWater",
+    4: "overgroundBorder",
+    5: "overgroundSmallDungeonLeft",
+    6: "overgroundSmallDungeonRight"
+}
+
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
@@ -58,16 +68,6 @@ overworldmapdict_test = {}
 for i in range(0, 100):
     for j in range(0, 100):
         overworldmapdict_test[(i, j)] = 2
-
-TILE_MAPPINGS = {
-    0: None,
-    1: "overgroundGrid",
-    2: "overgroundGrass",
-    3: "overgroundWater",
-    4: "overgroundBorder",
-    5: "overgroundSmallDungeonLeft",
-    6: "overgroundSmallDungeonRight"
-}
 
 
 #Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
