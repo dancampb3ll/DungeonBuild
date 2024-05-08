@@ -123,13 +123,15 @@ class Player(pygame.sprite.Sprite):
                 sprite.image = sprite.original_image.copy()
 
     def place_building_get_coords(self, input_events, camera_group):
-        """Highlights tiles in build mode and returns clicked tiles.
+        """Highlights tiles in build mode and returns positions of clicked tiles in (gridx, gridy) tuple format.\n
+        Requires the camera group to offset mouse detection.\n
         """
         if not self.buildmode:
             return None
         gridx = 0
         gridy = 0
-        top_left_highlighted_sprite = None #Used for hovering in build mode to show the player where the object will be placed. Need to work on this.
+        #Highlighted sprite is needed to unhighlight a cell if the mouse scrolls off the tile.
+        top_left_highlighted_sprite = None
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sprite in camera_group:
@@ -187,7 +189,6 @@ class CameraGroup(pygame.sprite.Group):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
-    
 class DebugText(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -254,6 +255,26 @@ class CoinText(pygame.sprite.Sprite):
         self.coincount = newcoincount
         self.update_coin_display()
 
+def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
+    """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
+    Returns the new world map dict with new buildings as replacements for old.
+    """
+    if topleftplacementcoord == None:
+        return mapdict
+    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
+    if changes == None:
+        return mapdict
+    #A change is given in format [(x,y), tilenum]
+    for change in changes:
+        x = change[0][0]
+        y = change[0][1]
+        tilenum = change[1]
+        tilename = tile_mappings[tilenum]
+        #Kills the original sprite before generating a new tile to replace it.
+        spriteDict[(change[0][0], change[0][1])].kill()
+        #Creates an instance of the new tile.
+        spriteDict[(change[0][0], change[0][1])] = OutdoorTile(x, y, tilename, cameragroup)
+    return newmap
 
 pygame.init()
  
@@ -264,6 +285,7 @@ pygame.display.set_caption('DungeonBuild')
 #Camera must be defined first
 cameragroup = CameraGroup()
 
+#HUD is separate from the camera
 hud = pygame.sprite.Group()
 hudbar = FloatingHud()
 cointext = CoinText(hudbar.rect.topleft[0], hudbar.rect.topleft[1])
@@ -284,8 +306,6 @@ overworldmapdict = overworldTiles.overworldmapdict
 tile_mappings = overworldTiles.TILE_MAPPINGS
 
 
-#overworldmapdict = overworldTiles.detect_building_worldmap_collision_place_and_changes(overworldmapdict, "smallDungeon", (23, 23))[0]
-
 #Used to maintain sprites at given locations.
 spriteDict = {}
 
@@ -297,25 +317,6 @@ for coord in overworldmapdict.keys():
     if tiletype != 0:
         tilename = tile_mappings[tiletype]
         spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
-
-def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
-    """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
-    Returns the new world map.
-    """
-    if topleftplacementcoord == None:
-        return mapdict
-    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
-    if changes == None:
-        return mapdict
-    #A change is given in format [(x,y), tilenum]
-    for change in changes:
-        x = change[0][0]
-        y = change[0][1]
-        tilenum = change[1]
-        tilename = tile_mappings[tilenum]
-        spriteDict[(change[0][0], change[0][1])].kill()
-        spriteDict[(change[0][0], change[0][1])] = OutdoorTile(x, y, tilename, cameragroup)
-    return newmap
 
 overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", (23, 23))
 
