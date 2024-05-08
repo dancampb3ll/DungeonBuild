@@ -98,23 +98,30 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
 
-    def check_build_mode(self, input_events, buildhud):
+    def check_build_mode(self, input_events, buildhud, camera_group):
         for event in input_events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b and not self.B_key_down:
-                    self.toggle_build_mode(buildhud)
+                    self.toggle_build_mode(buildhud, camera_group)
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_b:
                     self.B_key_down = False
 
-    def toggle_build_mode(self, buildhud):
+    def toggle_build_mode(self, buildhud, camera_group):
         if self.buildmode == False:
             self.buildmode = True
             buildhud.show()
         else:
             self.buildmode = False
             buildhud.hide()
+            self.reset_tile_highlights(camera_group)
+
     
+    def reset_tile_highlights(self, camera_group):
+        for sprite in camera_group.sprites():
+            if sprite.type == "tile":
+                sprite.image = sprite.original_image.copy()
+
     def place_building_get_coords(self, input_events, camera_group):
         """Highlights tiles in build mode and returns clicked tiles.
         """
@@ -127,7 +134,9 @@ class Player(pygame.sprite.Sprite):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for sprite in camera_group:
                     if sprite.type == "tile":
-                        if sprite.rect.collidepoint(event.pos):
+                        raw_mouse_pos = event.pos
+                        offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
+                        if sprite.rect.collidepoint(offset_adjusted_mouse_pos):
                             gridx = sprite.gridx
                             gridy = sprite.gridy
 
@@ -328,7 +337,7 @@ while running:
 
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
-    player.check_build_mode(input_events, buildhud)
+    player.check_build_mode(input_events, buildhud, cameragroup)
     
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
     build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
