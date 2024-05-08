@@ -49,10 +49,8 @@ for i in range(0, 40):
         elif (i >= 15 and i <= 30) and (j >= 15 and j <= 30):
             overworldmap.append([i, j, 2])
         #Defining world border
-        elif (i == 0 or j == 0 or i == 39 or j == 39):
+        elif (i == 14 or j == 14 or i == 31 or j == 31):
             overworldmap.append([i, j, 4])
-        else:
-            overworldmap.append([i, j, 0])
 overworldmap.append([34, 34, 3])
 
 #Overworldmapdict is the ultimate world map. The world map above is just a quick way of initialising. I should rename the above and call the below overworldmap.
@@ -64,10 +62,6 @@ for tile in overworldmap:
 overworldmapdict[(16, 16)] = 5
 overworldmapdict[(17, 16)] = 6
 
-overworldmapdict_test = {}
-for i in range(0, 100):
-    for j in range(0, 100):
-        overworldmapdict_test[(i, j)] = 2
 
 
 #Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary

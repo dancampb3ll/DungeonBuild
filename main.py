@@ -223,7 +223,7 @@ class DebugText(pygame.sprite.Sprite):
         self.playergridx = playergridx
         self.playergridy = playergridy
         self.tile = mapdict.get((playergridx, playergridy), "error")
-        self.material = tiledict[self.tile]
+        self.material = tiledict.get(self.tile, "Invalid Tile")
         self.text = f"Player x on grid: {self.playergridx} | Player y on grid: {self.playergridy} | Map material at x,y: {self.material}"
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (5, 5))
@@ -298,13 +298,33 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
         spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
     return newmap
 
+def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
+    for adjacentoffset in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+        checkx = placementx + adjacentoffset[0]
+        checky = placementy + adjacentoffset[1]
+
+        check_sprite = spriteDict.get((checkx, checky), None)
+        if check_sprite is None:
+            spriteDict[(checky, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup)
+            mapdict[(checky, checky)] = 4
+        else:
+            print("Debug " + str(check_sprite.tile))
+
 def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
     if placementcoord is None:
         return mapdict
     x = placementcoord[0]
     y = placementcoord[1]
+    tile_sprite = spriteDict.get((x,y), None)
+    if tile_sprite is None:
+        return mapdict
+    if tile_sprite.tile != "overgroundBorder":
+        return mapdict
+    spriteDict[(x, y)].kill()
     spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup)
+    draw_new_border_tiles_from_grass_placement(mapdict, x, y)
     mapdict[(x, y)] = 2
+
     return mapdict
 
 pygame.init()
@@ -379,7 +399,8 @@ while running:
     overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
 
     
-
+    cameragroup.remove(player)
+    cameragroup.add(player)
     cameragroup.update()
     cameragroup.custom_draw(player)
 
