@@ -13,8 +13,6 @@ TILE_MAPPINGS = {
 }
 
 
-
-
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
     The building type looks up functions from the overworldbuildings page, and 

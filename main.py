@@ -412,9 +412,11 @@ while running:
     player.move_player(cameragroup)
     player.check_build_mode(input_events, buildhud, cameragroup)
     
+    #If none returned from get coords, nothing is changed on overworldmap dict
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
-    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", player_placement_coords_topleft)
+    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "largeHut", player_placement_coords_topleft)
 
+    #If none returned from get coords, nothing is changed on overworldmap dict
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
     overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
 

@@ -1,5 +1,6 @@
 Short term
-
+1. BUG: It looks like attempting to build but failing still places some kind of phantom building within some dictionary, preventing the player from building. Fix this.
+2. Make it possible to scroll to change item (or use arrow keys?).
 
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
 
