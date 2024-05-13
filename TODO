@@ -1,17 +1,17 @@
 Short term
+
+
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
 
 place_building_get_coords
-    - Need to make world border visible in build mode?
     - Expand to get selected build type
-    - Fix build hover logic (currently is movement only)
     - Hover should hover the whole building
     - Should be colour coded where you cant place
     - Don't allow building on player
 
-Make build structures be stored somewhere (so they can later be removed and replaced with grass if wished)
+Make built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 
-Optimise some functions to stop passing in whole classes, only certain parameters to promote "loose coupling"
+Optimise some functions to stop parsing in whole classes, only certain parameters to promote "loose coupling"
 
 
 Create build/money logic
