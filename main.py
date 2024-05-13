@@ -21,18 +21,20 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
         if self.tile == "overgroundBorder":
             self.ignorecolour = (0, 0, 0)
+        
         self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
+        self.raw_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
         self.image.set_colorkey(self.ignorecolour)
         self.rect = self.image.get_rect()
         self.gridx = gridx
         self.gridy = gridy
         self.rect.x = gridx * TILE_SIZE
         self.rect.y = gridy * TILE_SIZE
-        self.original_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
-
+        
 
     def update(self):
-        None   
+        None
+        #self.image.set_colorkey(self.ignorecolour)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group):
@@ -45,7 +47,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = SCREEN_HEIGHT // 2
         self.speed = PLAYERSPEED
         self.debug = ""
-        
         self.buildmode = False
         self.B_key_down = False
         self.top_left_highlighted_sprite = None
@@ -111,12 +112,29 @@ class Player(pygame.sprite.Sprite):
                 if event.key == pygame.K_b:
                     self.B_key_down = False
 
+    def toggle_border_alpha(self, camera_group, buildmode):
+        """Stops the background border colour from being black to make it slightly visible when 
+        """
+        for sprite in camera_group.sprites():
+            if sprite.type == "tile":
+                if sprite.tile == "overgroundBorder":
+                    if buildmode:
+                        sprite.image = sprite.raw_image
+                        sprite.ignorecolour = (123, 123, 123) #This is a random colour
+                        sprite.image.set_colorkey(sprite.ignorecolour)
+                    else:
+                        sprite.image = sprite.raw_image
+                        sprite.ignorecolour = (0, 0, 0)
+                        sprite.image.set_colorkey(sprite.ignorecolour)
+
     def toggle_build_mode(self, buildhud, camera_group):
         if self.buildmode == False:
             self.buildmode = True
+            self.toggle_border_alpha(camera_group, self.buildmode)
             buildhud.show()
         else:
             self.buildmode = False
+            self.toggle_border_alpha(camera_group, self.buildmode)
             buildhud.hide()
             self.reset_tile_highlights(camera_group)
 
@@ -124,7 +142,7 @@ class Player(pygame.sprite.Sprite):
     def reset_tile_highlights(self, camera_group):
         for sprite in camera_group.sprites():
             if sprite.type == "tile":
-                sprite.image = sprite.original_image.copy()
+                sprite.image = sprite.raw_image.copy()
 
     def place_building_get_coords(self, input_events, camera_group):
         """Highlights tiles in build mode and returns positions of clicked tiles in (gridx, gridy) tuple format.\n
@@ -159,7 +177,7 @@ class Player(pygame.sprite.Sprite):
             for sprite in camera_group:
                 if sprite.type == "tile":
                     if (sprite.gridx, sprite.gridy) != self.top_left_highlighted_sprite: 
-                        sprite.image = sprite.original_image.copy()
+                        sprite.image = sprite.raw_image.copy()
 
         if (gridx, gridy) == (0, 0):
             return None
