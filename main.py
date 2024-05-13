@@ -50,6 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.buildmode = False
         self.B_key_down = False
         self.top_left_highlighted_sprite = None
+        self.right_mouse_button_held = False
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
@@ -189,19 +190,22 @@ class Player(pygame.sprite.Sprite):
         if not self.buildmode:
             return None
         placement_coords = None
+
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                raw_mouse_pos = event.pos
+                self.right_mouse_button_held = True
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+                self.right_mouse_button_held = False
+
+            if self.right_mouse_button_held:
+                raw_mouse_pos = pygame.mouse.get_pos()
                 offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
                 placement_coords = (offset_adjusted_mouse_pos[0] // TILE_SIZE, offset_adjusted_mouse_pos[1] // TILE_SIZE)
         
         if placement_coords is None:
             return None
 
-        print(placement_coords)
         return placement_coords
-        #Will work by checking if tile is made of border. If yes, replace with grass.
-        #Will need to add function in gameloop which checks world and applies border to adjacent cells
 
     def update(self):
         None
