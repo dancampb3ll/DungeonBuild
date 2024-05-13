@@ -13,6 +13,8 @@ TILE_MAPPINGS = {
 }
 
 
+
+
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
     The building type looks up functions from the overworldbuildings page, and 
@@ -41,6 +43,34 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
     #The changed worldmapdict and coordinate changes
     return worldmapdict, changes
 
+def add_building_tile_mappings_starting_from_index(tile_mappings_index, maxi, maxj, building_name):
+    """Adds a building to the tile mappings dictionary.
+    First checks if there is a collision at a tile mapping location.
+    This is useful for large buildings (e.g. a 80 x 80px building with 5x5 tiles, needing 25 lines in the dict for individual tiles)
+    """
+    #Checks if there is a free slot for each piece of a building, and if not a warning is given.
+    for dictslot in range(tile_mappings_index, tile_mappings_index + ((maxi + 1) * (maxj + 1))):
+        if TILE_MAPPINGS.get(dictslot, "Safe") != "Safe":
+            print("There is a collision adding to the Tile Mappings, try again.")
+            return
+
+    add_index = tile_mappings_index
+    for i in range(0, maxi + 1):
+        for j in range(0, maxj + 1):
+            TILE_MAPPINGS[add_index] = f"{building_name}{i}{j}"
+            add_index += 1
+
+#Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
+#This can be used to check if the map tile is walkable.
+def get_world_tilename_at_xy_from_mappingsdict(xy, overworldmapdict, tile_mappings, tilesize):
+    x = xy[0]
+    y = xy[1]
+    tilenum = overworldmapdict.get((round(x / tilesize), round(y / tilesize)))
+    return tile_mappings[tilenum]
+
+add_building_tile_mappings_starting_from_index(10000, 4, 4, "largeHut")
+print(TILE_MAPPINGS)
+
 overworldmap = []
 for i in range(0, 40):
     for j in range(0, 40):
@@ -63,13 +93,3 @@ for tile in worldborderquick:
 for tile in overworldmap:
     overworldmapdict[(tile[0], tile[1])] = tile[2]
 
-
-
-
-#Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
-#This can be used to check if the map tile is walkable.
-def get_world_tilename_at_xy_from_mappingsdict(xy, overworldmapdict, tile_mappings, tilesize):
-    x = xy[0]
-    y = xy[1]
-    tilenum = overworldmapdict.get((round(x / tilesize), round(y / tilesize)))
-    return tile_mappings[tilenum]
