@@ -424,7 +424,6 @@ while running:
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
     overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
 
-    
     cameragroup.remove(player)
     cameragroup.add(player)
     cameragroup.update()

@@ -22,22 +22,25 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
     building_functions = overworldBuildings.building_functions
     
     building_function = building_functions.get(overworldbuilding)
-    
+
     if building_function is not None:
-        coordDict = building_function(topleftTile)
+        building_coord_dict = building_function(topleftTile)
     else:
         raise ValueError("Unknown building type: {}".format(overworldbuilding))
 
     changes = []
-    for coordinate in coordDict.keys():
+    for coordinate in building_coord_dict.keys():
         tilenum = worldmapdict.get(coordinate)
         tilename = TILE_MAPPINGS[tilenum]
         if tilename != "overgroundGrass":
             #Returns the original worldmapdict (unedited)
             return worldmapdict, None
         else:
-            worldmapdict[coordinate] = coordDict[coordinate]
-            changes.append([coordinate, coordDict[coordinate]])
+            changes.append([coordinate, building_coord_dict[coordinate]])
+    for change in changes:
+        #Worldmapdict at coordinate equals tile type 
+        worldmapdict[change[0]] = change[1]
+
     #The changed worldmapdict and coordinate changes
     return worldmapdict, changes
 
@@ -67,7 +70,6 @@ def get_world_tilename_at_xy_from_mappingsdict(xy, overworldmapdict, tile_mappin
     return tile_mappings[tilenum]
 
 add_building_tile_mappings_starting_from_index(10000, 4, 4, "largeHut")
-print(TILE_MAPPINGS)
 
 overworldmap = []
 for i in range(0, 40):
