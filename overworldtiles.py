@@ -13,7 +13,8 @@ TILE_MAPPINGS = {
     3: "overgroundWater",
     4: "overgroundBorder",
     5: "overgroundSmallDungeonLeft",
-    6: "overgroundSmallDungeonRight"
+    6: "overgroundSmallDungeonRight",
+    7: "tinyPot"
 }
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:

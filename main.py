@@ -13,6 +13,11 @@ BUILDING_TYPES = overworldBuildings.BUILDING_TYPES
 
 LIGHT_BLUE = (173, 216, 230)
 
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
+pygame.display.set_caption('DungeonBuild')
+pygame.init()
+
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
     def __init__(self, gridx, gridy, tiletypename, pygame_group):
@@ -55,7 +60,8 @@ class Player(pygame.sprite.Sprite):
         self.selected_building_index = 0
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
 
-    def adjust_selected_building(self, input_events):
+    def adjust_selected_building(self, input_events, left_tooltip_instance):
+        #Left tooltip is needed as an object to a
         if not self.buildmode:
             return
         UPWARD_SCROLL = 1
@@ -72,9 +78,10 @@ class Player(pygame.sprite.Sprite):
                         self.selected_building_index = len(BUILDING_TYPES) - 1
                     else:
                         self.selected_building_index -= 1
-        print(self.selected_building_index)
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
-                    
+        if left_tooltip_instance:
+            left_tooltip_instance.building_type = self.selected_building
+
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
         for sprite in camera_group:
@@ -229,9 +236,8 @@ class Player(pygame.sprite.Sprite):
 
         return placement_coords
 
-    def custom_update(self, input_events):
-        self.adjust_selected_building(input_events)
-        print(self.selected_building)
+    def custom_update(self, input_events, left_tooltip_instance):
+        self.adjust_selected_building(input_events, left_tooltip_instance)
 
     def update(self):
         None
@@ -363,9 +369,13 @@ class ToolTip(pygame.sprite.Sprite):
                 mousey = pos[1]
                 self.rect.x = mousex + self.ABSXOFFSET
                 self.rect.y = mousey + self.YOFFSET
-    
-    
 
+    def redraw_building_left(self):
+        self.image = pygame.image.load(f"assets/tooltips/{self.building_type}Tooltip.png").convert()
+        self.image.set_colorkey((255,0,255))
+
+    def update(self):
+        self.redraw_building_left()
 
 def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
     """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -435,12 +445,6 @@ def check_buildmode_and_update_tooltips(player_buildmode, player_selected_buildi
         building_tooltips.add(rightTT)
         return leftTT, rightTT
 
-pygame.init()
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-clock = pygame.time.Clock()
-pygame.display.set_caption('DungeonBuild')
-
 #Camera must be defined first
 cameragroup = CameraGroup()
 
@@ -454,16 +458,8 @@ hud.add(cointext)
 hud.add(buildhud)
 
 #Drawing tiles
-#debug grid
-debuggrid = False
-if debuggrid:
-    for i in range(0, 40):
-        for j in range(0, 40):
-            OutdoorTile(i, j, "overgroundGrid", cameragroup)
-
 overworldmapdict = overworldTiles.overworldmapdict
 tile_mappings = overworldTiles.TILE_MAPPINGS
-
 
 #Used to maintain sprites at given locations.
 spriteDict = {}
@@ -479,9 +475,7 @@ for coord in overworldmapdict.keys():
 
 overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", (23, 23))
 
-
 player = Player(cameragroup)
-
 
 debugtext = DebugText()
 screentext = pygame.sprite.Group()
@@ -490,7 +484,6 @@ screentext.add(debugtext)
 building_tooltips = pygame.sprite.Group()
 tooltip_left = None
 tooltip_right = None
-
 
 running = True
 while running:
@@ -504,7 +497,7 @@ while running:
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
     player.check_build_mode(input_events, buildhud, cameragroup)
-    player.custom_update(input_events)
+    player.custom_update(input_events, tooltip_left)
 
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
@@ -525,7 +518,9 @@ while running:
     tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
 
     hud.draw(screen)
+    building_tooltips.update()
     building_tooltips.draw(screen)
+
 
     pygame.display.update()
     clock.tick(60)

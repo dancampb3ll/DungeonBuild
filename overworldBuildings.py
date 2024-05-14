@@ -27,11 +27,18 @@ def get_largeHut_tiles(topleftTile: tuple):
             tile_index_offset += 1
     return coordDict
 
+def get_tinyPot_tiles(topleftTile: tuple):
+    topleftx = topleftTile[0]
+    toplefty = topleftTile[1]
+    coordDict = {}
+    coordDict[(topleftx, toplefty)] = 7
+    return coordDict
 
 #Keeps a list of all building functions by building name, so they can be referenced by simple name within overworldTiles 
 building_functions = {
         "smallDungeon": get_smallDungeon_tiles,
-        "largeHut": get_largeHut_tiles
+        "largeHut": get_largeHut_tiles,
+        "tinyPot": get_tinyPot_tiles
     }
 
 BUILDING_TYPES = [key for key in building_functions.keys()]
