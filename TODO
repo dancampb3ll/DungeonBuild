@@ -1,6 +1,6 @@
 Short term
-1. BUG: It looks like attempting to build but failing still places some kind of phantom building within some dictionary, preventing the player from building. Fix this.
-2. Make it possible to scroll to change item (or use arrow keys?).
+1. Make it possible to scroll to change item (or use arrow keys?).
+2. Don't allow building on player
 
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
 
@@ -8,7 +8,6 @@ place_building_get_coords
     - Expand to get selected build type
     - Hover should hover the whole building
     - Should be colour coded where you cant place
-    - Don't allow building on player
 
 Make built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 

@@ -114,7 +114,7 @@ class Player(pygame.sprite.Sprite):
                     self.B_key_down = False
 
     def toggle_border_alpha(self, camera_group, buildmode):
-        """Stops the background border colour from being black to make it slightly visible when 
+        """Stops the background border colour from being black to make it slightly visible when in build mode.
         """
         for sprite in camera_group.sprites():
             if sprite.type == "tile":
@@ -300,6 +300,47 @@ class CoinText(pygame.sprite.Sprite):
         self.coincount = newcoincount
         self.update_coin_display()
 
+class ToolTip(pygame.sprite.Sprite):
+    def __init__(self, initx, inity, building_type):
+        super().__init__()
+        self.type = "tooltip"
+        self.building_type = building_type
+        self.image = pygame.image.load(f"assets/tooltips/{self.building_type}Tooltip.png").convert()
+        self.image.set_colorkey((255,0,255))
+        self.rect = self.image.get_rect()
+        self.rect.x = initx
+        self.rect.y = inity
+        self.YOFFSET = 20
+        self.ABSXOFFSET = 7
+        self.tooltipsize = self.rect.width
+
+    def update_tooltip_location_from_mouse(self, input_events):
+        if self.building_type == "overgroundGrass":
+            self.draw_grass_right(input_events)
+        else:
+            self.draw_building_left(input_events)
+
+    def draw_building_left(self, input_events):
+        for event in input_events:
+            if event.type == pygame.MOUSEMOTION:
+                pos = event.pos
+                mousex = pos[0]
+                mousey = pos[1]
+                self.rect.x = mousex - self.ABSXOFFSET - self.tooltipsize
+                self.rect.y = mousey + self.YOFFSET
+
+    def draw_grass_right(self, input_events):
+        for event in input_events:
+            if event.type == pygame.MOUSEMOTION:
+                pos = event.pos
+                mousex = pos[0]
+                mousey = pos[1]
+                self.rect.x = mousex + self.ABSXOFFSET
+                self.rect.y = mousey + self.YOFFSET
+    
+    
+
+
 def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
     """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
     Returns the new world map dict with new buildings as replacements for old.
@@ -403,6 +444,26 @@ debugtext = DebugText()
 screentext = pygame.sprite.Group()
 screentext.add(debugtext)
 
+building_tooltips = pygame.sprite.Group()
+tooltip_left = None
+tooltip_right = None
+def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events):
+    if not player_buildmode:
+        for tooltip in building_tooltips:
+            tooltip.kill()
+        return None, None
+    if len(building_tooltips) == 2:
+        leftTT.update_tooltip_location_from_mouse(input_events)
+        rightTT.update_tooltip_location_from_mouse(input_events)
+        return leftTT, rightTT
+    else:
+        #Making new tooltips:
+        leftTT = ToolTip(-999, -999, player_selected_building)
+        rightTT = ToolTip(-999, -999, "overgroundGrass")
+        building_tooltips.add(leftTT)
+        building_tooltips.add(rightTT)
+        return leftTT, rightTT
+
 running = True
 while running:
     input_events = pygame.event.get()
@@ -432,7 +493,10 @@ while running:
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)
 
+    tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, "largeHut", tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
+
     hud.draw(screen)
+    building_tooltips.draw(screen)
 
     pygame.display.update()
     clock.tick(60)

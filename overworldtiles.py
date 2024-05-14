@@ -1,5 +1,9 @@
 import overworldBuildings
 
+"""
+This tab defines tile mappings, their properties such as building buildable, 
+"""
+
 WALKABLE = ["overgroundGrass"]
 BUILDABLE = ["overgroundGrass"]
 TILE_MAPPINGS = {
@@ -11,7 +15,6 @@ TILE_MAPPINGS = {
     5: "overgroundSmallDungeonLeft",
     6: "overgroundSmallDungeonRight"
 }
-
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
@@ -61,9 +64,9 @@ def add_building_tile_mappings_starting_from_index(tile_mappings_index, maxi, ma
             TILE_MAPPINGS[add_index] = f"{building_name}{i}{j}"
             add_index += 1
 
-#Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
-#This can be used to check if the map tile is walkable.
 def get_world_tilename_at_xy_from_mappingsdict(xy, overworldmapdict, tile_mappings, tilesize):
+    """Gets the tilename at a coordinate based on the map (in dictionary form) and the tile mappings dictionary
+    This can be used to check if the map tile is walkable."""
     x = xy[0]
     y = xy[1]
     tilenum = overworldmapdict.get((round(x / tilesize), round(y / tilesize)))
