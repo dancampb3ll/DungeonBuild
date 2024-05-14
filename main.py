@@ -345,6 +345,7 @@ class ToolTip(pygame.sprite.Sprite):
         self.YOFFSET = 20
         self.ABSXOFFSET = 7
         self.tooltipsize = self.rect.width
+        self.pos = None
 
     def update_tooltip_location_from_mouse(self, input_events):
         if self.building_type == "overgroundGrass":
@@ -353,22 +354,18 @@ class ToolTip(pygame.sprite.Sprite):
             self.draw_building_left(input_events)
 
     def draw_building_left(self, input_events):
-        for event in input_events:
-            if event.type == pygame.MOUSEMOTION:
-                pos = event.pos
-                mousex = pos[0]
-                mousey = pos[1]
-                self.rect.x = mousex - self.ABSXOFFSET - self.tooltipsize
-                self.rect.y = mousey + self.YOFFSET
+        pos = pygame.mouse.get_pos()
+        mousex = pos[0]
+        mousey = pos[1]
+        self.rect.x = mousex - self.ABSXOFFSET - self.tooltipsize
+        self.rect.y = mousey + self.YOFFSET
 
     def draw_grass_right(self, input_events):
-        for event in input_events:
-            if event.type == pygame.MOUSEMOTION:
-                pos = event.pos
-                mousex = pos[0]
-                mousey = pos[1]
-                self.rect.x = mousex + self.ABSXOFFSET
-                self.rect.y = mousey + self.YOFFSET
+        pos = pygame.mouse.get_pos()
+        mousex = pos[0]
+        mousey = pos[1]
+        self.rect.x = mousex + self.ABSXOFFSET
+        self.rect.y = mousey + self.YOFFSET
 
     def redraw_building_left(self):
         self.image = pygame.image.load(f"assets/tooltips/{self.building_type}Tooltip.png").convert()
