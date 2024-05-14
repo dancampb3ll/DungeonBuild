@@ -55,6 +55,26 @@ class Player(pygame.sprite.Sprite):
         self.selected_building_index = 0
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
 
+    def adjust_selected_building(self, input_events):
+        if not self.buildmode:
+            return
+        UPWARD_SCROLL = 1
+        DOWNWARD_SCROLL = -1
+        for event in input_events:
+             if event.type == pygame.MOUSEWHEEL:
+                if event.y == UPWARD_SCROLL:
+                    if self.selected_building_index == len(BUILDING_TYPES) - 1:
+                        self.selected_building_index = 0
+                    else:
+                        self.selected_building_index += 1
+                elif event.y == DOWNWARD_SCROLL:
+                    if self.selected_building_index == 0:
+                        self.selected_building_index = len(BUILDING_TYPES) - 1
+                    else:
+                        self.selected_building_index -= 1
+        print(self.selected_building_index)
+        self.selected_building = BUILDING_TYPES[self.selected_building_index]
+                    
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
         for sprite in camera_group:
@@ -208,6 +228,10 @@ class Player(pygame.sprite.Sprite):
             return None
 
         return placement_coords
+
+    def custom_update(self, input_events):
+        self.adjust_selected_building(input_events)
+        print(self.selected_building)
 
     def update(self):
         None
@@ -480,7 +504,8 @@ while running:
     #Cameragroup contains tile sprites, which are used to detect collisions.
     player.move_player(cameragroup)
     player.check_build_mode(input_events, buildhud, cameragroup)
-    
+    player.custom_update(input_events)
+
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
     overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, player.selected_building, player_placement_coords_topleft)
