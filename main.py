@@ -1,5 +1,6 @@
 import pygame
 import overworldTiles
+import overworldBuildings
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
@@ -8,7 +9,7 @@ TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
 PLAYERSPEED = 2
 CAMERASPEED = PLAYERSPEED
 WALKABLE_TILES = overworldTiles.WALKABLE
-
+BUILDING_TYPES = overworldBuildings.BUILDING_TYPES
 
 LIGHT_BLUE = (173, 216, 230)
 
@@ -51,6 +52,8 @@ class Player(pygame.sprite.Sprite):
         self.B_key_down = False
         self.top_left_highlighted_sprite = None
         self.right_mouse_button_held = False
+        self.selected_building_index = 0
+        self.selected_building = BUILDING_TYPES[self.selected_building_index]
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         collide_count = 0
@@ -139,7 +142,6 @@ class Player(pygame.sprite.Sprite):
             buildhud.hide()
             self.reset_tile_highlights(camera_group)
 
-    
     def reset_tile_highlights(self, camera_group):
         for sprite in camera_group.sprites():
             if sprite.type == "tile":
@@ -392,6 +394,23 @@ def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
 
     return mapdict
 
+def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events):
+    if not player_buildmode:
+        for tooltip in building_tooltips:
+            tooltip.kill()
+        return None, None
+    if len(building_tooltips) == 2:
+        leftTT.update_tooltip_location_from_mouse(input_events)
+        rightTT.update_tooltip_location_from_mouse(input_events)
+        return leftTT, rightTT
+    else:
+        #Making new tooltips:
+        leftTT = ToolTip(-999, -999, player_selected_building)
+        rightTT = ToolTip(-999, -999, "overgroundGrass")
+        building_tooltips.add(leftTT)
+        building_tooltips.add(rightTT)
+        return leftTT, rightTT
+
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -447,22 +466,7 @@ screentext.add(debugtext)
 building_tooltips = pygame.sprite.Group()
 tooltip_left = None
 tooltip_right = None
-def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events):
-    if not player_buildmode:
-        for tooltip in building_tooltips:
-            tooltip.kill()
-        return None, None
-    if len(building_tooltips) == 2:
-        leftTT.update_tooltip_location_from_mouse(input_events)
-        rightTT.update_tooltip_location_from_mouse(input_events)
-        return leftTT, rightTT
-    else:
-        #Making new tooltips:
-        leftTT = ToolTip(-999, -999, player_selected_building)
-        rightTT = ToolTip(-999, -999, "overgroundGrass")
-        building_tooltips.add(leftTT)
-        building_tooltips.add(rightTT)
-        return leftTT, rightTT
+
 
 running = True
 while running:
@@ -479,7 +483,7 @@ while running:
     
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
-    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "largeHut", player_placement_coords_topleft)
+    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, player.selected_building, player_placement_coords_topleft)
 
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
@@ -493,7 +497,7 @@ while running:
     debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
     screentext.draw(screen)
 
-    tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, "largeHut", tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
+    tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
 
     hud.draw(screen)
     building_tooltips.draw(screen)

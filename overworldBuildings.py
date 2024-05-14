@@ -30,7 +30,8 @@ def get_largeHut_tiles(topleftTile: tuple):
 
 #Keeps a list of all building functions by building name, so they can be referenced by simple name within overworldTiles 
 building_functions = {
-        "Grass": get_Grass_tiles,
         "smallDungeon": get_smallDungeon_tiles,
         "largeHut": get_largeHut_tiles
     }
+
+BUILDING_TYPES = [key for key in building_functions.keys()]
