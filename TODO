@@ -14,7 +14,6 @@ Optimise some functions to stop parsing in whole classes, only certain parameter
 
 
 Create build/money logic
-Get free 16x16 player sprites
 Add some free music to randomly play https://soundimage.org/fantasywonder/
 Free coin sounds
     - https://soundimage.org/sfx-coins/

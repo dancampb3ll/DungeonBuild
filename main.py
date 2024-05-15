@@ -14,6 +14,8 @@ BUILDING_TYPES = overworldBuildings.BUILDING_TYPES
 
 LIGHT_BLUE = (173, 216, 230)
 
+DEFAULT_NO_TILE_PORTAL = [None, None, None]
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption('DungeonBuild')
@@ -26,16 +28,18 @@ pygame.mixer.music.play(-1) #Repeat unlimited
 grass_sfx = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
 building_sfx = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
 
-#A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
-    def __init__(self, gridx, gridy, tiletypename, pygame_group):
+    """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
+    #Portal information to be given as [portaltype, (x, y), collisionSide]
+    """
+    def __init__(self, gridx, gridy, tiletypename, pygame_group, portal_information: list):
+        
         super().__init__(pygame_group)
         self.type = "tile"
         self.tile = tiletypename
         self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
         if self.tile == "overgroundBorder":
             self.ignorecolour = (0, 0, 0)
-        
         self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
         self.raw_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
         self.image.set_colorkey(self.ignorecolour)
@@ -44,6 +48,10 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = gridx * TILE_SIZE
         self.rect.y = gridy * TILE_SIZE
+        self.portal_type = portal_information[0]
+        self.portal_destination = None
+        self.portal_collision_side = None
+
 
     def update(self):
         None
@@ -96,21 +104,23 @@ class Player(pygame.sprite.Sprite):
             left_tooltip_instance.building_type = self.selected_building
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
-        collide_count = 0
         for sprite in camera_group:
             if sprite.type == "tile":
                 collide = sprite.rect.colliderect(self.rect)
                 if collide:
-                    collide_count += 0
                     if sprite.tile not in WALKABLE_TILES:
                         if xspeed > 0:
                             self.rect.right = sprite.rect.left
+                            self.check_portal_collisions("right", sprite)
                         elif xspeed < 0:
                             self.rect.left = sprite.rect.right
+                            self.check_portal_collisions("left", sprite)
                         if yspeed > 0:
                             self.rect.bottom = sprite.rect.top
+                            self.check_portal_collisions("bottom", sprite)
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
+                            self.check_portal_collisions("top", sprite)
 
     def move_player(self, camera_group):
         direction_pressed = False #Used to check if player is walking
@@ -303,6 +313,25 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         #self.image.set_colorkey((255,255,251))
 
+    def check_portal_collisions(self, player_collision_side, sprite):
+        print(sprite.portal_type)
+        print(sprite.portal_collision_side)
+        print(sprite.tile)
+        if sprite.portal_type == None:
+            return
+
+        complement_sides = {
+            "bottom": "top",
+            "top": "bottom",
+            "left": "right",
+            "right": "left"
+        }
+        if sprite.portal_type == "overworld":
+            print("test")
+            if complement_sides[player_collision_side] == sprite.portal_collision_side:
+                player.rect.x = sprite.portal_destination[0] * TILE_SIZE
+                player.rect.y = sprite.portal_destination[1] * TILE_SIZE
+
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
@@ -443,14 +472,14 @@ class ToolTip(pygame.sprite.Sprite):
     def update(self):
         self.redraw_building_left()
 
-def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple, player_corner_gridcoords_list):
+def build_and_perform_tiledict_spritedict_updates(mapdict, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None]):
     """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
     Returns the new world map dict with new buildings as replacements for old.
     """
     if topleftplacementcoord == None:
         return mapdict
 
-    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord, player_corner_gridcoords_list)
+    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord, player_coords_list_to_avoid_building_on)
     if changes == None:
         return mapdict
     #A change is given in format [(x,y), tilenum]
@@ -462,7 +491,7 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
         #Kills the original sprite before generating a new tile to replace it.
         spriteDict[(x, y)].kill()
         #Creates an instance of the new tile.
-        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
+        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
     building_sfx.play()
     return newmap
 
@@ -473,7 +502,7 @@ def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
 
         check_sprite = spriteDict.get((checkx, checky), None)
         if check_sprite is None:
-            spriteDict[(checkx, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup)
+            spriteDict[(checkx, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup, DEFAULT_NO_TILE_PORTAL)
             mapdict[(checkx, checky)] = 4
 
 def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
@@ -487,7 +516,7 @@ def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
     if tile_sprite.tile != "overgroundBorder":
         return mapdict
     spriteDict[(x, y)].kill()
-    spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup)
+    spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
     draw_new_border_tiles_from_grass_placement(mapdict, x, y)
     grass_sfx.play()
     mapdict[(x, y)] = 2
@@ -531,13 +560,21 @@ tile_mappings = overworldTiles.TILE_MAPPINGS
 spriteDict = {}
 
 #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
+#Need to make this a general adding block function
 for coord in overworldmapdict.keys():
     x = coord[0]
     y = coord[1]
     tiletype = overworldmapdict[(x, y)]
     if tiletype != 0:
         tilename = tile_mappings[tiletype]
-        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
+        spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
+
+#Temporary test for making portal work
+build_and_perform_tiledict_spritedict_updates(overworldmapdict, "smallDungeon", (20, 20))
+spriteDict.get((20, 20)).portal_type = "overworld"
+spriteDict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
+spriteDict.get((20, 20)).portal_collision_side = "bottom"
+
 
 player = Player(cameragroup)
 
@@ -549,12 +586,12 @@ building_tooltips = pygame.sprite.Group()
 tooltip_left = None
 tooltip_right = None
 
-running = True
-while running:
+overworld = True
+while overworld:
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
-            running = False
+            overworld = False
 
     screen.fill((10, 10, 18))
 
@@ -566,7 +603,7 @@ while running:
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
     player_corner_coords_list = player.get_player_corner_grid_locations()
-    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list)
+    overworldmapdict = build_and_perform_tiledict_spritedict_updates(overworldmapdict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list)
 
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)

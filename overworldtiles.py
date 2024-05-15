@@ -17,7 +17,7 @@ TILE_MAPPINGS = {
     7: "tinyPot"
 }
 
-def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_corner_gridcoords_list):
+def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_coords_list_to_avoid_building_on):
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
     The building type looks up functions from the overworldbuildings page, and uses this to get the tile locations for a certain building type relative to the top left tile the player
     has clicked to build on.\n
@@ -41,7 +41,7 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
         if tilename not in BUILDABLE:
             #Returns the original worldmapdict (unedited) if any of the tiles in the coodinates to get built on are non-buildable tiles
             return worldmapdict, None
-        if coordinate in player_corner_gridcoords_list: #If player standing on any of the tiles in the coodinates to get built, don't build
+        if coordinate in player_coords_list_to_avoid_building_on: #If player standing on any of the tiles in the coodinates to get built, don't build
             return worldmapdict, None
         
         changes.append([coordinate, building_coord_dict[coordinate]])
