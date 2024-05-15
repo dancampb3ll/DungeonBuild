@@ -19,6 +19,13 @@ clock = pygame.time.Clock()
 pygame.display.set_caption('DungeonBuild')
 pygame.init()
 
+#Later to be modularised
+pygame.mixer.init()
+pygame.mixer.music.load("assets/music/overworld/Lost-Jungle.mp3")
+pygame.mixer.music.play(-1) #Repeat unlimited
+grass_sfx = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
+building_sfx = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
+
 #A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.
 class OutdoorTile(pygame.sprite.Sprite):
     def __init__(self, gridx, gridy, tiletypename, pygame_group):
@@ -422,6 +429,7 @@ def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplaceme
         spriteDict[(x, y)].kill()
         #Creates an instance of the new tile.
         spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
+    building_sfx.play()
     return newmap
 
 def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
@@ -447,6 +455,7 @@ def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
     spriteDict[(x, y)].kill()
     spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup)
     draw_new_border_tiles_from_grass_placement(mapdict, x, y)
+    grass_sfx.play()
     mapdict[(x, y)] = 2
 
     return mapdict
