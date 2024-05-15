@@ -1,6 +1,9 @@
 from PIL import Image
 
 def split_image(image_path, output_path_without_png_extension):
+    """Splits images into 16x16 chunks
+    
+    """
     original_image = Image.open(image_path)
     original_image = original_image.convert("RGBA")
 
@@ -63,11 +66,10 @@ def replace_chroma_color(image_path, chroma_color, replacement_image_path, new_s
     # Save the modified original image
     original_image.save(new_save_path)
 
-
+"""
 replace_image_path = "assets/unused/tinyPot.png"
 grass_texture_path = "assets/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 255, 255), grass_texture_path, new_path)
-
-
-#split_image("assets/Unused/largeHut.png", "assets/Unused/largeHut")
+"""
+split_image("assets/Unused/Hero.png", "assets/Unused/player")

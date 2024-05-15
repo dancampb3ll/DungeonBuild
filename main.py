@@ -55,11 +55,13 @@ class Player(pygame.sprite.Sprite):
         self.type = "player"
         self.facing_direction = "down"
         self.aniframe = 1
-        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert()
-        self.image.set_colorkey((255,255,255))
+        self.ANIFRAME_COUNT = 4
+        self.ANIFRAME_TIME_LIMIT = 10
+        self.aniframe_time_count = 0
+        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = SCREEN_WIDTH // 2
-        self.rect.y = SCREEN_HEIGHT // 2
+        self.rect.x = 22 * TILE_SIZE
+        self.rect.y = 22 * TILE_SIZE
         self.gridx = round(self.rect.x / TILE_SIZE)
         self.gridy = round(self.rect.y / TILE_SIZE)
         self.speed = PLAYERSPEED
@@ -111,6 +113,7 @@ class Player(pygame.sprite.Sprite):
                             self.rect.top = sprite.rect.bottom
 
     def move_player(self, camera_group):
+        direction_pressed = False #Used to check if player is walking
         if self.buildmode:
             return
         key = pygame.key.get_pressed()
@@ -133,21 +136,41 @@ class Player(pygame.sprite.Sprite):
             self.facing_direction = "left"
             self.rect.x -= self.speed
             self.detect_tile_collisions(camera_group, -self.speed, 0)
+            direction_pressed = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
             self.rect.x += self.speed
             self.detect_tile_collisions(camera_group, self.speed, 0)
+            direction_pressed = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
             self.rect.y += self.speed
             self.detect_tile_collisions(camera_group, 0, self.speed)
+            direction_pressed = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
+            direction_pressed = True
+        
+        #Changes the frame to the next frame in the current direction.
+        # If direction pressed, add to counter
+        if direction_pressed:
+            self.aniframe_time_count += 1
+        #if nothing pressed, reset animation cycle and counter
+        else:
+            self.aniframe = 1
+            self.aniframe_time_count = 0
+        if self.aniframe_time_count > self.ANIFRAME_TIME_LIMIT:
+            if self.aniframe == self.ANIFRAME_COUNT:
+                self.aniframe = 1
+                self.aniframe_time_count = 0
+            else:
+                self.aniframe += 1
+                self.aniframe_time_count = 0
 
     def check_build_mode(self, input_events, buildhud, camera_group):
         for event in input_events:
@@ -277,8 +300,8 @@ class Player(pygame.sprite.Sprite):
         return gridcoords
 
     def update_player_image_from_direction_and_aniframe(self):
-        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert()
-        self.image.set_colorkey((255,255,255))
+        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
+        #self.image.set_colorkey((255,255,251))
 
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
