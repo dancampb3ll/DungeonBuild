@@ -80,6 +80,7 @@ class Player(pygame.sprite.Sprite):
         self.right_mouse_button_held = False
         self.selected_building_index = 0
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
+        self.gameworld = "overworld"
 
     def adjust_selected_building(self, input_events, left_tooltip_instance):
         #Left tooltip is needed as an object to a
@@ -314,9 +315,6 @@ class Player(pygame.sprite.Sprite):
         #self.image.set_colorkey((255,255,251))
 
     def check_portal_collisions(self, player_collision_side, sprite):
-        print(sprite.portal_type)
-        print(sprite.portal_collision_side)
-        print(sprite.tile)
         if sprite.portal_type == None:
             return
 
@@ -327,10 +325,12 @@ class Player(pygame.sprite.Sprite):
             "right": "left"
         }
         if sprite.portal_type == "overworld":
-            print("test")
             if complement_sides[player_collision_side] == sprite.portal_collision_side:
                 player.rect.x = sprite.portal_destination[0] * TILE_SIZE
                 player.rect.y = sprite.portal_destination[1] * TILE_SIZE
+        self.gameworld = sprite.portal_type
+
+
 
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
@@ -571,7 +571,7 @@ for coord in overworldmapdict.keys():
 
 #Temporary test for making portal work
 build_and_perform_tiledict_spritedict_updates(overworldmapdict, "smallDungeon", (20, 20))
-spriteDict.get((20, 20)).portal_type = "overworld"
+spriteDict.get((20, 20)).portal_type = "dungeon"
 spriteDict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
 spriteDict.get((20, 20)).portal_collision_side = "bottom"
 
@@ -586,43 +586,54 @@ building_tooltips = pygame.sprite.Group()
 tooltip_left = None
 tooltip_right = None
 
-overworld = True
-while overworld:
-    input_events = pygame.event.get()
-    for event in input_events:
-        if event.type == pygame.QUIT:
-            overworld = False
+mainloop = True
+selected_world = "overworld"
+while mainloop:
+    while selected_world == "overworld":
+        input_events = pygame.event.get()
+        for event in input_events:
+            if event.type == pygame.QUIT:
+                mainloop = False
+        screen.fill((10, 10, 18))
 
-    screen.fill((10, 10, 18))
+        #Cameragroup contains tile sprites, which are used to detect collisions.
+        player.move_player(cameragroup)
+        player.check_build_mode(input_events, buildhud, cameragroup)
+        player.custom_update(input_events, tooltip_left)
 
-    #Cameragroup contains tile sprites, which are used to detect collisions.
-    player.move_player(cameragroup)
-    player.check_build_mode(input_events, buildhud, cameragroup)
-    player.custom_update(input_events, tooltip_left)
+        #If none returned from get coords, nothing is changed on overworldmap dict
+        player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
+        player_corner_coords_list = player.get_player_corner_grid_locations()
+        overworldmapdict = build_and_perform_tiledict_spritedict_updates(overworldmapdict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list)
 
-    #If none returned from get coords, nothing is changed on overworldmap dict
-    player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
-    player_corner_coords_list = player.get_player_corner_grid_locations()
-    overworldmapdict = build_and_perform_tiledict_spritedict_updates(overworldmapdict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list)
+        #If none returned from get coords, nothing is changed on overworldmap dict
+        player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
+        overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
 
-    #If none returned from get coords, nothing is changed on overworldmap dict
-    player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
-    overworldmapdict = build_grass_block_and_perform_tile_sprite_updates(overworldmapdict, player_Grass_placement_coords)
+        cameragroup.remove(player)
+        cameragroup.add(player)
+        cameragroup.update()
+        cameragroup.custom_draw(player)
 
-    cameragroup.remove(player)
-    cameragroup.add(player)
-    cameragroup.update()
-    cameragroup.custom_draw(player)
+        debugtext.update(player.gridx, player.gridy, overworldmapdict, tile_mappings)
+        screentext.draw(screen)
 
-    debugtext.update(player.gridx, player.gridy, overworldmapdict, tile_mappings)
-    screentext.draw(screen)
+        tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
 
-    tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
+        hud.draw(screen)
 
-    hud.draw(screen)
+        building_tooltips.update()
+        building_tooltips.draw(screen)
 
-    building_tooltips.update()
-    building_tooltips.draw(screen)
+        selected_world = player.gameworld
+        pygame.display.update()
+        clock.tick(60)
 
-    pygame.display.update()
-    clock.tick(60)
+    while selected_world == "dungeon":
+        input_events = pygame.event.get()
+        for event in input_events:
+            if event.type == pygame.QUIT:
+                mainloop = False
+        screen.fill((0, 0, 0))
+        pygame.display.update()
+        clock.tick(60)
