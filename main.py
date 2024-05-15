@@ -51,6 +51,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = SCREEN_WIDTH // 2
         self.rect.y = SCREEN_HEIGHT // 2
+        self.gridx = round(self.rect.x / TILE_SIZE)
+        self.gridy = round(self.rect.y / TILE_SIZE)
         self.speed = PLAYERSPEED
         self.debug = ""
         self.buildmode = False
@@ -236,8 +238,30 @@ class Player(pygame.sprite.Sprite):
 
         return placement_coords
 
+    def update_grid_locations(self):
+        """
+        Used to update the gridx and gridy locations of the player based on the current x and y values of the rect.
+        """
+        self.gridx = round(self.rect.x / TILE_SIZE)
+        self.gridy = round(self.rect.y / TILE_SIZE)
+
+    def get_player_corner_grid_locations(self):
+        topleft = self.rect.topleft
+        topright = self.rect.topright
+        bottomleft = self.rect.bottomleft
+        bottomright = self.rect.bottomright
+        rawcoords = [topleft, topright, bottomleft, bottomright]
+        gridcoords = []
+        for rawcoord in rawcoords:
+            gridcoord = []
+            for raw_single_coord in rawcoord:
+                gridcoord.append(round(raw_single_coord / TILE_SIZE))
+            gridcoords.append(tuple(gridcoord))
+        return gridcoords
+
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
+        self.update_grid_locations()
 
     def update(self):
         None
@@ -509,16 +533,17 @@ while running:
     cameragroup.update()
     cameragroup.custom_draw(player)
 
-    debugtext.update(round(player.rect.x / TILE_SIZE), round(player.rect.y / TILE_SIZE), overworldmapdict, tile_mappings)
+    debugtext.update(player.gridx, player.gridy, overworldmapdict, tile_mappings)
     screentext.draw(screen)
 
     tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
 
     hud.draw(screen)
+
+    print(player.get_player_corner_grid_locations())
+
     building_tooltips.update()
     building_tooltips.draw(screen)
 
-
     pygame.display.update()
     clock.tick(60)
-    
