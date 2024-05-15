@@ -398,14 +398,14 @@ class ToolTip(pygame.sprite.Sprite):
     def update(self):
         self.redraw_building_left()
 
-def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple):
+def build_and_perform_tile_sprite_updates(mapdict, structuretype, topleftplacementcoord: tuple, player_corner_gridcoords_list):
     """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
     Returns the new world map dict with new buildings as replacements for old.
     """
     if topleftplacementcoord == None:
         return mapdict
 
-    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord)
+    newmap, changes = overworldTiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord, player_corner_gridcoords_list)
     if changes == None:
         return mapdict
     #A change is given in format [(x,y), tilenum]
@@ -494,8 +494,6 @@ for coord in overworldmapdict.keys():
         tilename = tile_mappings[tiletype]
         spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup)
 
-overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, "smallDungeon", (23, 23))
-
 player = Player(cameragroup)
 
 debugtext = DebugText()
@@ -521,8 +519,9 @@ while running:
     player.custom_update(input_events, tooltip_left)
 
     #If none returned from get coords, nothing is changed on overworldmap dict
-    player_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
-    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, player.selected_building, player_placement_coords_topleft)
+    player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
+    player_corner_coords_list = player.get_player_corner_grid_locations()
+    overworldmapdict = build_and_perform_tile_sprite_updates(overworldmapdict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list)
 
     #If none returned from get coords, nothing is changed on overworldmap dict
     player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
@@ -539,8 +538,6 @@ while running:
     tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
 
     hud.draw(screen)
-
-    print(player.get_player_corner_grid_locations())
 
     building_tooltips.update()
     building_tooltips.draw(screen)

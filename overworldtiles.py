@@ -17,7 +17,7 @@ TILE_MAPPINGS = {
     7: "tinyPot"
 }
 
-def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple) -> dict:
+def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_corner_gridcoords_list) -> dict:
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
     The building type looks up functions from the overworldbuildings page, and 
     Returns a tile dictionary, coordinate changes. A change is given in format [(x,y), changenum]
@@ -36,11 +36,13 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
     for coordinate in building_coord_dict.keys():
         tilenum = worldmapdict.get(coordinate)
         tilename = TILE_MAPPINGS[tilenum]
-        if tilename != "overgroundGrass":
-            #Returns the original worldmapdict (unedited)
+        if tilename not in BUILDABLE:
+            #Returns the original worldmapdict (unedited) if any of the tiles in the coodinates to get built on are non-buildable tiles
             return worldmapdict, None
-        else:
-            changes.append([coordinate, building_coord_dict[coordinate]])
+        if coordinate in player_corner_gridcoords_list: #If player standing on any of the tiles in the coodinates to get built, don't build
+            return worldmapdict, None
+        
+        changes.append([coordinate, building_coord_dict[coordinate]])
     for change in changes:
         #Worldmapdict at coordinate equals tile type 
         worldmapdict[change[0]] = change[1]
