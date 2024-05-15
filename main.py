@@ -1,6 +1,7 @@
 import pygame
 import overworldTiles
 import overworldBuildings
+import math
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
@@ -36,7 +37,6 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = gridx * TILE_SIZE
         self.rect.y = gridy * TILE_SIZE
-        
 
     def update(self):
         None
@@ -253,10 +253,14 @@ class Player(pygame.sprite.Sprite):
         rawcoords = [topleft, topright, bottomleft, bottomright]
         gridcoords = []
         for rawcoord in rawcoords:
-            gridcoord = []
+            #Need to round up and round down so that any overlap pixels get accounted for.
+            gridcoord_rounddown = []
+            gridcoord_roundup = []
             for raw_single_coord in rawcoord:
-                gridcoord.append(round(raw_single_coord / TILE_SIZE))
-            gridcoords.append(tuple(gridcoord))
+                gridcoord_rounddown.append(math.floor(raw_single_coord / TILE_SIZE))
+                gridcoord_roundup.append(math.ceil(raw_single_coord / TILE_SIZE))
+            gridcoords.append(tuple(gridcoord_rounddown))
+            gridcoords.append(tuple(gridcoord_roundup))
         return gridcoords
 
     def custom_update(self, input_events, left_tooltip_instance):
@@ -429,8 +433,6 @@ def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
         if check_sprite is None:
             spriteDict[(checkx, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup)
             mapdict[(checkx, checky)] = 4
-        else:
-            print("Debug " + str(check_sprite.tile))
 
 def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
     if placementcoord is None:

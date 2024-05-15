@@ -1,5 +1,6 @@
 Short term
-2. Don't allow building on player
+2. Don't allow building on player - semi working. Duplicate corner coordinates for roundup and rounddown in player class.
+
 
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
 
