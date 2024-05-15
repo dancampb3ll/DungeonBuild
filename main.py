@@ -53,7 +53,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group):
         super().__init__(pygame_group)
         self.type = "player"
-        self.image = pygame.image.load("assets/player.png").convert()
+        self.facing_direction = "down"
+        self.aniframe = 1
+        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert()
         self.image.set_colorkey((255,255,255))
         self.rect = self.image.get_rect()
         self.rect.x = SCREEN_WIDTH // 2
@@ -128,18 +130,22 @@ class Player(pygame.sprite.Sprite):
 
         #left
         if key[pygame.K_a]:
+            self.facing_direction = "left"
             self.rect.x -= self.speed
             self.detect_tile_collisions(camera_group, -self.speed, 0)
         #right
         elif key[pygame.K_d]:
+            self.facing_direction = "right"
             self.rect.x += self.speed
             self.detect_tile_collisions(camera_group, self.speed, 0)
         #down
         if key[pygame.K_s]:
+            self.facing_direction = "down"
             self.rect.y += self.speed
             self.detect_tile_collisions(camera_group, 0, self.speed)
         #up
         elif key[pygame.K_w]:
+            self.facing_direction = "up"
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
 
@@ -270,9 +276,14 @@ class Player(pygame.sprite.Sprite):
             gridcoords.append(tuple(gridcoord_roundup))
         return gridcoords
 
+    def update_player_image_from_direction_and_aniframe(self):
+        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert()
+        self.image.set_colorkey((255,255,255))
+
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
+        self.update_player_image_from_direction_and_aniframe()
 
     def update(self):
         None
