@@ -282,8 +282,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = sprite.portal_destination[1] * TILE_SIZE
         self.gameworld = sprite.portal_type
 
-
-
     def custom_update(self, input_events, left_tooltip_instance):
         self.adjust_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
