@@ -34,7 +34,7 @@ def get_tinyPot_tiles(topleftTile: tuple):
     coordDict[(topleftx, toplefty)] = 7
     return coordDict
 
-#Keeps a list of all building functions by building name, so they can be referenced by simple name within overworldTiles 
+#Keeps a list of all building functions by building name, so they can be referenced by simple name within overworld.tiles 
 building_functions = {
         "smallDungeon": get_smallDungeon_tiles,
         "largeHut": get_largeHut_tiles,

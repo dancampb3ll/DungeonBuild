@@ -1,4 +1,4 @@
-import overworldBuildings
+import overworld.buildings
 
 """
 This tab defines tile mappings, their properties such as building buildable, 
@@ -19,13 +19,13 @@ TILE_MAPPINGS = {
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_coords_list_to_avoid_building_on):
     """Takes the current world map dictionary, a building that is to be built, and the top left tile (that the player is clicking on).
-    The building type looks up functions from the overworldbuildings page, and uses this to get the tile locations for a certain building type relative to the top left tile the player
+    The building type looks up functions from the overworld.buildings page, and uses this to get the tile locations for a certain building type relative to the top left tile the player
     has clicked to build on.\n
     Also checks that the player is not standing on a position where a building is to be placed, and prevents this if so.
     Returns a tile dictionary, coordinate changes. A change is given in format [(x,y), changenum]
     """
     #dynamic method invocation
-    building_functions = overworldBuildings.building_functions
+    building_functions = overworld.buildings.building_functions
     
     building_function = building_functions.get(overworldbuilding)
 
