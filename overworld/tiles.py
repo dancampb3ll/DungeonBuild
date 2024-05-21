@@ -72,9 +72,9 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
         tilename = TILE_MAPPINGS[tilenum]
         if tilename not in BUILDABLE:
             #Returns the original worldmapdict (unedited) if any of the tiles in the coodinates to get built on are non-buildable tiles
-            return worldmapdict, None
+            return None
         if coordinate in player_coords_list_to_avoid_building_on: #If player standing on any of the tiles in the coodinates to get built, don't build
-            return worldmapdict, None
+            return None
         
         changes.append([coordinate, building_coord_dict[coordinate]])
     for change in changes:
@@ -82,7 +82,7 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
         worldmapdict[change[0]] = change[1]
 
     #The changed worldmapdict and coordinate changes
-    return worldmapdict, changes
+    return changes
 
 def add_building_tile_mappings_starting_from_index(tile_mappings_index, maxi, maxj, building_name):
     """Adds a building to the tile mappings dictionary.

@@ -14,7 +14,33 @@ DEFAULT_NO_TILE_PORTAL = [None, None, None]
 class GameState():
     def __init__(self):
         self.overworld_map_dict = overworld.tiles.overworldmapdict
+        self.sprite_dict = {}
+        self.cameragroup = CameraGroup()
 
+
+def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
+        """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
+        Returns the new world map dict with new buildings as replacements for old.
+        """
+        if topleftplacementcoord == None:
+            return
+
+        changes = overworld.tiles.detect_building_worldmap_collision_place_and_changes(gamestate.overworld_map_dict, structuretype, topleftplacementcoord, player_coords_list_to_avoid_building_on)
+        if changes == None:
+            return
+        #A change is given in format [(x,y), tilenum]
+        for change in changes:
+            x = change[0][0]
+            y = change[0][1]
+            tilenum = change[1]
+            tilename = overworld.tiles.TILE_MAPPINGS[tilenum]
+            #Kills the original sprite before generating a new tile to replace it.
+            gamestate.sprite_dict[(x, y)].kill()
+            #Creates an instance of the new tile.
+            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+        if play_sfx:
+            play_sfx.play()
+        return
 
 def main():
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
@@ -29,38 +55,14 @@ def main():
     grass_sfx = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
     building_sfx = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
 
-    def build_and_perform_tiledict_spritedict_updates(mapdict, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
-        """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
-        Returns the new world map dict with new buildings as replacements for old.
-        """
-        if topleftplacementcoord == None:
-            return mapdict
-
-        newmap, changes = overworld.tiles.detect_building_worldmap_collision_place_and_changes(mapdict, structuretype, topleftplacementcoord, player_coords_list_to_avoid_building_on)
-        if changes == None:
-            return mapdict
-        #A change is given in format [(x,y), tilenum]
-        for change in changes:
-            x = change[0][0]
-            y = change[0][1]
-            tilenum = change[1]
-            tilename = tile_mappings[tilenum]
-            #Kills the original sprite before generating a new tile to replace it.
-            spriteDict[(x, y)].kill()
-            #Creates an instance of the new tile.
-            spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
-        if play_sfx:
-            building_sfx.play()
-        return newmap
-
     def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
         for adjacentoffset in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
             checkx = placementx + adjacentoffset[0]
             checky = placementy + adjacentoffset[1]
 
-            check_sprite = spriteDict.get((checkx, checky), None)
+            check_sprite = gamestate.sprite_dict.get((checkx, checky), None)
             if check_sprite is None:
-                spriteDict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", cameragroup, DEFAULT_NO_TILE_PORTAL)
+                gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
                 mapdict[(checkx, checky)] = 4
 
     def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
@@ -68,13 +70,13 @@ def main():
             return mapdict
         x = placementcoord[0]
         y = placementcoord[1]
-        tile_sprite = spriteDict.get((x,y), None)
+        tile_sprite = gamestate.sprite_dict.get((x,y), None)
         if tile_sprite is None:
             return mapdict
         if tile_sprite.tile != "overgroundBorder":
             return mapdict
-        spriteDict[(x, y)].kill()
-        spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
+        gamestate.sprite_dict[(x, y)].kill()
+        gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
         draw_new_border_tiles_from_grass_placement(mapdict, x, y)
         grass_sfx.play()
         mapdict[(x, y)] = 2
@@ -99,9 +101,9 @@ def main():
             return leftTT, rightTT
 
     gamestate = GameState()
-
     #Camera must be the first Pygame object defined.
-    cameragroup = CameraGroup()
+    cameragroup = gamestate.cameragroup
+
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -114,10 +116,9 @@ def main():
 
     #Drawing tiles
     overworld_map_dict = gamestate.overworld_map_dict
-    tile_mappings = overworld.tiles.TILE_MAPPINGS
 
     #Used to maintain sprites at given locations.
-    spriteDict = {}
+    gamestate.sprite_dict = gamestate.sprite_dict
 
     #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
     #Need to make this a general adding block function
@@ -126,14 +127,14 @@ def main():
         y = coord[1]
         tiletype = overworld_map_dict[(x, y)]
         if tiletype != 0:
-            tilename = tile_mappings[tiletype]
-            spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
+            tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
+            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
 
     #Temporary test for making portal work
-    build_and_perform_tiledict_spritedict_updates(overworld_map_dict, "smallDungeon", (20, 20))
-    spriteDict.get((20, 20)).portal_type = "dungeon"
-    spriteDict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
-    spriteDict.get((20, 20)).portal_collision_side = "bottom"
+    build_and_perform_tiledict_spritedict_updates(gamestate, "smallDungeon", (20, 20))
+    gamestate.sprite_dict.get((20, 20)).portal_type = "dungeon"
+    gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
+    gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     player = OverworldPlayer(cameragroup)
 
     debugtext = hud.DebugText()
@@ -162,7 +163,7 @@ def main():
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
             player_corner_coords_list = player.get_player_corner_grid_locations()
-            build_and_perform_tiledict_spritedict_updates(overworld_map_dict, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, True)
+            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, building_sfx)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
@@ -173,7 +174,7 @@ def main():
             cameragroup.update()
             cameragroup.custom_draw(player)
 
-            debugtext.update(player.gridx, player.gridy, overworld_map_dict, tile_mappings)
+            debugtext.update(player.gridx, player.gridy, overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
 
             tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
