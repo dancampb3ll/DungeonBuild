@@ -1,13 +1,13 @@
 import pygame
 import overworld.tiles
 import overworld.buildings
+import settings
 from overworld.player import Player as OverworldPlayer
-from overworld.player import TILE_SIZE
 from camera import CameraGroup
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
-TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
+TILE_COUNT = SCREEN_HEIGHT / settings.TILE_SIZE
 
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
