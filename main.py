@@ -3,12 +3,10 @@ import overworld.tiles
 import overworld.buildings
 import settings
 import hud
-
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.TILE_SIZE
-
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 class GameState():
@@ -16,7 +14,6 @@ class GameState():
         self.overworld_map_dict = overworld.tiles.overworldmapdict
         self.sprite_dict = {}
         self.cameragroup = CameraGroup()
-
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -42,6 +39,36 @@ def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topl
             play_sfx.play()
         return
 
+
+def draw_new_border_tiles_from_grass_placement(gamestate, placementx, placementy):
+    for adjacentoffset in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+        checkx = placementx + adjacentoffset[0]
+        checky = placementy + adjacentoffset[1]
+
+        check_sprite = gamestate.sprite_dict.get((checkx, checky), None)
+        if check_sprite is None:
+            gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+            gamestate.overworld_map_dict[(checkx, checky)] = 4
+
+
+def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord, play_sfx = None):
+    if placementcoord is None:
+        return
+    x = placementcoord[0]
+    y = placementcoord[1]
+    tile_sprite = gamestate.sprite_dict.get((x,y), None)
+    if tile_sprite is None:
+        return
+    if tile_sprite.tile != "overgroundBorder":
+        return
+    gamestate.sprite_dict[(x, y)].kill()
+    gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+    draw_new_border_tiles_from_grass_placement(gamestate, x, y)
+    gamestate.overworld_map_dict[(x, y)] = 2
+    if play_sfx:
+        play_sfx.play()
+    return
+
 def main():
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
     clock = pygame.time.Clock()
@@ -50,38 +77,10 @@ def main():
 
     #Later to be modularised
     pygame.mixer.init()
+    GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
+    BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
     pygame.mixer.music.load("assets/music/overworld/Lost-Jungle.mp3")
     pygame.mixer.music.play(-1) #Repeat unlimited
-    grass_sfx = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
-    building_sfx = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
-
-    def draw_new_border_tiles_from_grass_placement(mapdict, placementx, placementy):
-        for adjacentoffset in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
-            checkx = placementx + adjacentoffset[0]
-            checky = placementy + adjacentoffset[1]
-
-            check_sprite = gamestate.sprite_dict.get((checkx, checky), None)
-            if check_sprite is None:
-                gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
-                mapdict[(checkx, checky)] = 4
-
-    def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
-        if placementcoord is None:
-            return mapdict
-        x = placementcoord[0]
-        y = placementcoord[1]
-        tile_sprite = gamestate.sprite_dict.get((x,y), None)
-        if tile_sprite is None:
-            return mapdict
-        if tile_sprite.tile != "overgroundBorder":
-            return mapdict
-        gamestate.sprite_dict[(x, y)].kill()
-        gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
-        draw_new_border_tiles_from_grass_placement(mapdict, x, y)
-        grass_sfx.play()
-        mapdict[(x, y)] = 2
-
-        return mapdict
 
     def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events):
         if not player_buildmode:
@@ -103,7 +102,6 @@ def main():
     gamestate = GameState()
     #Camera must be the first Pygame object defined.
     cameragroup = gamestate.cameragroup
-
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -163,11 +161,11 @@ def main():
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
             player_corner_coords_list = player.get_player_corner_grid_locations()
-            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, building_sfx)
+            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, BUILDING_SFX)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
-            build_grass_block_and_perform_tile_sprite_updates(overworld_map_dict, player_Grass_placement_coords)
+            build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
 
             cameragroup.remove(player)
             cameragroup.add(player)
