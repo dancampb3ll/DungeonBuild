@@ -3,60 +3,13 @@ import overworld.tiles
 import overworld.buildings
 from overworld.player import Player as OverworldPlayer
 from overworld.player import TILE_SIZE
+from camera import CameraGroup
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 640
 TILE_COUNT = SCREEN_HEIGHT / TILE_SIZE
 
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
-
-class OutdoorTile(pygame.sprite.Sprite):
-    """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
-    #Portal information to be given as [portaltype, (x, y), collisionSide]
-    """
-    def __init__(self, gridx, gridy, tiletypename, pygame_group, portal_information: list):
-        
-        super().__init__(pygame_group)
-        self.type = "tile"
-        self.tile = tiletypename
-        self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
-        if self.tile == "overgroundBorder":
-            self.ignorecolour = (0, 0, 0)
-        self.image = pygame.image.load(f"assets/{self.tile}.png").convert()
-        self.raw_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
-        self.image.set_colorkey(self.ignorecolour)
-        self.rect = self.image.get_rect()
-        self.gridx = gridx
-        self.gridy = gridy
-        self.rect.x = gridx * TILE_SIZE
-        self.rect.y = gridy * TILE_SIZE
-        self.portal_type = portal_information[0]
-        self.portal_destination = None
-        self.portal_collision_side = None
-
-
-    def update(self):
-        None
-        #self.image.set_colorkey(self.ignorecolour)
-
-class CameraGroup(pygame.sprite.Group):
-    def __init__(self):
-        super().__init__()
-        self.display_surface = pygame.display.get_surface()
-
-        self.offset = pygame.math.Vector2(0, 0)
-        self.half_w = self.display_surface.get_size()[0] // 2
-        self.half_h = self.display_surface.get_size()[1] // 2
-
-    def center_target_camera(self,target):
-        self.offset.x = target.rect.centerx - self.half_w
-        self.offset.y = target.rect.centery - self.half_h
-
-    def custom_draw(self, target):
-        self.center_target_camera(target)
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image, offset_pos)
 
 class DebugText(pygame.sprite.Sprite):
     def __init__(self):
@@ -198,7 +151,7 @@ def main():
             #Kills the original sprite before generating a new tile to replace it.
             spriteDict[(x, y)].kill()
             #Creates an instance of the new tile.
-            spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
+            spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
         building_sfx.play()
         return newmap
 
@@ -209,7 +162,7 @@ def main():
 
             check_sprite = spriteDict.get((checkx, checky), None)
             if check_sprite is None:
-                spriteDict[(checkx, checky)] = OutdoorTile(checkx, checky, "overgroundBorder", cameragroup, DEFAULT_NO_TILE_PORTAL)
+                spriteDict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", cameragroup, DEFAULT_NO_TILE_PORTAL)
                 mapdict[(checkx, checky)] = 4
 
     def build_grass_block_and_perform_tile_sprite_updates(mapdict, placementcoord):
@@ -223,7 +176,7 @@ def main():
         if tile_sprite.tile != "overgroundBorder":
             return mapdict
         spriteDict[(x, y)].kill()
-        spriteDict[(x, y)] = OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
+        spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", cameragroup, DEFAULT_NO_TILE_PORTAL)
         draw_new_border_tiles_from_grass_placement(mapdict, x, y)
         grass_sfx.play()
         mapdict[(x, y)] = 2
@@ -274,7 +227,7 @@ def main():
         tiletype = overworldmapdict[(x, y)]
         if tiletype != 0:
             tilename = tile_mappings[tiletype]
-            spriteDict[(x, y)] = OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
+            spriteDict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
 
     #Temporary test for making portal work
     build_and_perform_tiledict_spritedict_updates(overworldmapdict, "smallDungeon", (20, 20))
