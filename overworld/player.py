@@ -169,6 +169,7 @@ class Player(pygame.sprite.Sprite):
             self.toggle_border_alpha(camera_group, self.buildmode)
             buildhud.hide()
             self.reset_tile_highlights(camera_group)
+            self.right_mouse_button_held = False
 
     def reset_tile_highlights(self, camera_group):
         for sprite in camera_group.sprites():
