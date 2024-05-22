@@ -14,6 +14,10 @@ class GameState():
         self.overworld_map_dict = overworld.tiles.overworldmapdict
         self.sprite_dict = {}
         self.cameragroup = CameraGroup()
+        self.current_music = None
+
+    def update_current_music(self, track):
+        self.current_music = track
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -96,12 +100,13 @@ def main():
 
     #Later to be modularised
     pygame.mixer.init()
-    GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
-    BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
     pygame.mixer.music.load("assets/music/overworld/Lost-Jungle.mp3")
     pygame.mixer.music.play(-1) #Repeat unlimited
+    GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
+    BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
 
     gamestate = GameState()
+    gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
     #Camera must be the first Pygame object defined.
     cameragroup = gamestate.cameragroup
 
@@ -154,6 +159,7 @@ def main():
                 if event.type == pygame.QUIT:
                     mainloop = False
             screen.fill((10, 10, 18))
+            
 
             #Cameragroup contains tile sprites, which are used to detect collisions.
             player.move_player(cameragroup)
@@ -193,6 +199,16 @@ def main():
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
+                    selected_world = False
+
+            dungeon_track = "assets/music/dungeon/Realm-of-Fantasy.mp3"
+            if gamestate.current_music != dungeon_track:
+                pygame.mixer.music.load(dungeon_track)
+                pygame.mixer.music.play(-1) #Repeat unlimited
+            gamestate.update_current_music(dungeon_track)
+
+    
+
             screen.fill((0, 0, 0))
             pygame.display.update()
             clock.tick(60)
