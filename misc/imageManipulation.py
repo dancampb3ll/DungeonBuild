@@ -66,10 +66,21 @@ def replace_chroma_color(image_path, chroma_color, replacement_image_path, new_s
     # Save the modified original image
     original_image.save(new_save_path)
 
+def resize_image(input_path, output_path, xheight, yheight):
+    with Image.open(input_path) as img:
+        resized_img = img.resize((xheight, yheight), Image.NEAREST)
+        resized_img.save(output_path)
+
 """
 replace_image_path = "assets/unused/tinyPot.png"
 grass_texture_path = "assets/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 255, 255), grass_texture_path, new_path)
 """
-split_image("assets/Unused/Hero.png", "assets/Unused/player")
+#split_image("assets/Unused/Hero.png", "assets/Unused/player")
+
+files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
+for filename in files:
+    imagepath = f"assets/player/overworld/{filename}.png"
+    outputpath = f"assets/player/underworld/{filename}.png"
+    resize_image(imagepath, outputpath, 32, 32)

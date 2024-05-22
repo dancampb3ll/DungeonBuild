@@ -221,6 +221,7 @@ def main():
             screen.fill((0, 0, 0))
 
             underworldplayer.move_player(underworldcamera)
+            underworldplayer.custom_update()
 
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)

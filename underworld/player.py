@@ -16,8 +16,8 @@ class Player(pygame.sprite.Sprite):
         self.ANIFRAME_COUNT = 4
         self.ANIFRAME_TIME_LIMIT = 10
         self.aniframe_time_count = 0
-        #self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
-        self.image = pygame.image.load(f"assets/player/underworld/player.png").convert_alpha()
+        self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
+        #self.image = pygame.image.load(f"assets/player/underworld/player.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 2 * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = 2 * settings.UNDERWORLD_TILE_SIZE
@@ -159,7 +159,7 @@ class Player(pygame.sprite.Sprite):
         return gridcoords
 
     def update_player_image_from_direction_and_aniframe(self):
-        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
+        self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         #self.image.set_colorkey((255,255,251))
 
     def check_portal_collisions(self, player_collision_side, sprite):
@@ -178,6 +178,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = sprite.portal_destination[1] * settings.OVERWORLD_TILE_SIZE
         self.gameworld = sprite.portal_type
 
-    def custom_update(self, input_events, left_tooltip_instance):
+    def custom_update(self):
         self.update_grid_locations()
-        #self.update_player_image_from_direction_and_aniframe()
+        self.update_player_image_from_direction_and_aniframe()
