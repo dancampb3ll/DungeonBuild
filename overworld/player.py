@@ -20,10 +20,10 @@ class Player(pygame.sprite.Sprite):
         self.aniframe_time_count = 0
         self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = 22 * settings.TILE_SIZE
-        self.rect.y = 22 * settings.TILE_SIZE
-        self.gridx = round(self.rect.x / settings.TILE_SIZE)
-        self.gridy = round(self.rect.y / settings.TILE_SIZE)
+        self.rect.x = 22 * settings.OVERWORLD_TILE_SIZE
+        self.rect.y = 22 * settings.OVERWORLD_TILE_SIZE
+        self.gridx = round(self.rect.x / settings.OVERWORLD_TILE_SIZE)
+        self.gridy = round(self.rect.y / settings.OVERWORLD_TILE_SIZE)
         self.speed = PLAYERSPEED
         self.debug = ""
         self.buildmode = False
@@ -230,7 +230,7 @@ class Player(pygame.sprite.Sprite):
             if self.right_mouse_button_held:
                 raw_mouse_pos = pygame.mouse.get_pos()
                 offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
-                placement_coords = (offset_adjusted_mouse_pos[0] // settings.TILE_SIZE, offset_adjusted_mouse_pos[1] // settings.TILE_SIZE)
+                placement_coords = (offset_adjusted_mouse_pos[0] // settings.OVERWORLD_TILE_SIZE, offset_adjusted_mouse_pos[1] // settings.OVERWORLD_TILE_SIZE)
         
         if placement_coords is None:
             return None
@@ -241,8 +241,8 @@ class Player(pygame.sprite.Sprite):
         """
         Used to update the gridx and gridy locations of the player based on the current x and y values of the rect.
         """
-        self.gridx = round(self.rect.x / settings.TILE_SIZE)
-        self.gridy = round(self.rect.y / settings.TILE_SIZE)
+        self.gridx = round(self.rect.x / settings.OVERWORLD_TILE_SIZE)
+        self.gridy = round(self.rect.y / settings.OVERWORLD_TILE_SIZE)
 
     def get_player_corner_grid_locations(self):
         topleft = self.rect.topleft
@@ -256,8 +256,8 @@ class Player(pygame.sprite.Sprite):
             gridcoord_rounddown = []
             gridcoord_roundup = []
             for raw_single_coord in rawcoord:
-                gridcoord_rounddown.append(math.floor(raw_single_coord / settings.TILE_SIZE))
-                gridcoord_roundup.append(math.ceil(raw_single_coord / settings.TILE_SIZE))
+                gridcoord_rounddown.append(math.floor(raw_single_coord / settings.OVERWORLD_TILE_SIZE))
+                gridcoord_roundup.append(math.ceil(raw_single_coord / settings.OVERWORLD_TILE_SIZE))
             gridcoords.append(tuple(gridcoord_rounddown))
             gridcoords.append(tuple(gridcoord_roundup))
         return gridcoords
@@ -278,8 +278,8 @@ class Player(pygame.sprite.Sprite):
         }
         if sprite.portal_type == "overworld":
             if complement_sides[player_collision_side] == sprite.portal_collision_side:
-                self.rect.x = sprite.portal_destination[0] * settings.TILE_SIZE
-                self.rect.y = sprite.portal_destination[1] * settings.TILE_SIZE
+                self.rect.x = sprite.portal_destination[0] * settings.OVERWORLD_TILE_SIZE
+                self.rect.y = sprite.portal_destination[1] * settings.OVERWORLD_TILE_SIZE
         self.gameworld = sprite.portal_type
 
     def custom_update(self, input_events, left_tooltip_instance):
@@ -289,8 +289,8 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         None
-        #print((self.rect.x // TILE_SIZE, self.rect.y // TILE_SIZE))
-        #debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // TILE_SIZE}"
+        #print((self.rect.x // OVERWORLD_TILE_SIZE, self.rect.y // OVERWORLD_TILE_SIZE))
+        #debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (OVERWORLD_TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // OVERWORLD_TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // OVERWORLD_TILE_SIZE}"
         #if debug != self.debug:
         #    self.debug = debug
         #    print(self.debug)

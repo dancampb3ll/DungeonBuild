@@ -6,7 +6,7 @@ import hud
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
-TILE_COUNT = settings.SCREEN_HEIGHT / settings.TILE_SIZE
+TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 class GameState():
@@ -137,7 +137,7 @@ def main():
 
     #Temporary test for making portal work
     build_and_perform_tiledict_spritedict_updates(gamestate, "smallDungeon", (20, 20))
-    gamestate.sprite_dict.get((20, 20)).portal_type = "dungeon"
+    gamestate.sprite_dict.get((20, 20)).portal_type = "underworld"
     gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     player = OverworldPlayer(cameragroup)
@@ -194,20 +194,20 @@ def main():
             pygame.display.update()
             clock.tick(60)
 
-        while selected_world == "dungeon":
+        while selected_world == "underworld":
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
                     selected_world = False
 
-            dungeon_track = "assets/music/dungeon/Realm-of-Fantasy.mp3"
-            if gamestate.current_music != dungeon_track:
-                pygame.mixer.music.load(dungeon_track)
+            underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
+            if gamestate.current_music != underworld_track:
+                pygame.mixer.music.load(underworld_track)
                 pygame.mixer.music.play(-1) #Repeat unlimited
-            gamestate.update_current_music(dungeon_track)
+            gamestate.update_current_music(underworld_track)
 
-    
+
 
             screen.fill((0, 0, 0))
             pygame.display.update()

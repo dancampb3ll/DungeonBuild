@@ -1,6 +1,5 @@
 Short term
 
-
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
 
 place_building_get_coords
@@ -16,6 +15,7 @@ Free coin sounds
     - https://soundimage.org/sfx-coins/
 
 Long term
+Portal collisions are active on every corner. Fix this.
 Don't allow building on player - semi working. Make less conservative.
 
 Work out algorithm for optimising large maps (to avoid all sprites being created - only the screen should be created.)

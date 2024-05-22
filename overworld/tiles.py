@@ -24,8 +24,8 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.gridx = gridx
         self.gridy = gridy
-        self.rect.x = gridx * settings.TILE_SIZE
-        self.rect.y = gridy * settings.TILE_SIZE
+        self.rect.x = gridx * settings.OVERWORLD_TILE_SIZE
+        self.rect.y = gridy * settings.OVERWORLD_TILE_SIZE
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
