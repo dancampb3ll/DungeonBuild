@@ -1,6 +1,8 @@
 import settings
 import pygame
 
+
+WALKABLE = ["cobblestone"]
 underworldmapdict = {}
 
 

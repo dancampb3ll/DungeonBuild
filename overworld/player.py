@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.ANIFRAME_COUNT = 4
         self.ANIFRAME_TIME_LIMIT = 10
         self.aniframe_time_count = 0
-        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
+        self.image = pygame.image.load(f"assets/player/overworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 22 * settings.OVERWORLD_TILE_SIZE
         self.rect.y = 22 * settings.OVERWORLD_TILE_SIZE
@@ -264,7 +264,7 @@ class Player(pygame.sprite.Sprite):
         return gridcoords
 
     def update_player_image_from_direction_and_aniframe(self):
-        self.image = pygame.image.load(f"assets/player/{self.facing_direction}{self.aniframe}.png").convert_alpha()
+        self.image = pygame.image.load(f"assets/player/overworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         #self.image.set_colorkey((255,255,251))
 
     def check_portal_collisions(self, player_collision_side, sprite):

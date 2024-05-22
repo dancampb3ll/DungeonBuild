@@ -2,6 +2,7 @@ import pygame
 import overworld.tiles
 import overworld.buildings
 import underworld.tiles
+import underworld.player
 import settings
 import hud
 from overworld.player import Player as OverworldPlayer
@@ -112,7 +113,10 @@ def main():
     #Camera must be the first Pygame object defined.
     overworldcamera = gamestate.overworldcamera
     underworldcamera = gamestate.underworldcamera
-    underworld.tiles.UnderworldTile(1, 1, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+    for i in range(0, 15):
+        for j in range(0, 15):
+            underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -145,6 +149,7 @@ def main():
     gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     player = OverworldPlayer(overworldcamera)
+    underworldplayer = underworld.player.Player(underworldcamera)
 
     debugtext = hud.DebugText()
     screentext = pygame.sprite.Group()
@@ -213,12 +218,12 @@ def main():
                 pygame.mixer.music.load(underworld_track)
                 pygame.mixer.music.play(-1) #Repeat unlimited
             gamestate.update_current_music(underworld_track)
-
             screen.fill((0, 0, 0))
 
+            underworldplayer.move_player(underworldcamera)
+
             underworldcamera.update()
-            underworldcamera.draw(screen)
-            print(underworldcamera)
+            underworldcamera.custom_draw(underworldplayer)
 
 
             
