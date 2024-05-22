@@ -4,7 +4,7 @@ import underworld.tiles
 import settings
 
 WALKABLE_TILES = underworld.tiles.WALKABLE
-UNDERWORLD_PLAYERSPEED = 2
+UNDERWORLD_PLAYERSPEED = 3
 LIGHT_BLUE = (173, 216, 230)
 
 class Player(pygame.sprite.Sprite):
@@ -47,6 +47,32 @@ class Player(pygame.sprite.Sprite):
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
+    
+    def detect_void_collision(self, camera_group, xspeed, yspeed):
+        collideleft = False
+        collidetop = False
+        collideright = False
+        collidebottom = False
+        for sprite in camera_group:
+            if sprite.type == "tile":
+                if sprite.tile in underworld.tiles.WALKABLE:
+                    if sprite.rect.collidepoint(self.rect.midleft):
+                        collideleft = True
+                    if sprite.rect.collidepoint(self.rect.midtop):
+                        collidetop = True
+                    if sprite.rect.collidepoint(self.rect.midright):
+                        collideright = True
+                    if sprite.rect.collidepoint(self.rect.midbottom):
+                        collidebottom = True
+        if collideleft == False:
+            self.rect.x += xspeed
+        if collidetop == False:
+            self.rect.y += yspeed
+        if collideright == False:
+            self.rect.x -= xspeed
+        if collidebottom == False:
+            self.rect.y -= yspeed
+
 
     def move_player(self, camera_group):
         direction_pressed = False #Used to check if player is walking
@@ -55,6 +81,7 @@ class Player(pygame.sprite.Sprite):
         #Detection for diagonal speed reduction. 
         vertical = False
         horizontal = False
+        self.detect_void_collision(camera_group, UNDERWORLD_PLAYERSPEED, UNDERWORLD_PLAYERSPEED)
         if key[pygame.K_w] or key[pygame.K_s]:
             vertical = True
         if key[pygame.K_a] or key[pygame.K_d]:
