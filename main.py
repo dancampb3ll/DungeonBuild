@@ -13,7 +13,8 @@ class GameState():
     def __init__(self):
         self.overworld_map_dict = overworld.tiles.overworldmapdict
         self.sprite_dict = {}
-        self.cameragroup = CameraGroup()
+        self.overworldcamera = CameraGroup()
+        self.underworldcamera = CameraGroup()
         self.current_music = None
 
     def update_current_music(self, track):
@@ -38,7 +39,7 @@ def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topl
             #Kills the original sprite before generating a new tile to replace it.
             gamestate.sprite_dict[(x, y)].kill()
             #Creates an instance of the new tile.
-            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
         if play_sfx:
             play_sfx.play()
         return
@@ -51,7 +52,7 @@ def draw_new_border_tiles_from_grass_placement(gamestate, placementx, placementy
 
         check_sprite = gamestate.sprite_dict.get((checkx, checky), None)
         if check_sprite is None:
-            gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+            gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
             gamestate.overworld_map_dict[(checkx, checky)] = 4
 
 
@@ -66,7 +67,7 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
     if tile_sprite.tile != "overgroundBorder":
         return
     gamestate.sprite_dict[(x, y)].kill()
-    gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.cameragroup, DEFAULT_NO_TILE_PORTAL)
+    gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
     draw_new_border_tiles_from_grass_placement(gamestate, x, y)
     gamestate.overworld_map_dict[(x, y)] = 2
     if play_sfx:
@@ -108,7 +109,8 @@ def main():
     gamestate = GameState()
     gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
     #Camera must be the first Pygame object defined.
-    cameragroup = gamestate.cameragroup
+    overworldcamera = gamestate.overworldcamera
+    underworldcamera = gamestate.underworldcamera
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -133,14 +135,14 @@ def main():
         tiletype = overworld_map_dict[(x, y)]
         if tiletype != 0:
             tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
-            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, cameragroup, DEFAULT_NO_TILE_PORTAL)
+            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, overworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     #Temporary test for making portal work
     build_and_perform_tiledict_spritedict_updates(gamestate, "smallDungeon", (20, 20))
     gamestate.sprite_dict.get((20, 20)).portal_type = "underworld"
     gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
-    player = OverworldPlayer(cameragroup)
+    player = OverworldPlayer(overworldcamera)
 
     debugtext = hud.DebugText()
     screentext = pygame.sprite.Group()
@@ -161,24 +163,27 @@ def main():
             screen.fill((10, 10, 18))
             
 
-            #Cameragroup contains tile sprites, which are used to detect collisions.
-            player.move_player(cameragroup)
-            player.check_build_mode(input_events, buildhud, cameragroup)
+            #overworldcamera contains tile sprites, which are used to detect collisions.
+            player.move_player(overworldcamera)
+            player.check_build_mode(input_events, buildhud, overworldcamera)
             player.custom_update(input_events, tooltip_left)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
-            player_building_placement_coords_topleft = player.place_building_get_coords(input_events, cameragroup)
+            player_building_placement_coords_topleft = player.place_building_get_coords(input_events, overworldcamera)
             player_corner_coords_list = player.get_player_corner_grid_locations()
             build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, BUILDING_SFX)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
-            player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, cameragroup)
+            player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
             build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
 
-            cameragroup.remove(player)
-            cameragroup.add(player)
-            cameragroup.update()
-            cameragroup.custom_draw(player)
+            #Moves player to front in case of new blocks being built (which are automatically appended to the end of the group)
+            overworldcamera.remove(player)
+            overworldcamera.add(player)
+            #*********************
+
+            overworldcamera.update()
+            overworldcamera.custom_draw(player)
 
             debugtext.update(player.gridx, player.gridy, overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
@@ -207,9 +212,13 @@ def main():
                 pygame.mixer.music.play(-1) #Repeat unlimited
             gamestate.update_current_music(underworld_track)
 
-
-
             screen.fill((0, 0, 0))
+
+            gamestate.underworldcamera.update()
+            underworldcamera.custom_draw()
+
+
+            
             pygame.display.update()
             clock.tick(60)
 
