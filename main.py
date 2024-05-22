@@ -69,6 +69,25 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
         play_sfx.play()
     return
 
+
+def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events, building_tooltips_group):
+    if not player_buildmode:
+        for tooltip in building_tooltips_group:
+            tooltip.kill()
+        return None, None
+    if len(building_tooltips_group) == 2:
+        leftTT.update_tooltip_location_from_mouse(input_events)
+        rightTT.update_tooltip_location_from_mouse(input_events)
+        return leftTT, rightTT
+    else:
+        #Making new tooltips:
+        leftTT = hud.ToolTip(-999, -999, player_selected_building)
+        rightTT = hud.ToolTip(-999, -999, "overgroundGrass")
+        building_tooltips_group.add(leftTT)
+        building_tooltips_group.add(rightTT)
+        return leftTT, rightTT
+
+
 def main():
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
     clock = pygame.time.Clock()
@@ -81,23 +100,6 @@ def main():
     BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
     pygame.mixer.music.load("assets/music/overworld/Lost-Jungle.mp3")
     pygame.mixer.music.play(-1) #Repeat unlimited
-
-    def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events):
-        if not player_buildmode:
-            for tooltip in building_tooltips:
-                tooltip.kill()
-            return None, None
-        if len(building_tooltips) == 2:
-            leftTT.update_tooltip_location_from_mouse(input_events)
-            rightTT.update_tooltip_location_from_mouse(input_events)
-            return leftTT, rightTT
-        else:
-            #Making new tooltips:
-            leftTT = hud.ToolTip(-999, -999, player_selected_building)
-            rightTT = hud.ToolTip(-999, -999, "overgroundGrass")
-            building_tooltips.add(leftTT)
-            building_tooltips.add(rightTT)
-            return leftTT, rightTT
 
     gamestate = GameState()
     #Camera must be the first Pygame object defined.
@@ -175,7 +177,7 @@ def main():
             debugtext.update(player.gridx, player.gridy, overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
 
-            tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events) #Make largeHut dependent on player selected material
+            tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
 
             hudgroup.draw(screen)
 
