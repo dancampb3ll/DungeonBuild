@@ -1,6 +1,7 @@
 import pygame
 import overworld.tiles
 import overworld.buildings
+import underworld.tiles
 import settings
 import hud
 from overworld.player import Player as OverworldPlayer
@@ -111,6 +112,7 @@ def main():
     #Camera must be the first Pygame object defined.
     overworldcamera = gamestate.overworldcamera
     underworldcamera = gamestate.underworldcamera
+    underworld.tiles.UnderworldTile(1, 1, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -214,8 +216,9 @@ def main():
 
             screen.fill((0, 0, 0))
 
-            gamestate.underworldcamera.update()
-            underworldcamera.custom_draw()
+            underworldcamera.update()
+            underworldcamera.draw(screen)
+            print(underworldcamera)
 
 
             

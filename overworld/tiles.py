@@ -10,9 +10,9 @@ class OutdoorTile(pygame.sprite.Sprite):
     """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
     #Portal information to be given as [portaltype, (x, y), collisionSide]
     """
-    def __init__(self, gridx, gridy, tiletypename, pygame_group, portal_information: list):
+    def __init__(self, gridx, gridy, tiletypename, pygame_camera, portal_information: list):
         
-        super().__init__(pygame_group)
+        super().__init__(pygame_camera)
         self.type = "tile"
         self.tile = tiletypename
         self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
