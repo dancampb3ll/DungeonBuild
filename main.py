@@ -3,10 +3,12 @@ import overworld.tiles
 import overworld.buildings
 import underworld.tiles
 import underworld.player
+import underworld.npc
 import settings
 import hud
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
+
 
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
@@ -206,6 +208,7 @@ def main():
             pygame.display.update()
             clock.tick(60)
 
+        rat = underworld.npc.Slime(underworldcamera, 50, 50)
         while selected_world == "underworld":
             input_events = pygame.event.get()
             for event in input_events:
