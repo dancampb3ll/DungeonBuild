@@ -306,6 +306,7 @@ class Weapon(pygame.sprite.Sprite):
             else:
                 self.attack_timer = 0
                 self.is_attacking = False
+                self.hitbox_rect = None
         else:
             for event in input_events:
                 if event.type == pygame.KEYDOWN:
@@ -320,6 +321,14 @@ class Weapon(pygame.sprite.Sprite):
         if self.DEBUG_DRAW_HITBOXES:
             offset_hitbox = self.hitbox_rect.move(-camera_group.offset[0], -camera_group.offset[1])
             pygame.draw.rect(screen, (255, 0, 0), offset_hitbox, 1)
+
+    def detect_enemy_weapon_collision(self, camera_group):
+        if self.hitbox_rect == None:
+            return
+        for sprite in camera_group:
+            if sprite.type == "npc":
+                if self.hitbox_rect.colliderect(sprite.rect):
+                    print(sprite.npc)    
 
     def melee_swipe_movement(self):
         None
