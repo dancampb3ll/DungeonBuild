@@ -229,6 +229,11 @@ def main():
 
             dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction)
 
+            #Moves player to front in case of new blocks being built (which are automatically appended to the end of the group)
+            underworldcamera.remove(underworldplayer)
+            underworldcamera.add(underworldplayer)
+            #*********************
+
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
             

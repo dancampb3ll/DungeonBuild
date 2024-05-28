@@ -191,7 +191,13 @@ class Weapon(pygame.sprite.Sprite):
         self.rect = None
         self.image = None
         self.weapon_offsets = { #Given in (xoffset, yoffset) format
-            "dagger": (5, 5)
+            "dagger": {
+                "up": (-5, -5),
+                "down": (-8, -5),
+                "left": (-18, 9),
+                "right": (2, -10)
+            }
+
         }
 
     def update_weapon_position(self, player_rect, player_direction):
@@ -199,20 +205,17 @@ class Weapon(pygame.sprite.Sprite):
         self.image.set_colorkey(self.ignorecolour)
         self.rect = self.image.get_rect()
         if player_direction == "down":
-            xoffset = -self.weapon_offsets[self.weapon][0]
-            yoffset = 0
             player_coords = player_rect.midleft
         elif player_direction == "left":
-            xoffset = 0
-            yoffset = -self.weapon_offsets[self.weapon][1]
             player_coords = player_rect.midtop
         elif player_direction == "right":
-            xoffset = 0
-            yoffset = self.weapon_offsets[self.weapon][1]
             player_coords = player_rect.midbottom
         elif player_direction == "up":
-            xoffset = self.weapon_offsets[self.weapon][0]
-            yoffset = 0
             player_coords = player_rect.midright
+        xoffset = self.weapon_offsets[self.weapon][player_direction][0]
+        yoffset = self.weapon_offsets[self.weapon][player_direction][1]
         self.rect.x = player_coords[0] + xoffset
         self.rect.y = player_coords[1] + yoffset
+
+    def melee_swipe_movement(self):
+        None
