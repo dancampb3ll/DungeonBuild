@@ -208,7 +208,8 @@ def main():
             pygame.display.update()
             clock.tick(60)
 
-        rat = underworld.npc.Slime(underworldcamera, 50, 50)
+        slime = underworld.npc.Slime(underworldcamera, 50, 50)
+        dagger = underworld.player.Weapon(underworldcamera, "dagger")
         while selected_world == "underworld":
             input_events = pygame.event.get()
             for event in input_events:
@@ -226,10 +227,10 @@ def main():
             underworldplayer.move_player(underworldcamera)
             underworldplayer.custom_update()
 
+            dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction)
+
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
-
-
             
             pygame.display.update()
             clock.tick(60)

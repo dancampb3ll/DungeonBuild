@@ -181,3 +181,38 @@ class Player(pygame.sprite.Sprite):
     def custom_update(self):
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
+
+class Weapon(pygame.sprite.Sprite):
+    def __init__(self, pygame_group, weapon_name):
+        super().__init__(pygame_group)
+        self.type = "weapon"
+        self.weapon = weapon_name
+        self.ignorecolour = (255, 0, 255)
+        self.rect = None
+        self.image = None
+        self.weapon_offsets = { #Given in (xoffset, yoffset) format
+            "dagger": (5, 5)
+        }
+
+    def update_weapon_position(self, player_rect, player_direction):
+        self.image = pygame.image.load(f"assets/player/underworld/weapons/{self.weapon}/{player_direction}.png").convert()
+        self.image.set_colorkey(self.ignorecolour)
+        self.rect = self.image.get_rect()
+        if player_direction == "down":
+            xoffset = -self.weapon_offsets[self.weapon][0]
+            yoffset = 0
+            player_coords = player_rect.midleft
+        elif player_direction == "left":
+            xoffset = 0
+            yoffset = -self.weapon_offsets[self.weapon][1]
+            player_coords = player_rect.midtop
+        elif player_direction == "right":
+            xoffset = 0
+            yoffset = self.weapon_offsets[self.weapon][1]
+            player_coords = player_rect.midbottom
+        elif player_direction == "up":
+            xoffset = self.weapon_offsets[self.weapon][0]
+            yoffset = 0
+            player_coords = player_rect.midright
+        self.rect.x = player_coords[0] + xoffset
+        self.rect.y = player_coords[1] + yoffset
