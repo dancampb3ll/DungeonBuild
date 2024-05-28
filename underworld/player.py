@@ -208,7 +208,7 @@ class Weapon(pygame.sprite.Sprite):
         self.weapon_attributes = {
             "dagger": {
                 "attack_width": 4,
-                "attack_height": 100,
+                "attack_length": 100,
                 "attack_duration": 10
             }
         }
@@ -261,11 +261,45 @@ class Weapon(pygame.sprite.Sprite):
         self.rect.x = player_coords[0] + xoffset + self.get_bobbing_offset_x(player_is_moving_x)
         self.rect.y = player_coords[1] + yoffset + self.get_bobbing_offset_y(player_is_moving_y)
 
-    def update_attack_hitbox(self, screen, camera_group, player_rect=None, player_direction=None, input_events=None):
+    def update_attack_hitbox(self, screen, camera_group, player_rect, player_direction, input_events):
         if self.is_attacking:
             if self.attack_timer < self.weapon_attributes[self.weapon]["attack_duration"]:
                 self.attack_timer += 1
-                self.hitbox_rect = pygame.Rect(50, 50, self.weapon_attributes[self.weapon]["attack_width"], self.weapon_attributes[self.weapon]["attack_height"])
+                
+                if player_direction == "up":
+                    #Vertical rect
+                    playerx = player_rect.midtop[0]
+                    playery = player_rect.midtop[1]
+                    hitbox_width = self.weapon_attributes[self.weapon]["attack_width"]
+                    hitbox_height = self.weapon_attributes[self.weapon]["attack_length"]
+                    x = playerx - 0.5*hitbox_width
+                    y = playery - hitbox_height 
+                elif player_direction == "down":
+                    #Vertical rect
+                    playerx = player_rect.midbottom[0]
+                    playery = player_rect.midbottom[1]
+                    hitbox_width = self.weapon_attributes[self.weapon]["attack_width"]
+                    hitbox_height = self.weapon_attributes[self.weapon]["attack_length"]
+                    x = playerx - 0.5*hitbox_width
+                    y = playery
+                elif player_direction == "left":
+                    #Horizontal rect (width and length swapped)
+                    playerx = player_rect.midleft[0]
+                    playery = player_rect.midleft[1]
+                    hitbox_width = self.weapon_attributes[self.weapon]["attack_length"]
+                    hitbox_height = self.weapon_attributes[self.weapon]["attack_width"]
+                    x = playerx - hitbox_width
+                    y = playery - 0.5*hitbox_height
+                elif player_direction == "right":
+                    #Horizontal rect (width and length swapped)
+                    playerx = player_rect.midright[0]
+                    playery = player_rect.midright[1]
+                    hitbox_width = self.weapon_attributes[self.weapon]["attack_length"]
+                    hitbox_height = self.weapon_attributes[self.weapon]["attack_width"]
+                    x = playerx
+                    y = playery - 0.5*hitbox_height
+                
+                self.hitbox_rect = pygame.Rect(x, y, hitbox_width, hitbox_height)
                 self.show_hitboxes_debug(screen, camera_group)
             else:
                 self.attack_timer = 0
