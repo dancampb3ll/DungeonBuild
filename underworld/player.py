@@ -75,7 +75,6 @@ class Player(pygame.sprite.Sprite):
         if collidebottom == False:
             self.rect.y -= yspeed
 
-
     def move_player(self, camera_group):
         self.is_moving = False #Used to check if player is walking
         self.is_moving_x = False
@@ -206,6 +205,19 @@ class Weapon(pygame.sprite.Sprite):
                 "right": (2, -10)
             }
         }
+        self.weapon_attributes = {
+            "dagger": {
+                "attack_width": 4,
+                "attack_height": 100,
+                "attack_duration": 10
+            }
+        }
+        self.is_attacking = True
+        self.attack_timer = -999
+        self.hitbox_rect = None
+        self.DEBUG_DRAW_HITBOXES = True
+
+        #Bobbing calcs
         self.player_is_moving_x = False
         self.bobbing_amplitude_x = 1.6
         self.bobbing_speed_x = 0.4
@@ -214,6 +226,7 @@ class Weapon(pygame.sprite.Sprite):
         self.bobbing_amplitude_y = 1
         self.bobbing_speed_y = 0.4
         self.bobbing_count_y = 0
+        #****************************
 
     def get_bobbing_offset_x(self, player_is_moving_x):
         if player_is_moving_x:
@@ -231,7 +244,6 @@ class Weapon(pygame.sprite.Sprite):
         bobbing_offset_y = self.bobbing_amplitude_y * math.sin(self.bobbing_count_y)
         return bobbing_offset_y
 
-
     def update_weapon_position(self, player_rect, player_direction, player_is_moving_x, player_is_moving_y):
         self.image = pygame.image.load(f"assets/player/underworld/weapons/{self.weapon}/{player_direction}.png").convert()
         self.image.set_colorkey(self.ignorecolour)
@@ -248,6 +260,21 @@ class Weapon(pygame.sprite.Sprite):
         yoffset = self.weapon_offsets[self.weapon][player_direction][1]
         self.rect.x = player_coords[0] + xoffset + self.get_bobbing_offset_x(player_is_moving_x)
         self.rect.y = player_coords[1] + yoffset + self.get_bobbing_offset_y(player_is_moving_y)
+
+    def update_attack_hitbox(self, screen, camera_group, player_rect=None, player_direction=None, input_events=None):
+        if self.is_attacking:
+            if self.attack_timer < self.weapon_attributes[self.weapon]["attack_duration"]:
+                self.attack_timer += 1
+                self.hitbox_rect = pygame.Rect(50, 50, self.weapon_attributes[self.weapon]["attack_width"], self.weapon_attributes[self.weapon]["attack_height"])
+                self.show_hitboxes_debug(screen, camera_group)
+            else:
+                self.attack_timer = 0
+                self.is_attacking = False
+
+    def show_hitboxes_debug(self, screen, camera_group):
+        if self.DEBUG_DRAW_HITBOXES:
+            offset_hitbox = self.hitbox_rect.move(-camera_group.offset[0], -camera_group.offset[1])
+            pygame.draw.rect(screen, (255, 0, 0), offset_hitbox, 1)
 
     def melee_swipe_movement(self):
         None
