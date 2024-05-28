@@ -2,6 +2,7 @@ import math
 import pygame
 import underworld.tiles
 import settings
+import random
 
 WALKABLE_TILES = underworld.tiles.WALKABLE
 UNDERWORLD_PLAYERSPEED = 3
@@ -209,7 +210,8 @@ class Weapon(pygame.sprite.Sprite):
             "dagger": {
                 "attack_width": 40,
                 "attack_length": 20,
-                "attack_duration": 10
+                "attack_duration": 10,
+                "sfx": ["sword1.mp3", "sword2.mp3", "sword3.mp3"]
             }
         }
         self.is_attacking = True
@@ -309,6 +311,10 @@ class Weapon(pygame.sprite.Sprite):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.is_attacking = True
+                        sfx_list = self.weapon_attributes[self.weapon]["sfx"]
+                        random_sfx_num = random.randint(0, len(sfx_list) - 1)
+                        sfx = pygame.mixer.Sound(f"assets/sfx/weapons/{sfx_list[random_sfx_num]}")
+                        sfx.play()
 
     def show_hitboxes_debug(self, screen, camera_group):
         if self.DEBUG_DRAW_HITBOXES:
