@@ -207,13 +207,13 @@ class Weapon(pygame.sprite.Sprite):
         }
         self.weapon_attributes = {
             "dagger": {
-                "attack_width": 4,
-                "attack_length": 100,
+                "attack_width": 40,
+                "attack_length": 20,
                 "attack_duration": 10
             }
         }
         self.is_attacking = True
-        self.attack_timer = -999
+        self.attack_timer = 99999
         self.hitbox_rect = None
         self.DEBUG_DRAW_HITBOXES = True
 
@@ -304,6 +304,11 @@ class Weapon(pygame.sprite.Sprite):
             else:
                 self.attack_timer = 0
                 self.is_attacking = False
+        else:
+            for event in input_events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.is_attacking = True
 
     def show_hitboxes_debug(self, screen, camera_group):
         if self.DEBUG_DRAW_HITBOXES:
