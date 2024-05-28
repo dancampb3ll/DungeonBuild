@@ -26,8 +26,10 @@ class Player(pygame.sprite.Sprite):
         self.speed = UNDERWORLD_PLAYERSPEED
         self.B_key_down = False
         self.top_left_highlighted_sprite = None
-
-        self.gameworld = "overworld"
+        self.is_moving = False
+        self.is_moving_x = False
+        self.is_moving_y = False
+        self.gameworld = "underworld"
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         for sprite in camera_group:
@@ -75,7 +77,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def move_player(self, camera_group):
-        direction_pressed = False #Used to check if player is walking
+        self.is_moving = False #Used to check if player is walking
+        self.is_moving_x = False
+        self.is_moving_y = False
         key = pygame.key.get_pressed()
         
         #Detection for diagonal speed reduction. 
@@ -97,29 +101,33 @@ class Player(pygame.sprite.Sprite):
             self.facing_direction = "left"
             self.rect.x -= self.speed
             self.detect_tile_collisions(camera_group, -self.speed, 0)
-            direction_pressed = True
+            self.is_moving = True
+            self.is_moving_x = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
             self.rect.x += self.speed
             self.detect_tile_collisions(camera_group, self.speed, 0)
-            direction_pressed = True
+            self.is_moving = True
+            self.is_moving_x = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
             self.rect.y += self.speed
             self.detect_tile_collisions(camera_group, 0, self.speed)
-            direction_pressed = True
+            self.is_moving = True
+            self.is_moving_y = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
             self.rect.y -= self.speed
             self.detect_tile_collisions(camera_group, 0, -self.speed)
-            direction_pressed = True
+            self.is_moving = True
+            self.is_moving_y = True
         
         #Changes the frame to the next frame in the current direction.
         # If direction pressed, add to counter
-        if direction_pressed:
+        if self.is_moving:
             self.aniframe_time_count += 1
         #if nothing pressed, reset animation cycle and counter
         else:
@@ -197,10 +205,34 @@ class Weapon(pygame.sprite.Sprite):
                 "left": (-18, 9),
                 "right": (2, -10)
             }
-
         }
+        self.player_is_moving_x = False
+        self.bobbing_amplitude_x = 1.6
+        self.bobbing_speed_x = 0.4
+        self.bobbing_count_x = 0
+        self.player_is_moving_y = False
+        self.bobbing_amplitude_y = 1
+        self.bobbing_speed_y = 0.4
+        self.bobbing_count_y = 0
 
-    def update_weapon_position(self, player_rect, player_direction):
+    def get_bobbing_offset_x(self, player_is_moving_x):
+        if player_is_moving_x:
+            self.bobbing_count_x += self.bobbing_speed_x
+        else:
+            self.bobbing_count_x = 0
+        bobbing_offset_x = self.bobbing_amplitude_x * math.sin(self.bobbing_count_x)
+        return bobbing_offset_x
+    
+    def get_bobbing_offset_y(self, player_is_moving_y):
+        if player_is_moving_y:
+            self.bobbing_count_y += self.bobbing_speed_y
+        else:
+            self.bobbing_count_y = 0
+        bobbing_offset_y = self.bobbing_amplitude_y * math.sin(self.bobbing_count_y)
+        return bobbing_offset_y
+
+
+    def update_weapon_position(self, player_rect, player_direction, player_is_moving_x, player_is_moving_y):
         self.image = pygame.image.load(f"assets/player/underworld/weapons/{self.weapon}/{player_direction}.png").convert()
         self.image.set_colorkey(self.ignorecolour)
         self.rect = self.image.get_rect()
@@ -214,8 +246,8 @@ class Weapon(pygame.sprite.Sprite):
             player_coords = player_rect.midright
         xoffset = self.weapon_offsets[self.weapon][player_direction][0]
         yoffset = self.weapon_offsets[self.weapon][player_direction][1]
-        self.rect.x = player_coords[0] + xoffset
-        self.rect.y = player_coords[1] + yoffset
+        self.rect.x = player_coords[0] + xoffset + self.get_bobbing_offset_x(player_is_moving_x)
+        self.rect.y = player_coords[1] + yoffset + self.get_bobbing_offset_y(player_is_moving_y)
 
     def melee_swipe_movement(self):
         None
