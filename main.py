@@ -118,7 +118,8 @@ def main():
     for i in range(0, 15):
         for j in range(0, 15):
             underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-
+    for i in range(15, 27):
+        underworld.tiles.UnderworldTile(i, 7, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
