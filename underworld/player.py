@@ -270,7 +270,7 @@ class Weapon(pygame.sprite.Sprite):
         self.rect.x = player_coords[0] + xoffset + self.get_bobbing_offset_x(player_is_moving_x)
         self.rect.y = player_coords[1] + yoffset + self.get_bobbing_offset_y(player_is_moving_y)
 
-    def update_attack_hitbox(self, screen, camera_group, player_rect, player_direction, input_events):
+    def update_attack_hitbox_and_detect_collisions(self, screen, camera_group, player_rect, player_direction, input_events):
         if self.is_attacking:
             if self.attack_timer < self.attack_duration:
                 self.attack_timer += 1

@@ -237,7 +237,7 @@ def main():
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
             
-            dagger.update_attack_hitbox(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
+            dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             pygame.display.update()
             clock.tick(60)
