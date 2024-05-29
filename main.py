@@ -208,7 +208,9 @@ def main():
             pygame.display.update()
             clock.tick(60)
 
-        slime = underworld.npc.Slime(underworldcamera, 50, 50)
+        enemies = []
+        enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
+        enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         while selected_world == "underworld":
             input_events = pygame.event.get()
@@ -237,6 +239,9 @@ def main():
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
             
+            for enemy in enemies:
+                enemy.basic_pathfind(underworldplayer)
+
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             pygame.display.update()
