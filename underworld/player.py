@@ -211,9 +211,16 @@ class Weapon(pygame.sprite.Sprite):
                 "attack_width": 40,
                 "attack_length": 20,
                 "attack_duration": 10,
-                "sfx": ["sword1.mp3", "sword2.mp3", "sword3.mp3"]
+                "sfx": ["sword1.mp3", "sword2.mp3", "sword3.mp3"],
+                "damage": 1
             }
         }
+        self.attack_width = self.weapon_attributes[self.weapon]["attack_width"]
+        self.attack_length = self.weapon_attributes[self.weapon]["attack_length"]
+        self.attack_duration = self.weapon_attributes[self.weapon]["attack_duration"]
+        self.sfx = self.weapon_attributes[self.weapon]["sfx"]
+        self.damage = self.weapon_attributes[self.weapon]["damage"]
+
         self.is_attacking = True
         self.attack_timer = 99999
         self.hitbox_rect = None
@@ -265,39 +272,39 @@ class Weapon(pygame.sprite.Sprite):
 
     def update_attack_hitbox(self, screen, camera_group, player_rect, player_direction, input_events):
         if self.is_attacking:
-            if self.attack_timer < self.weapon_attributes[self.weapon]["attack_duration"]:
+            if self.attack_timer < self.attack_duration:
                 self.attack_timer += 1
                 
                 if player_direction == "up":
                     #Vertical rect
                     playerx = player_rect.midtop[0]
                     playery = player_rect.midtop[1]
-                    hitbox_width = self.weapon_attributes[self.weapon]["attack_width"]
-                    hitbox_height = self.weapon_attributes[self.weapon]["attack_length"]
+                    hitbox_width = self.attack_width
+                    hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery - hitbox_height 
                 elif player_direction == "down":
                     #Vertical rect
                     playerx = player_rect.midbottom[0]
                     playery = player_rect.midbottom[1]
-                    hitbox_width = self.weapon_attributes[self.weapon]["attack_width"]
-                    hitbox_height = self.weapon_attributes[self.weapon]["attack_length"]
+                    hitbox_width = self.attack_width
+                    hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery
                 elif player_direction == "left":
                     #Horizontal rect (width and length swapped)
                     playerx = player_rect.midleft[0]
                     playery = player_rect.midleft[1]
-                    hitbox_width = self.weapon_attributes[self.weapon]["attack_length"]
-                    hitbox_height = self.weapon_attributes[self.weapon]["attack_width"]
+                    hitbox_width = self.attack_length
+                    hitbox_height = self.attack_width
                     x = playerx - hitbox_width
                     y = playery - 0.5*hitbox_height
                 elif player_direction == "right":
                     #Horizontal rect (width and length swapped)
                     playerx = player_rect.midright[0]
                     playery = player_rect.midright[1]
-                    hitbox_width = self.weapon_attributes[self.weapon]["attack_length"]
-                    hitbox_height = self.weapon_attributes[self.weapon]["attack_width"]
+                    hitbox_width = self.attack_length
+                    hitbox_height = self.attack_width
                     x = playerx
                     y = playery - 0.5*hitbox_height
                 
@@ -312,7 +319,7 @@ class Weapon(pygame.sprite.Sprite):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.is_attacking = True
-                        sfx_list = self.weapon_attributes[self.weapon]["sfx"]
+                        sfx_list = self.sfx
                         random_sfx_num = random.randint(0, len(sfx_list) - 1)
                         sfx = pygame.mixer.Sound(f"assets/sfx/weapons/{sfx_list[random_sfx_num]}")
                         sfx.play()
@@ -328,7 +335,7 @@ class Weapon(pygame.sprite.Sprite):
         for sprite in camera_group:
             if sprite.type == "npc":
                 if self.hitbox_rect.colliderect(sprite.rect):
-                    print(sprite.npc)    
+                    sprite.take_damage(self.damage)
 
     def melee_swipe_movement(self):
         None
