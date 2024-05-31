@@ -236,6 +236,7 @@ class Weapon(pygame.sprite.Sprite):
         self.bobbing_speed_y = 0.4
         self.bobbing_count_y = 0
         #****************************
+        self.player_direction = None
 
     def get_bobbing_offset_x(self, player_is_moving_x):
         if player_is_moving_x:
@@ -271,11 +272,12 @@ class Weapon(pygame.sprite.Sprite):
         self.rect.y = player_coords[1] + yoffset + self.get_bobbing_offset_y(player_is_moving_y)
 
     def update_attack_hitbox_and_detect_collisions(self, screen, camera_group, player_rect, player_direction, input_events):
+        self.player_direction = player_direction
         if self.is_attacking:
             if self.attack_timer < self.attack_duration:
                 self.attack_timer += 1
                 
-                if player_direction == "up":
+                if self.player_direction == "up":
                     #Vertical rect
                     playerx = player_rect.center[0]
                     playery = player_rect.center[1]
@@ -283,7 +285,7 @@ class Weapon(pygame.sprite.Sprite):
                     hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery - hitbox_height 
-                elif player_direction == "down":
+                elif self.player_direction == "down":
                     #Vertical rect
                     playerx = player_rect.center[0]
                     playery = player_rect.center[1]
@@ -291,7 +293,7 @@ class Weapon(pygame.sprite.Sprite):
                     hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery
-                elif player_direction == "left":
+                elif self.player_direction == "left":
                     #Horizontal rect (width and length swapped)
                     playerx = player_rect.center[0]
                     playery = player_rect.center[1]
@@ -299,7 +301,7 @@ class Weapon(pygame.sprite.Sprite):
                     hitbox_height = self.attack_width
                     x = playerx - hitbox_width
                     y = playery - 0.5*hitbox_height
-                elif player_direction == "right":
+                elif self.player_direction == "right":
                     #Horizontal rect (width and length swapped)
                     playerx = player_rect.center[0]
                     playery = player_rect.center[1]
@@ -336,7 +338,7 @@ class Weapon(pygame.sprite.Sprite):
         for sprite in camera_group:
             if sprite.type == "npc":
                 if self.hitbox_rect.colliderect(sprite.rect):
-                    sprite.take_damage(self.damage)
+                    sprite.take_damage(self)
 
     def melee_swipe_movement(self):
         None
