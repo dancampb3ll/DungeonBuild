@@ -209,7 +209,7 @@ class Weapon(pygame.sprite.Sprite):
         self.weapon_attributes = {
             "dagger": {
                 "attack_width": 40,
-                "attack_length": 20,
+                "attack_length": 33,
                 "attack_duration": 10,
                 "sfx": ["sword1.mp3", "sword2.mp3", "sword3.mp3"],
                 "damage": 1
@@ -277,37 +277,38 @@ class Weapon(pygame.sprite.Sprite):
                 
                 if player_direction == "up":
                     #Vertical rect
-                    playerx = player_rect.midtop[0]
-                    playery = player_rect.midtop[1]
+                    playerx = player_rect.center[0]
+                    playery = player_rect.center[1]
                     hitbox_width = self.attack_width
                     hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery - hitbox_height 
                 elif player_direction == "down":
                     #Vertical rect
-                    playerx = player_rect.midbottom[0]
-                    playery = player_rect.midbottom[1]
+                    playerx = player_rect.center[0]
+                    playery = player_rect.center[1]
                     hitbox_width = self.attack_width
                     hitbox_height = self.attack_length
                     x = playerx - 0.5*hitbox_width
                     y = playery
                 elif player_direction == "left":
                     #Horizontal rect (width and length swapped)
-                    playerx = player_rect.midleft[0]
-                    playery = player_rect.midleft[1]
+                    playerx = player_rect.center[0]
+                    playery = player_rect.center[1]
                     hitbox_width = self.attack_length
                     hitbox_height = self.attack_width
                     x = playerx - hitbox_width
                     y = playery - 0.5*hitbox_height
                 elif player_direction == "right":
                     #Horizontal rect (width and length swapped)
-                    playerx = player_rect.midright[0]
-                    playery = player_rect.midright[1]
+                    playerx = player_rect.center[0]
+                    playery = player_rect.center[1]
                     hitbox_width = self.attack_length
                     hitbox_height = self.attack_width
                     x = playerx
                     y = playery - 0.5*hitbox_height
                 
+
                 self.hitbox_rect = pygame.Rect(x, y, hitbox_width, hitbox_height)
                 self.show_hitboxes_debug(screen, camera_group)
             else:

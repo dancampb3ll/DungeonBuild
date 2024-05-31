@@ -49,7 +49,7 @@ class Slime(pygame.sprite.Sprite):
         self.kill()
 
     def image_flash_refresh(self):
-        FLASH_MODULUS = 4
+        FLASH_MODULUS = 6
         if self.invincibility_timer_active == False:
             self.image_showing = True
             self.image = self.image_visible
