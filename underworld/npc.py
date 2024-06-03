@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import settings
 
 def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x1, y1 = point1
@@ -28,6 +29,8 @@ class Slime(pygame.sprite.Sprite):
         self.rect.y = y
         self.damage_sfx = ["take_damage1.mp3"]
         self.death_sfx = ["death1.mp3"]
+        self.knockbackx = None
+        self.knockbacky = None
 
         self.ATTACK_INVINCIBILITY_TIME_LIMIT = 13
         self.invincibility_timecount = 0
@@ -42,23 +45,47 @@ class Slime(pygame.sprite.Sprite):
             self.invincibility_timer_active = True
             self.invincibility_timecount = 0
             self.health -= weapon_damage
-            self.knockback(weapon)
+            self.set_knockback_position(weapon)
 
         if self.health <= 0:
             self.play_random_sfx_from_list(self.death_sfx)
             self.die()
 
-    def knockback(self, weapon):
+    def set_knockback_position(self, weapon):
         weapon_direction = weapon.player_direction
         weapon_knockback = weapon.knockback
         if weapon_direction == "left":
-            self.rect.x -= weapon_knockback
+            self.knockbackx = self.rect.x - weapon_knockback
         elif weapon_direction == "right":
-            self.rect.x += weapon_knockback
+            self.knockbackx = self.rect.x + weapon_knockback
         elif weapon_direction == "up":
-            self.rect.y -= weapon_knockback
+            self.knockbacky = self.rect.y - weapon_knockback
         elif weapon_direction == "down":
-            self.rect.y += weapon_knockback
+            self.knockbackx = self.rect.x + weapon_knockback
+
+    def perform_knockback(self):
+        if self.knockbackx == None and self.knockbacky == None:
+            return
+        knockback_speed = settings.KNOCKBACK_SPEED
+
+        if self.knockbackx != None:
+            if self.knockbackx > self.rect.x:
+                self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed)
+            elif self.knockbackx < self.rect.x:
+                self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed)
+            else:
+                self.knockbackx = None
+
+        if self.knockbacky != None:
+            if self.knockbacky > self.rect.y:
+                self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed)
+            elif self.knockbacky < self.rect.y:
+                self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed)
+            else:
+                self.knockbacky = None
+
+
+
 
     def die(self):
         self.kill()
@@ -90,6 +117,8 @@ class Slime(pygame.sprite.Sprite):
         sfx.play()
 
     def basic_pathfind(self, player):
+        if self.knockbackx != None or self.knockbacky != None:
+            return
         player_rect = player.rect
         player_center_pos = player_rect.center
         distance_from_player = calculate_distance_pythagoras(self.rect.center, player_center_pos)
@@ -111,4 +140,6 @@ class Slime(pygame.sprite.Sprite):
 
     def update(self):
         self.manage_invincibility_state()
+        self.perform_knockback()
         self.image_flash_refresh()
+        
