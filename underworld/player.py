@@ -18,19 +18,20 @@ class Player(pygame.sprite.Sprite):
         self.ANIFRAME_TIME_LIMIT = 10
         self.aniframe_time_count = 0
         self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
-        #self.image = pygame.image.load(f"assets/player/underworld/player.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 2 * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = 2 * settings.UNDERWORLD_TILE_SIZE
         self.gridx = round(self.rect.x / settings.UNDERWORLD_TILE_SIZE)
         self.gridy = round(self.rect.y / settings.UNDERWORLD_TILE_SIZE)
         self.speed = UNDERWORLD_PLAYERSPEED
-        self.B_key_down = False
-        self.top_left_highlighted_sprite = None
+
+        self.gameworld = "underworld"
+
+        #Used in view bobbing
         self.is_moving = False
         self.is_moving_x = False
         self.is_moving_y = False
-        self.gameworld = "underworld"
+        
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         for sprite in camera_group:
@@ -50,7 +51,7 @@ class Player(pygame.sprite.Sprite):
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
-    
+    """
     def detect_void_collision(self, camera_group, xspeed, yspeed):
         collideleft = False
         collidetop = False
@@ -75,53 +76,108 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= xspeed
         if collidebottom == False:
             self.rect.y -= yspeed
+    """
+
+
+    def detect_void_collisions_and_set_speed_modifier(self, camera_group, xspeed, yspeed):
+        collidex = True
+        if xspeed != 0:
+            if xspeed > 0:
+                collide_check_top = self.rect.topright
+                collide_check_mid = self.rect.midright
+                collide_check_bottom = self.rect.bottomright
+            else:
+                collide_check_top = self.rect.topleft
+                collide_check_mid = self.rect.midleft
+                collide_check_bottom = self.rect.topleft
+            collidex = False
+            collidetop, collidemid, collidebottom = False, False, False
+            for sprite in camera_group:
+                if sprite.type == "tile":
+                    if sprite.rect.collidepoint((collide_check_top[0] + xspeed, collide_check_top[1])):
+                        collidetop = True
+                    if sprite.rect.collidepoint((collide_check_mid[0] + xspeed, collide_check_mid[1])):
+                        collidemid = True
+                    if sprite.rect.collidepoint((collide_check_bottom[0] + xspeed, collide_check_bottom[1])):
+                        collidebottom = True
+
+            if collidetop and collidemid and collidebottom:
+                collidex = True
+            if not collidex:
+                mod = 0
+            else:
+                mod = 1
+            return mod
+        print("got here")
+        collidey = True
+        if yspeed != 0:
+            if yspeed > 0:
+                collide_check = self.rect.midbottom
+            else:
+                collide_check = self.rect.midtop
+            collidey = False
+            for sprite in camera_group:
+                if sprite.type == "tile":
+                    if sprite.rect.collidepoint((collide_check[0], collide_check[1] + yspeed)):
+                        collidey = True
+        print(collidey)
+        if not collidey:
+            mod = 0
+        else:
+            mod = 1
+        return mod
+            
+        
 
     def move_player(self, camera_group):
         self.is_moving = False #Used to check if player is walking
         self.is_moving_x = False
         self.is_moving_y = False
         key = pygame.key.get_pressed()
-        
+
         #Detection for diagonal speed reduction. 
         vertical = False
         horizontal = False
-        self.detect_void_collision(camera_group, UNDERWORLD_PLAYERSPEED, UNDERWORLD_PLAYERSPEED)
         if key[pygame.K_w] or key[pygame.K_s]:
             vertical = True
         if key[pygame.K_a] or key[pygame.K_d]:
             horizontal = True
         if vertical and horizontal:
             #Multiply speed by the inverse of sqrt of 2 if moving diagonally
-            self.speed = UNDERWORLD_PLAYERSPEED * 0.707
+            speed = UNDERWORLD_PLAYERSPEED * 0.707
         else:
-            self.speed = UNDERWORLD_PLAYERSPEED
+            speed = UNDERWORLD_PLAYERSPEED
 
         #left
         if key[pygame.K_a]:
             self.facing_direction = "left"
-            self.rect.x -= self.speed
-            self.detect_tile_collisions(camera_group, -self.speed, 0)
+            xspeed = speed * self.detect_void_collisions_and_set_speed_modifier(camera_group, -speed, 0)
+            self.rect.x -= xspeed
+            self.detect_tile_collisions(camera_group, -xspeed, 0)
             self.is_moving = True
             self.is_moving_x = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
-            self.rect.x += self.speed
-            self.detect_tile_collisions(camera_group, self.speed, 0)
+            xspeed = speed * self.detect_void_collisions_and_set_speed_modifier(camera_group, speed, 0)
+            self.rect.x += xspeed
+            self.detect_tile_collisions(camera_group, xspeed, 0)
             self.is_moving = True
             self.is_moving_x = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
-            self.rect.y += self.speed
-            self.detect_tile_collisions(camera_group, 0, self.speed)
+            yspeed = speed * self.detect_void_collisions_and_set_speed_modifier(camera_group, 0, speed)
+            self.rect.y += yspeed
+            self.detect_tile_collisions(camera_group, 0, yspeed)
             self.is_moving = True
             self.is_moving_y = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
-            self.rect.y -= self.speed
-            self.detect_tile_collisions(camera_group, 0, -self.speed)
+            yspeed = speed * self.detect_void_collisions_and_set_speed_modifier(camera_group, 0, -speed)
+            self.rect.y -= yspeed
+            self.detect_tile_collisions(camera_group, 0, -yspeed)
             self.is_moving = True
             self.is_moving_y = True
         
