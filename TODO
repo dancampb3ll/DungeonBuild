@@ -1,5 +1,7 @@
 Short term
 Improve void collision to be less strict
+
+Make portal side collision work
 Make enemies not walk on each other
 Add knockback to weapon, add knockback resistance to npcs
 Make dungeon generation system.

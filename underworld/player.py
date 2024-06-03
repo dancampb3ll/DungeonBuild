@@ -108,7 +108,6 @@ class Player(pygame.sprite.Sprite):
             else:
                 mod = 1
             return mod
-        print("got here")
         collidey = True
         if yspeed != 0:
             if yspeed > 0:
@@ -120,7 +119,6 @@ class Player(pygame.sprite.Sprite):
                 if sprite.type == "tile":
                     if sprite.rect.collidepoint((collide_check[0], collide_check[1] + yspeed)):
                         collidey = True
-        print(collidey)
         if not collidey:
             mod = 0
         else:
@@ -236,6 +234,7 @@ class Player(pygame.sprite.Sprite):
             "left": "right",
             "right": "left"
         }
+
         if sprite.portal_type == "overworld":
             if complement_sides[player_collision_side] == sprite.portal_collision_side:
                 self.rect.x = sprite.portal_destination[0] * settings.OVERWORLD_TILE_SIZE

@@ -105,7 +105,8 @@ def main():
 
     #Later to be modularised
     pygame.mixer.init()
-    pygame.mixer.music.load("assets/music/overworld/Lost-Jungle.mp3")
+    overworld_track = "assets/music/overworld/Lost-Jungle.mp3"
+    pygame.mixer.music.load(overworld_track)
     pygame.mixer.music.play(-1) #Repeat unlimited
     GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
     BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
@@ -114,12 +115,6 @@ def main():
     gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
     #Camera must be the first Pygame object defined.
     overworldcamera = gamestate.overworldcamera
-    underworldcamera = gamestate.underworldcamera
-    for i in range(0, 15):
-        for j in range(0, 15):
-            underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-    for i in range(15, 27):
-        underworld.tiles.UnderworldTile(i, 7, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     #HUD is separate from the camera
     hudgroup = pygame.sprite.Group()
@@ -152,7 +147,7 @@ def main():
     gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     player = OverworldPlayer(overworldcamera)
-    underworldplayer = underworld.player.Player(underworldcamera)
+    
 
     debugtext = hud.DebugText()
     screentext = pygame.sprite.Group()
@@ -166,10 +161,15 @@ def main():
     selected_world = "overworld"
     while mainloop:
         while selected_world == "overworld":
+            player.gameworld = selected_world
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
+            if gamestate.current_music != overworld_track:
+                pygame.mixer.music.load(overworld_track)
+                pygame.mixer.music.play(-1) #Repeat unlimited
+            gamestate.update_current_music(overworld_track)
             screen.fill((10, 10, 18))
             
 
@@ -210,17 +210,29 @@ def main():
             clock.tick(60)
 
         enemies = []
+        gamestate.underworldcamera = CameraGroup()
+        underworldcamera = gamestate.underworldcamera
+        for i in range(0, 15):
+            for j in range(0, 15):
+                underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+            for i in range(15, 27):
+                underworld.tiles.UnderworldTile(i, 7, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+            
+        underworld.tiles.UnderworldTile(-1, 0, "debugPortal", underworldcamera, ["overworld", (10, 10), "right"])
         enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
         enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
+        underworldplayer = underworld.player.Player(underworldcamera)
+        underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
         while selected_world == "underworld":
+            underworldplayer.gameworld = selected_world
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
                     selected_world = False
 
-            underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
+
             if gamestate.current_music != underworld_track:
                 pygame.mixer.music.load(underworld_track)
                 pygame.mixer.music.play(-1) #Repeat unlimited
@@ -245,6 +257,7 @@ def main():
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
+            selected_world = underworldplayer.gameworld
             pygame.display.update()
             clock.tick(60)
 
