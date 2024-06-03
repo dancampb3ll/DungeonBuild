@@ -212,7 +212,8 @@ class Weapon(pygame.sprite.Sprite):
                 "attack_length": 33,
                 "attack_duration": 10,
                 "sfx": ["sword1.mp3", "sword2.mp3", "sword3.mp3"],
-                "damage": 1
+                "damage": 1,
+                "knockback": 80
             }
         }
         self.attack_width = self.weapon_attributes[self.weapon]["attack_width"]
@@ -220,6 +221,7 @@ class Weapon(pygame.sprite.Sprite):
         self.attack_duration = self.weapon_attributes[self.weapon]["attack_duration"]
         self.sfx = self.weapon_attributes[self.weapon]["sfx"]
         self.damage = self.weapon_attributes[self.weapon]["damage"]
+        self.knockback = self.weapon_attributes[self.weapon]["knockback"]
 
         self.is_attacking = True
         self.attack_timer = 99999

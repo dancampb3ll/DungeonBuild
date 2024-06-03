@@ -36,29 +36,29 @@ class Slime(pygame.sprite.Sprite):
 
     def take_damage(self, weapon):
         weapon_damage = weapon.damage
-        weapon_direction = weapon.player_direction
 
         if not self.invincibility_timer_active:
             self.play_random_sfx_from_list(self.damage_sfx)
             self.invincibility_timer_active = True
             self.invincibility_timecount = 0
             self.health -= weapon_damage
-            self.knockback(weapon_direction)
+            self.knockback(weapon)
 
         if self.health <= 0:
             self.play_random_sfx_from_list(self.death_sfx)
             self.die()
 
-    def knockback(self, weapon_direction):
-        KNOCKBACK_TEMP_CONSTANT = 80
+    def knockback(self, weapon):
+        weapon_direction = weapon.player_direction
+        weapon_knockback = weapon.knockback
         if weapon_direction == "left":
-            self.rect.x -= KNOCKBACK_TEMP_CONSTANT
+            self.rect.x -= weapon_knockback
         elif weapon_direction == "right":
-            self.rect.x += KNOCKBACK_TEMP_CONSTANT
+            self.rect.x += weapon_knockback
         elif weapon_direction == "up":
-            self.rect.y -= KNOCKBACK_TEMP_CONSTANT
+            self.rect.y -= weapon_knockback
         elif weapon_direction == "down":
-            self.rect.y += KNOCKBACK_TEMP_CONSTANT
+            self.rect.y += weapon_knockback
 
     def die(self):
         self.kill()

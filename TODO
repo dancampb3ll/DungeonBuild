@@ -1,8 +1,21 @@
 Short term
 Make knockback smoother
+Make enemies not walk on each other
 Add knockback to weapon, add knockback resistance to npcs
 Make dungeon generation system.
 Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
+
+********************************************************************************
+List before completion
+********************************************************************************
+1. Random dungeon generation
+2. Inventory System
+3. Chest generation
+4. Coin drops/Coin pickup/Coin counter
+5. Overworld tile/building selling npc
+6. Save game
+7. Dungeon entry generation system (in overworld)
+********************************************************************************
 
 place_building_get_coords
     - Hover should hover the whole building size
