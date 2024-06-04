@@ -78,9 +78,16 @@ new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 255, 255), grass_texture_path, new_path)
 """
 #split_image("assets/Unused/Hero.png", "assets/Unused/player")
-
+"""
 files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
 for filename in files:
     imagepath = f"assets/player/overworld/{filename}.png"
     outputpath = f"assets/player/underworld/{filename}.png"
     resize_image(imagepath, outputpath, 32, 32)
+"""
+
+replace_image_path = "assets/underworldtiles/stairs.png"
+stone_texture_path = "assets/underworldtiles/cobblestone.png"
+new_path = replace_image_path + " replaced.png"
+replace_chroma_color(replace_image_path, (255, 255, 255), stone_texture_path, new_path)
+replace_chroma_color

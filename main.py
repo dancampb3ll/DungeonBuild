@@ -22,7 +22,7 @@ class GameState():
         self.current_music = None
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
-        self.underworld_sprite_dict = {}
+        self.underworld_tile_sprite_dict = {}
 
     def update_current_music(self, track):
         self.current_music = track
@@ -35,7 +35,9 @@ class GameState():
         for coord in map.keys():
             gridx = coord[0]
             gridy = coord[1]
-            underworld.tiles.UnderworldTile(gridx, gridy, map[coord], camera_group, DEFAULT_NO_TILE_PORTAL)
+            material = map[coord][0]
+            portal = map[coord][1]
+            self.underworld_tile_sprite_dict = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
 
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
@@ -160,7 +162,6 @@ def main():
     gamestate.sprite_dict.get((20, 20)).portal_type = "underworld"
     gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
-    player = OverworldPlayer(overworldcamera)
     
 
     debugtext = hud.DebugText()
@@ -174,6 +175,7 @@ def main():
     mainloop = True
     selected_world = "overworld"
     while mainloop:
+        player = OverworldPlayer(overworldcamera)
         while selected_world == "overworld":
             player.gameworld = selected_world
             input_events = pygame.event.get()
@@ -222,27 +224,14 @@ def main():
             selected_world = player.gameworld
             pygame.display.update()
             clock.tick(60)
+        player.kill()
 
         enemies = []
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
-        """
-        for i in range(0, 15):
-            for j in range(0, 15):
-                underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-            for i in range(15, 27):
-                underworld.tiles.UnderworldTile(i, 7, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-            for i in range(-10, 0):
-                underworld.tiles.UnderworldTile(i, 12, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-            for i in range(-10, 0):
-                underworld.tiles.UnderworldTile(12, i, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-            for i in range(-10, 0):
-                underworld.tiles.UnderworldTile(13, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-                underworld.tiles.UnderworldTile(11, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-        """
+
         gamestate.generate_underworld_dungeon_and_update_map()
         gamestate.update_sprite_dict_from_generated_map(underworldcamera)
-        #underworld.tiles.UnderworldTile(-1, 0, "debugPortal", underworldcamera, ["overworld", (10, 10), "right"])
         enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
         enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
@@ -282,7 +271,6 @@ def main():
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             selected_world = underworldplayer.gameworld
-            #print("Player left x, ", underworldplayer.rect.left, "Player left gridx, ", underworldplayer.rect.left // settings.UNDERWORLD_TILE_SIZE, "Player right x, ", underworldplayer.rect.right, "Player right gridx, ", underworldplayer.rect.right // settings.UNDERWORLD_TILE_SIZE)
             pygame.display.update()
             clock.tick(60)
 

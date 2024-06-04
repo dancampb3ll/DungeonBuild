@@ -20,10 +20,10 @@ class Player(pygame.sprite.Sprite):
         self.aniframe_time_count = 0
         self.image = pygame.image.load(f"assets/player/overworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = 22 * settings.OVERWORLD_TILE_SIZE
-        self.rect.y = 22 * settings.OVERWORLD_TILE_SIZE
-        self.gridx = round(self.rect.x / settings.OVERWORLD_TILE_SIZE)
-        self.gridy = round(self.rect.y / settings.OVERWORLD_TILE_SIZE)
+        self.gridx = 16
+        self.gridy = 16
+        self.rect.x = self.gridx * settings.OVERWORLD_TILE_SIZE
+        self.rect.y = self.gridy * settings.OVERWORLD_TILE_SIZE
         self.speed = PLAYERSPEED
         self.debug = ""
         self.buildmode = False

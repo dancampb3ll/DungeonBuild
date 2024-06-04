@@ -5,7 +5,7 @@ import random
 
 WALKABLE = ["cobblestone"]
 underworldmapdict = {}
-
+DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 class UnderworldTile(pygame.sprite.Sprite):
     """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
@@ -31,14 +31,16 @@ class UnderworldTile(pygame.sprite.Sprite):
 
 
 def generate_new_map_dict_and_spawns():
-    def generate_cobblestone_square_with_border(map, size, start_x, start_y):
+    def generate_cobblestone_square_with_border(map, gridheight, gridwidth, start_x, start_y, spawn_stairs = False):
         new_map = map
-        for i in range(start_x - 1, start_x + size + 1): #Adding border around spawn room
-            for j in range(start_y - 1, start_y + size + 1):
-                new_map[(i, j)] = "border"
-        for i in range(start_x, start_x + size):
-            for j in range(start_y, start_y + size):
-                new_map[(i, j)] = "cobblestone"
+        for i in range(start_x - 1, start_x + gridwidth + 1): #Adding border around spawn room
+            for j in range(start_y - 1, start_y + gridheight + 1):
+                new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
+        for i in range(start_x, start_x + gridwidth):
+            for j in range(start_y, start_y + gridheight):
+                new_map[(i, j)] = ["cobblestone", DEFAULT_NO_TILE_PORTAL]
+        if spawn_stairs:
+            new_map[(start_x + gridwidth - 1, start_y)] = ["stairs", ["overworld", (16, 16), "right"]]
         return new_map
         
     
@@ -51,6 +53,6 @@ def generate_new_map_dict_and_spawns():
     rooms = 1
     
     #Spawn room:
-    map = generate_cobblestone_square_with_border(map, 8, 0, 0)
-    print(map)
+    map = generate_cobblestone_square_with_border(map, 8, 8, 0, 0, True)
+
     return map, None
