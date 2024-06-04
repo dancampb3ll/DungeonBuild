@@ -20,8 +20,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 2 * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = 2 * settings.UNDERWORLD_TILE_SIZE
-        self.gridx = round(self.rect.x / settings.UNDERWORLD_TILE_SIZE)
-        self.gridy = round(self.rect.y / settings.UNDERWORLD_TILE_SIZE)
+        self.gridx = 0
+        self.gridy = 0
         self.speed = UNDERWORLD_PLAYERSPEED
 
         self.gameworld = "underworld"

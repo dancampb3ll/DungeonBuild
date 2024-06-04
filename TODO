@@ -1,10 +1,12 @@
 Short term
+Work on dungeon generation.
 
-Improve void collision to be less strict
+Make underworld sprite dict?
+
 
 Make portal side collision work - why does it work from every side?
 
-Make underworld sprite dict?
+
 
 
 Make enemies not walk on each other

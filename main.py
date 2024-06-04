@@ -20,9 +20,23 @@ class GameState():
         self.overworldcamera = CameraGroup()
         self.underworldcamera = CameraGroup()
         self.current_music = None
+        self.underworld_map_dict = {}
+        self.underworld_npc_spawn_dict = {}
+        self.underworld_sprite_dict = {}
 
     def update_current_music(self, track):
         self.current_music = track
+
+    def generate_underworld_dungeon_and_update_map(self):
+        self.underworld_map_dict, self.underworld_npc_spawn_dict = underworld.tiles.generate_new_map_dict_and_spawns()
+    
+    def update_sprite_dict_from_generated_map(self, camera_group):
+        map = self.underworld_map_dict
+        for coord in map.keys():
+            gridx = coord[0]
+            gridy = coord[1]
+            underworld.tiles.UnderworldTile(gridx, gridy, map[coord], camera_group, DEFAULT_NO_TILE_PORTAL)
+
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -212,6 +226,7 @@ def main():
         enemies = []
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
+        """
         for i in range(0, 15):
             for j in range(0, 15):
                 underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
@@ -224,8 +239,10 @@ def main():
             for i in range(-10, 0):
                 underworld.tiles.UnderworldTile(13, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
                 underworld.tiles.UnderworldTile(11, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-
-        underworld.tiles.UnderworldTile(-1, 0, "debugPortal", underworldcamera, ["overworld", (10, 10), "right"])
+        """
+        gamestate.generate_underworld_dungeon_and_update_map()
+        gamestate.update_sprite_dict_from_generated_map(underworldcamera)
+        #underworld.tiles.UnderworldTile(-1, 0, "debugPortal", underworldcamera, ["overworld", (10, 10), "right"])
         enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
         enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
