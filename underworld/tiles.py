@@ -15,7 +15,7 @@ class UnderworldTile(pygame.sprite.Sprite):
         super().__init__(pygame_group)
         self.type = "tile"
         self.tile = tiletypename
-        self.ignorecolour = (255, 128, 255) #The pink colour on image backgrounds to be transparent
+        self.ignorecolour = (255, 0, 255) #The pink colour on image backgrounds to be transparent
         self.image = pygame.image.load(f"assets/underworldtiles/{self.tile}.png").convert()
         self.raw_image = self.image.copy() #Required in case of image modifications (such as highlight for build)
         self.image.set_colorkey(self.ignorecolour)

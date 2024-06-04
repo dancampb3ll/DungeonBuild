@@ -1,7 +1,12 @@
 Short term
+
 Improve void collision to be less strict
 
-Make portal side collision work
+Make portal side collision work - why does it work from every side?
+
+Make underworld sprite dict?
+
+
 Make enemies not walk on each other
 Add knockback to weapon, add knockback resistance to npcs
 Make dungeon generation system.

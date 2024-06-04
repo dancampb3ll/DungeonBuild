@@ -217,7 +217,14 @@ def main():
                 underworld.tiles.UnderworldTile(i, j, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
             for i in range(15, 27):
                 underworld.tiles.UnderworldTile(i, 7, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
-            
+            for i in range(-10, 0):
+                underworld.tiles.UnderworldTile(i, 12, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+            for i in range(-10, 0):
+                underworld.tiles.UnderworldTile(12, i, "cobblestone", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+            for i in range(-10, 0):
+                underworld.tiles.UnderworldTile(13, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+                underworld.tiles.UnderworldTile(11, i, "border", underworldcamera, DEFAULT_NO_TILE_PORTAL)
+
         underworld.tiles.UnderworldTile(-1, 0, "debugPortal", underworldcamera, ["overworld", (10, 10), "right"])
         enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
         enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
@@ -258,6 +265,7 @@ def main():
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             selected_world = underworldplayer.gameworld
+            #print("Player left x, ", underworldplayer.rect.left, "Player left gridx, ", underworldplayer.rect.left // settings.UNDERWORLD_TILE_SIZE, "Player right x, ", underworldplayer.rect.right, "Player right gridx, ", underworldplayer.rect.right // settings.UNDERWORLD_TILE_SIZE)
             pygame.display.update()
             clock.tick(60)
 
