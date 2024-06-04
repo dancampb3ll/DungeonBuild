@@ -42,16 +42,17 @@ class UnderworldTile(pygame.sprite.Sprite):
             self.image = self.raw_image.copy()
             self.image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
         
-
-        darken1 = (50, 60, 60)
-        darken2 = (70, 80, 80) 
-        darken3 = (90, 100, 100)
-        darken4 = (110, 120, 120)
-        darken5 = (130, 140, 140)
-        darken6 = (150, 160, 160)
-        darken7 = (170, 180, 180)
-        darken8 = (190, 200, 200)
-        darken9 = (210, 220, 220)
+        DARKNESS_PARAMETER = 0.8 #1 Max
+        
+        darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
+        darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
+        darken3 = (90*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER)
+        darken4 = (110*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER)
+        darken5 = (130*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER)
+        darken6 = (150*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER)
+        darken7 = (170*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER)
+        darken8 = (190*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER)
+        darken9 = (210*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER)
         if distance <= 1:
             self.image = self.raw_image.copy()
             self.image.fill(darken1, special_flags=pygame.BLEND_RGB_SUB)
@@ -83,7 +84,7 @@ class UnderworldTile(pygame.sprite.Sprite):
 
 
 def generate_new_map_dict_and_spawns():
-    def generate_cobblestone_square_with_border(map, gridheight, gridwidth, start_x, start_y, spawn_stairs = False):
+    def generate_cobblestone_square_with_border(map, gridwidth, gridheight, start_x, start_y, spawn_stairs = False):
         new_map = map
         for i in range(start_x - 1, start_x + gridwidth + 1): #Adding border around spawn room
             for j in range(start_y - 1, start_y + gridheight + 1):
@@ -94,6 +95,19 @@ def generate_new_map_dict_and_spawns():
         if spawn_stairs:
             new_map[(start_x + gridwidth - 1, start_y)] = ["stairs", ["overworld", (16, 16), "right"]]
         return new_map
+    
+    def generate_cobblestone_walkway(map, gridwidth, gridheight, start_x, start_y):
+        new_map = map
+        for i in range(start_x, start_x + gridwidth):
+            for j in range(start_y, start_y + gridheight):
+                if new_map.get((i, j), None) == None or new_map.get((i, j), None)[0] == "border":
+                    new_map[(i, j)] = ["cobblestone", DEFAULT_NO_TILE_PORTAL]
+        #Adding border
+        for i in range(start_x - 1, start_x + gridwidth + 1):
+            for j in range(start_y - 1, start_y + gridheight + 1):
+                if new_map.get((i, j), None) == None:
+                    new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
+        return new_map 
 
     map = {}
     taken_ranges = []
@@ -103,6 +117,9 @@ def generate_new_map_dict_and_spawns():
     rooms = 1
     
     #Spawn room:
-    map = generate_cobblestone_square_with_border(map, 8, 8, 0, 0, True)
+    map = generate_cobblestone_square_with_border(map, 8, 16, 0, 0, True)
+    
+    map = generate_cobblestone_square_with_border(map, 8, 8, 4, 24)
+    map = generate_cobblestone_walkway(map, 2, 11, 5, 15)
 
     return map, None

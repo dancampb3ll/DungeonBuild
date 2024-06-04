@@ -1,9 +1,10 @@
 Short term
+
 Work on dungeon generation.
-
-Add player swipe
+Add coin drops
+Add player swipe animation
 Make underworld sprite dict?
-
+Add npc tile collision
 
 Make portal side collision work - why does it work from every side?
 
