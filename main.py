@@ -37,7 +37,7 @@ class GameState():
             gridy = coord[1]
             material = map[coord][0]
             portal = map[coord][1]
-            self.underworld_tile_sprite_dict = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
+            self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
 
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
@@ -261,7 +261,6 @@ def main():
             underworldcamera.remove(underworldplayer)
             underworldcamera.add(underworldplayer)
             #*********************
-
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
             
@@ -270,6 +269,10 @@ def main():
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
+            
+            for key in gamestate.underworld_tile_sprite_dict.keys():
+                gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
+
             selected_world = underworldplayer.gameworld
             pygame.display.update()
             clock.tick(60)

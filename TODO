@@ -1,6 +1,7 @@
 Short term
 Work on dungeon generation.
 
+Add player swipe
 Make underworld sprite dict?
 
 
@@ -10,9 +11,7 @@ Make portal side collision work - why does it work from every side?
 
 
 Make enemies not walk on each other
-Add knockback to weapon, add knockback resistance to npcs
-Make dungeon generation system.
-Make player movement better (so you don't need to be exactly on the tile alignment to be able to move.)
+add knockback resistance to npcs
 
 ********************************************************************************
 List before completion
