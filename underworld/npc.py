@@ -10,7 +10,7 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 class Npc(pygame.sprite.Sprite):
-    def __init__(self, pygame_group, x, y, npctype):
+    def __init__(self, pygame_group, gridx, gridy, npctype):
         super().__init__(pygame_group)
         self.type = "npc"
         self.npc = npctype
@@ -20,10 +20,11 @@ class Npc(pygame.sprite.Sprite):
         self.image = self.raw_image.copy()
 
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
-        self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
+        self.gridx = gridx
+        self.gridy = gridy
+        self.rect.x = self.gridx * settings.UNDERWORLD_TILE_SIZE
+        self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
+        
         
         self.attributes = {
             "slime": {
