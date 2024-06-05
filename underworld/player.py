@@ -181,7 +181,7 @@ class Weapon(pygame.sprite.Sprite):
                 "right": (2, -10)
             }
         }
-        self.weapon_attributes = {
+        self.attributes = {
             "dagger": {
                 "attack_width": 40,
                 "attack_length": 33,
@@ -191,12 +191,12 @@ class Weapon(pygame.sprite.Sprite):
                 "knockback": 80
             }
         }
-        self.attack_width = self.weapon_attributes[self.weapon]["attack_width"]
-        self.attack_length = self.weapon_attributes[self.weapon]["attack_length"]
-        self.attack_duration = self.weapon_attributes[self.weapon]["attack_duration"]
-        self.sfx = self.weapon_attributes[self.weapon]["sfx"]
-        self.damage = self.weapon_attributes[self.weapon]["damage"]
-        self.knockback = self.weapon_attributes[self.weapon]["knockback"]
+        self.attack_width = self.attributes[self.weapon]["attack_width"]
+        self.attack_length = self.attributes[self.weapon]["attack_length"]
+        self.attack_duration = self.attributes[self.weapon]["attack_duration"]
+        self.sfx = self.attributes[self.weapon]["sfx"]
+        self.damage = self.attributes[self.weapon]["damage"]
+        self.knockback = self.attributes[self.weapon]["knockback"]
 
         self.is_attacking = True
         self.attack_timer = 99999

@@ -232,8 +232,8 @@ def main():
 
         gamestate.generate_underworld_dungeon_and_update_map()
         gamestate.update_sprite_dict_from_generated_map(underworldcamera)
-        enemies.append(underworld.npc.Slime(underworldcamera, 50, 50))
-        enemies.append(underworld.npc.Slime(underworldcamera, 350, 350))
+        enemies.append(underworld.npc.Npc(underworldcamera, 50, 50, "slime"))
+        enemies.append(underworld.npc.Npc(underworldcamera, 350, 350, "slime"))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"

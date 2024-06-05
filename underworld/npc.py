@@ -8,26 +8,43 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x2, y2 = point2
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-class Slime(pygame.sprite.Sprite):
-    def __init__(self, pygame_group, x, y):
+class Npc(pygame.sprite.Sprite):
+    def __init__(self, pygame_group, x, y, npctype):
         super().__init__(pygame_group)
         self.type = "npc"
-        self.npc = "slime"
+        self.npc = npctype
         self.health = 5
-        self.speed = 1
         self.ignorecolour = (255, 0, 255)
-        self.raw_image = pygame.image.load(f"assets/npc/underworld/slime.png").convert_alpha()
+        self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}.png").convert_alpha()
         self.image = self.raw_image.copy()
-        #self.image.set_colorkey(self.ignorecolour)
-        self.aggression_distance = 200
 
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
         self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
-        self.damage_sfx = ["take_damage1.mp3"]
-        self.death_sfx = ["death1.mp3"]
+        
+        self.attributes = {
+            "slime": {
+                "damage_sfx": ["take_damage1.mp3"],
+                "death_sfx": ["death1.mp3"],
+                "aggression_distance": 280,
+                "knockback_resistance_min": 4,
+                "knockback_resistance_max": 8,
+                "speed_min" : 100,
+                "speed_max" : 100
+            }
+        }
+        self.aggression_distance = self.attributes[self.npc]["aggression_distance"]
+        self.damage_sfx = self.attributes[self.npc]["damage_sfx"]
+        self.death_sfx = self.attributes[self.npc]["death_sfx"]
+        self.knockback_resistance_min = self.attributes[self.npc]["knockback_resistance_min"]
+        self.knockback_resistance_max = self.attributes[self.npc]["knockback_resistance_max"]
+        self.knockback_resistance = random.randint(self.knockback_resistance_min, self.knockback_resistance_max)
+        self.speed_min = self.attributes[self.npc]["speed_min"]
+        self.speed_max = self.attributes[self.npc]["speed_max"]
+        self.speed = random.randint(self.speed_min, self.speed_max) / 100
+
         self.knockbackx = None
         self.knockbacky = None
 
@@ -53,14 +70,15 @@ class Slime(pygame.sprite.Sprite):
     def set_knockback_position(self, weapon):
         weapon_direction = weapon.player_direction
         weapon_knockback = weapon.knockback
+        knockback_effect = max(0, weapon_knockback - self.knockback_resistance)
         if weapon_direction == "left":
-            self.knockbackx = self.rect.x - weapon_knockback
+            self.knockbackx = self.rect.x - knockback_effect
         elif weapon_direction == "right":
-            self.knockbackx = self.rect.x + weapon_knockback
+            self.knockbackx = self.rect.x + knockback_effect
         elif weapon_direction == "up":
-            self.knockbacky = self.rect.y - weapon_knockback
+            self.knockbacky = self.rect.y - knockback_effect
         elif weapon_direction == "down":
-            self.knockbackx = self.rect.x + weapon_knockback
+            self.knockbacky = self.rect.y + knockback_effect
 
     def perform_knockback(self):
         if self.knockbackx == None and self.knockbacky == None:
