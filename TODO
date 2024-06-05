@@ -2,6 +2,14 @@ Short term
 
 Work on dungeon generation.
 Add coin drops
+Add dungeon counts: Silver (total dungeons completed) and Gold (unique dungeons completed).
+    - Dungeon difficulty should scale off gold dungeons
+
+Add knockbackmin, knockbackmax to weapons for variation
+Add random speed variations to npcs in spawn
+Make slime into npc class (generic like weapon)
+
+Dungeons should spawn in the overworld
 Add player swipe animation
 Make underworld sprite dict?
 Add npc tile collision

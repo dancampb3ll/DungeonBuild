@@ -272,6 +272,9 @@ def main():
             
             for key in gamestate.underworld_tile_sprite_dict.keys():
                 gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
+            for sprite in underworldcamera.sprites():
+                if sprite.type == "npc":
+                    sprite.apply_lighting_from_player(underworldplayer.rect.center)
 
             selected_world = underworldplayer.gameworld
             pygame.display.update()

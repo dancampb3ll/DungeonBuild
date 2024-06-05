@@ -71,6 +71,28 @@ def resize_image(input_path, output_path, xheight, yheight):
         resized_img = img.resize((xheight, yheight), Image.NEAREST)
         resized_img.save(output_path)
 
+def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
+    img = Image.open(image_input_path).convert("RGBA")
+
+    data = img.getdata()
+
+    # Creates a new image with transparency
+    new_data = []
+    for item in data:
+        if item[0] == r and item[1] == g and item[2] == b:
+            new_data.append((255, 255, 255, 0))  # Transparent
+        else:
+            new_data.append(item)
+
+    img.putdata(new_data)
+
+    img.save(image_output_path)
+
+replace_image_path = "assets/npc/underworld/slime.png"
+output_path = "assets/npc/underworld/slimeNew.png"
+make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
+
+
 """
 replace_image_path = "assets/unused/tinyPot.png"
 grass_texture_path = "assets/overgroundGrass.png"
@@ -86,8 +108,10 @@ for filename in files:
     resize_image(imagepath, outputpath, 32, 32)
 """
 
+"""
 replace_image_path = "assets/underworldtiles/stairs.png"
 stone_texture_path = "assets/underworldtiles/cobblestone.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 255, 255), stone_texture_path, new_path)
 replace_chroma_color
+"""

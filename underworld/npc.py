@@ -16,17 +16,16 @@ class Slime(pygame.sprite.Sprite):
         self.health = 5
         self.speed = 1
         self.ignorecolour = (255, 0, 255)
-        self.image_visible = pygame.image.load(f"assets/npc/underworld/slime.png").convert_alpha()
-        self.image_visible.set_colorkey(self.ignorecolour)
-        self.image_invisible = pygame.Surface(self.image_visible.get_size(), pygame.SRCALPHA)
-        self.image_invisible.fill((255, 0, 255))  # Fill with transparent color
-        self.image_invisible.set_colorkey(self.ignorecolour)
-        self.image = self.image_visible
+        self.raw_image = pygame.image.load(f"assets/npc/underworld/slime.png").convert_alpha()
+        self.image = self.raw_image.copy()
+        #self.image.set_colorkey(self.ignorecolour)
         self.aggression_distance = 200
 
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
+        self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
         self.damage_sfx = ["take_damage1.mp3"]
         self.death_sfx = ["death1.mp3"]
         self.knockbackx = None
@@ -84,25 +83,72 @@ class Slime(pygame.sprite.Sprite):
             else:
                 self.knockbacky = None
 
+    def apply_lighting_from_player(self, player_mid_coords):
+        self.image = self.raw_image.copy()
+        player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
+        player_gridy = player_mid_coords[1] // settings.UNDERWORLD_TILE_SIZE
+        distance = ((self.gridx - player_gridx) ** 2 + (self.gridy - player_gridy) ** 2) ** 0.5
+        darkenmax = (255, 255, 255)
+        
+        #These two statements are to speed up the algorithm
+        if distance > 14.7:
+            return
+        if distance > 8.1:
+            self.image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
+        
+        DARKNESS_PARAMETER = 0.8 #1 Max
+        
+        darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
+        darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
+        darken3 = (90*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER)
+        darken4 = (110*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER)
+        darken5 = (130*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER)
+        darken6 = (150*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER)
+        darken7 = (170*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER)
+        darken8 = (190*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER)
+        darken9 = (210*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER)
+        if distance <= 1:
+            self.image.fill(darken1, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 1.41 + 0.05:
+            self.image.fill(darken2, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 2.24 + 0.05:
+            self.image.fill(darken3, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 3.16 + 0.05:
+            self.image.fill(darken4, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 4.12 + 0.05:
+            self.image.fill(darken5, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 5.1 + 0.05:
+            self.image.fill(darken6, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 6.08 + 0.05:
+            self.image.fill(darken7, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 7.07 + 0.05:
+            self.image.fill(darken8, special_flags=pygame.BLEND_RGB_SUB)
+        elif distance <= 8.06 + 0.05:
+            self.image.fill(darken9, special_flags=pygame.BLEND_RGB_SUB)
 
 
+    def update_grid_locations(self):
+        self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
+        self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
 
     def die(self):
         self.kill()
 
-    def image_flash_refresh(self):
-        FLASH_MODULUS = 6
-        if self.invincibility_timer_active == False:
-            self.image_showing = True
-            self.image = self.image_visible
-            return
-        if self.invincibility_timecount % FLASH_MODULUS == 0:
-            self.image_showing = not self.image_showing
-            if self.image_showing == True:
+    """
+        def image_flash_refresh(self):
+            FLASH_MODULUS = 6
+            if self.invincibility_timer_active == False:
+                self.image_showing = True
                 self.image = self.image_visible
-            else:
-                self.image = self.image_invisible
-
+                return
+            if self.invincibility_timecount % FLASH_MODULUS == 0:
+                self.image_showing = not self.image_showing
+                if self.image_showing == True:
+                    self.image = self.image_visible
+                else:
+                    self.image = self.image_invisible
+    """
+                
     def manage_invincibility_state(self):
         if self.invincibility_timer_active:
             self.invincibility_timecount += 1
@@ -139,7 +185,9 @@ class Slime(pygame.sprite.Sprite):
         None
 
     def update(self):
+        self.update_grid_locations()
         self.manage_invincibility_state()
         self.perform_knockback()
-        self.image_flash_refresh()
+        #self.image_flash_refresh()
+        
         
