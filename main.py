@@ -265,7 +265,7 @@ def main():
             underworldcamera.custom_draw(underworldplayer)
             
             for enemy in enemies:
-                enemy.basic_pathfind(underworldplayer)
+                enemy.basic_pathfind(underworldplayer, underworldcamera)
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)

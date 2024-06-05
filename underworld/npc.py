@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 import settings
+import underworld
 
 def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x1, y1 = point1
@@ -144,6 +145,20 @@ class Npc(pygame.sprite.Sprite):
         elif distance <= 8.06 + 0.05:
             self.image.fill(darken9, special_flags=pygame.BLEND_RGB_SUB)
 
+    def detect_tile_collisions(self, camera_group, xspeed, yspeed):
+        for sprite in camera_group:
+            if sprite.type == "tile":
+                collide = sprite.rect.colliderect(self.rect)
+                if collide:
+                    if sprite.tile not in underworld.tiles.WALKABLE:
+                        if xspeed > 0:
+                            self.rect.right = sprite.rect.left
+                        elif xspeed < 0:
+                            self.rect.left = sprite.rect.right
+                        if yspeed > 0:
+                            self.rect.bottom = sprite.rect.top
+                        elif yspeed < 0:
+                            self.rect.top = sprite.rect.bottom
 
     def update_grid_locations(self):
         self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
@@ -180,7 +195,7 @@ class Npc(pygame.sprite.Sprite):
         sfx = pygame.mixer.Sound(f"assets/sfx/underworld/{self.npc}/{sfx_list[random_sfx_num]}")
         sfx.play()
 
-    def basic_pathfind(self, player):
+    def basic_pathfind(self, player, underworldcamera):
         if self.knockbackx != None or self.knockbacky != None:
             return
         player_rect = player.rect
@@ -192,12 +207,16 @@ class Npc(pygame.sprite.Sprite):
         if distance_from_player < self.aggression_distance:
             if self.rect.x < player_center_pos[0]:
                 self.rect.x += self.speed
+                self.detect_tile_collisions(underworldcamera, self.speed, 0)
             elif self.rect.x > player_center_pos[0]:
                 self.rect.x -= self.speed
+                self.detect_tile_collisions(underworldcamera, -self.speed, 0)
             if self.rect.y < player_center_pos[1]:
                 self.rect.y += self.speed
+                self.detect_tile_collisions(underworldcamera, 0, self.speed)
             elif self.rect.y > player_center_pos[1]:
                 self.rect.y -= self.speed
+                self.detect_tile_collisions(underworldcamera, 0, -self.speed)
 
     def attack_sequence(self, player):
         None
