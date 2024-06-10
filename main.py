@@ -175,13 +175,15 @@ def main():
     overworldcamera = gamestate.overworldcamera
 
     #HUD is separate from the camera
-    hudgroup = pygame.sprite.Group()
-    hudbar = hud.FloatingHud()
-    cointext = hud.CoinText(hudbar.rect.topleft[0], hudbar.rect.topleft[1])
+    overworld_hudgroup = pygame.sprite.Group()
+    overworld_hudbar = hud.OverworldHud()
+    overworld_cointext = hud.CoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1])
     buildhud = hud.BuildHud()
-    hudgroup.add(hudbar)
-    hudgroup.add(cointext)
-    hudgroup.add(buildhud)
+    overworld_hudgroup.add(overworld_hudbar)
+    overworld_hudgroup.add(overworld_cointext)
+    overworld_hudgroup.add(buildhud)
+
+    underworld_hudgroup = pygame.sprite.Group()
 
     #Drawing tiles
     overworld_map_dict = gamestate.overworld_map_dict
@@ -259,7 +261,7 @@ def main():
 
             tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
 
-            hudgroup.draw(screen)
+            overworld_hudgroup.draw(screen)
 
             building_tooltips.update()
             building_tooltips.draw(screen)
@@ -280,7 +282,8 @@ def main():
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
-        
+        underworld_hudbar = hud.UnderworldHud()
+        underworld_hudgroup.add(underworld_hudbar)
         while selected_world == "underworld":
             underworldplayer.gameworld = selected_world
             input_events = pygame.event.get()
@@ -320,7 +323,10 @@ def main():
                 for sprite in underworldcamera.sprites():
                     if sprite.type == "npc":
                         sprite.apply_lighting_from_player(underworldplayer.rect.center)
-
+            
+            underworld_hudgroup.draw(screen)
+            underworld_hudbar.custom_draw(screen)
+            underworld_hudbar.update_red_healthbar(underworldplayer.health)
             selected_world = underworldplayer.gameworld
             pygame.display.update()
             clock.tick(60)

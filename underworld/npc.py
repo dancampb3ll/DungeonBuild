@@ -34,7 +34,7 @@ class Npc(pygame.sprite.Sprite):
                 "knockback_resistance_max": 8,
                 "speed_min" : 100,
                 "speed_max" : 100,
-                "health": 100 #Should be 5
+                "health": 5 #Should be 5
             }
         }
         self.health = self.attributes[self.npc]["health"]

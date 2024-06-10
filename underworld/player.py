@@ -22,8 +22,9 @@ class Player(pygame.sprite.Sprite):
         self.gridy = 1
         self.rect.x = self.gridx * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
+        self.health = 100
         self.speed = UNDERWORLD_PLAYERSPEED
-
+        
         self.gameworld = "underworld"
 
         #Used in view bobbing

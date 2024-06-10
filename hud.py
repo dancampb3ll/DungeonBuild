@@ -19,7 +19,7 @@ class DebugText(pygame.sprite.Sprite):
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (5, 5))
 
-class FloatingHud(pygame.sprite.Sprite):
+class OverworldHud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.type = "hud"
@@ -66,6 +66,42 @@ class CoinText(pygame.sprite.Sprite):
     def update_coin_count(self, newcoincount):
         self.coincount = newcoincount
         self.update_coin_display()
+
+class UnderworldHud(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.type = "hud"
+        self.hud = "underworldhud"
+        self.image = pygame.image.load("assets/hud/underworld_hudbar.png").convert()
+        self.image.set_colorkey((255,0,255))
+        self.rect = self.image.get_rect()
+        self.rect.x = settings.SCREEN_WIDTH // 2 - self.rect.w // 2
+        self.rect.y = settings.SCREEN_HEIGHT - self.rect.h + 3
+
+
+        self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 10
+        self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 10
+        self.GREEN_HEALTHBAR_WIDTH = 220
+        self.GREEN_HEALTHBAR_HEIGHT = 10
+        self.healthrect_green = pygame.Rect(self.GREEN_HEALTHBAR_START_PIXELX, self.GREEN_HEALTHBAR_START_PIXELY, self.GREEN_HEALTHBAR_WIDTH, self.GREEN_HEALTHBAR_HEIGHT)
+        
+        self.RED_HEALTHBAR_END_PIXELX = self.GREEN_HEALTHBAR_START_PIXELX + self.GREEN_HEALTHBAR_WIDTH + 1
+        self.RED_HEALTHBAR_START_PIXELY = self.GREEN_HEALTHBAR_START_PIXELY
+        self.red_healthbar_start_pixelx = self.RED_HEALTHBAR_END_PIXELX
+        self.RED_HEALTHBAR_HEIGHT = self.GREEN_HEALTHBAR_HEIGHT
+        self.RED_HEALTHBAR_WIDTH = 0
+        self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
+
+    def update_red_healthbar(self, health):
+        percentage_health_taken = (1 - health/100)
+        total_healthbar_width = self.GREEN_HEALTHBAR_WIDTH
+        self.RED_HEALTHBAR_WIDTH = percentage_health_taken * self.GREEN_HEALTHBAR_WIDTH
+        self.red_healthbar_start_pixelx = self.RED_HEALTHBAR_END_PIXELX - self.RED_HEALTHBAR_WIDTH
+        self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
+
+    def custom_draw(self, screen):
+        pygame.draw.rect(screen, (100, 255, 100), self.healthrect_green, 0)
+        pygame.draw.rect(screen, (255, 100, 100), self.healthrect_red, 0)
 
 class ToolTip(pygame.sprite.Sprite):
     def __init__(self, initx, inity, building_type):
