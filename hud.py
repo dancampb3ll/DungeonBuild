@@ -79,9 +79,9 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.rect.y = settings.SCREEN_HEIGHT - self.rect.h + 3
 
 
-        self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 10
-        self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 10
-        self.GREEN_HEALTHBAR_WIDTH = 220
+        self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 8
+        self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 9
+        self.GREEN_HEALTHBAR_WIDTH = 210
         self.GREEN_HEALTHBAR_HEIGHT = 10
         self.healthrect_green = pygame.Rect(self.GREEN_HEALTHBAR_START_PIXELX, self.GREEN_HEALTHBAR_START_PIXELY, self.GREEN_HEALTHBAR_WIDTH, self.GREEN_HEALTHBAR_HEIGHT)
         

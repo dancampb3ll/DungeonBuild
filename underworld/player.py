@@ -24,8 +24,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
         self.health = 100
         self.speed = UNDERWORLD_PLAYERSPEED
-        
+
         self.gameworld = "underworld"
+
+        self.invincibility_state = False
+        self.invincibility_timer = 0
+        self.INVINCIBILITY_MAX_TIME = 20
 
         #Used in view bobbing
         self.is_moving = False
@@ -51,6 +55,21 @@ class Player(pygame.sprite.Sprite):
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
+
+    def update_invincibility_state(self):
+        if not self.invincibility_state:
+            return
+        self.invincibility_timer += 1
+        if self.invincibility_timer > self.INVINCIBILITY_MAX_TIME:
+            self.invincibility_timer
+            self.invincibility_state = False
+
+
+    def take_damage(self, damage):
+        if self.invincibility_state:
+            return
+        self.health -= damage
+        self.invincibility_state = True
 
     def move_player(self, camera_group):
         self.is_moving = False #Used to check if player is walking
@@ -161,6 +180,10 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x = sprite.portal_destination[0] * settings.OVERWORLD_TILE_SIZE
                 self.rect.y = sprite.portal_destination[1] * settings.OVERWORLD_TILE_SIZE
         self.gameworld = sprite.portal_type
+
+    def update(self):
+        self.update_invincibility_state()
+        print("running")
 
     def custom_update(self):
         self.update_grid_locations()

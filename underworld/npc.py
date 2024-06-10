@@ -34,7 +34,8 @@ class Npc(pygame.sprite.Sprite):
                 "knockback_resistance_max": 8,
                 "speed_min" : 100,
                 "speed_max" : 100,
-                "health": 5 #Should be 5
+                "health": 5, #Should be 5,
+                "damage": 1
             }
         }
         self.health = self.attributes[self.npc]["health"]
@@ -47,6 +48,7 @@ class Npc(pygame.sprite.Sprite):
         self.speed_min = self.attributes[self.npc]["speed_min"]
         self.speed_max = self.attributes[self.npc]["speed_max"]
         self.speed = random.randint(self.speed_min, self.speed_max) / 100
+        self.damage = self.attributes[self.npc]["damage"]
 
         self.knockbackx = None
         self.knockbacky = None
@@ -241,7 +243,7 @@ class Npc(pygame.sprite.Sprite):
                 self.detect_tile_collisions(underworldcamera, 0, -self.speed)
 
     def attack_sequence(self, player):
-        None
+        player.take_damage(self.damage)
 
     def custom_update(self, player, camera):
         self.perform_knockback(camera)
