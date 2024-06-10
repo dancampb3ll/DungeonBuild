@@ -50,7 +50,6 @@ class GameState():
                     self.underworld_todraw_tile_dict[(gridx, gridy)] = True
 
         determine_to_draw_dict(self, camera_group, player_center)
-        print(self.underworld_todraw_tile_dict)
 
         for coord in map.keys():
             gridx = coord[0]
@@ -140,6 +139,15 @@ def check_buildmode_and_update_tooltips(player_buildmode, player_selected_buildi
         building_tooltips_group.add(rightTT)
         return leftTT, rightTT
 
+def refresh_underworld_draw_order(camera_group):
+    #Drawn from lowest priority to max
+    draw_order = ["tile", "npc", "player", "weapon"]
+
+    for sprite_type in draw_order:
+        for sprite in camera_group.sprites():
+            if sprite.type == sprite_type:    
+                camera_group.remove(sprite)
+                camera_group.add(sprite)
 
 def main():
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
@@ -288,9 +296,7 @@ def main():
 
             dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction, underworldplayer.is_moving_x, underworldplayer.is_moving_y)
 
-            #Moves player to front in case of new blocks being built (which are automatically appended to the end of the group)
-            underworldcamera.remove(underworldplayer)
-            underworldcamera.add(underworldplayer)
+            refresh_underworld_draw_order(underworldcamera)
             #*********************
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
