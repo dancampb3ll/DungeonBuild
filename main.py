@@ -6,6 +6,7 @@ import underworld.player
 import underworld.npc
 import settings
 import hud
+import math
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
@@ -23,6 +24,7 @@ class GameState():
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
+        self.underworld_todraw_tile_dict = {}
 
     def update_current_music(self, track):
         self.current_music = track
@@ -30,15 +32,41 @@ class GameState():
     def generate_underworld_dungeon_and_update_map(self):
         self.underworld_map_dict, self.underworld_npc_spawn_dict = underworld.tiles.generate_new_map_dict_and_spawns()
     
-    def update_sprite_dict_from_generated_map(self, camera_group):
+    def update_sprite_dict_and_drawn_map(self, camera_group, player_center):
         map = self.underworld_map_dict
+        def calculate_distance_pythagoras(point1: tuple, point2: tuple):
+            x1, y1 = point1
+            x2, y2 = point2
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        def determine_to_draw_dict(self, camera_group, player_center):
+            player_gridx = player_center[0] // settings.UNDERWORLD_TILE_SIZE
+            player_gridy = player_center[1] // settings.UNDERWORLD_TILE_SIZE
+            self.underworld_todraw_tile_dict = {}
+            for coord in map.keys():
+                gridx = coord[0]
+                gridy = coord[1]
+                distance = calculate_distance_pythagoras((gridx, gridy), (player_gridx, player_gridy))
+                if distance < 8.1:
+                    self.underworld_todraw_tile_dict[(gridx, gridy)] = True
+
+        determine_to_draw_dict(self, camera_group, player_center)
+        print(self.underworld_todraw_tile_dict)
+
         for coord in map.keys():
             gridx = coord[0]
             gridy = coord[1]
             material = map[coord][0]
             portal = map[coord][1]
-            self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
-
+            #Handling tiles to draw not in current sprite dict
+            #print(self.underworld_todraw_tile_dict.get((0, 0), "Not in to draw"))
+            #print(self.underworld_tile_sprite_dict.get((0, 0), "Undrawn"))
+            if self.underworld_todraw_tile_dict.get(coord, False) == True:
+                if self.underworld_tile_sprite_dict.get(coord, False) == False:
+                    self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
+            else:
+                if self.underworld_tile_sprite_dict.get(coord, False) != False:
+                    self.underworld_tile_sprite_dict[(gridx, gridy)].kill()
+                    self.underworld_tile_sprite_dict[(gridx, gridy)] = False
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -58,7 +86,7 @@ def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topl
             tilename = overworld.tiles.TILE_MAPPINGS[tilenum]
             #Kills the original sprite before generating a new tile to replace it.
             gamestate.sprite_dict[(x, y)].kill()
-            #Creates an instance of the new tile.
+            #Creates an instance of the new tile
             gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
         if play_sfx:
             play_sfx.play()
@@ -230,13 +258,14 @@ def main():
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
 
-        gamestate.generate_underworld_dungeon_and_update_map()
-        gamestate.update_sprite_dict_from_generated_map(underworldcamera)
+        
         enemies.append(underworld.npc.Npc(underworldcamera, 2, 4, "slime"))
         enemies.append(underworld.npc.Npc(underworldcamera, 3, 9, "slime"))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
+        gamestate.generate_underworld_dungeon_and_update_map()
+        
         while selected_world == "underworld":
             underworldplayer.gameworld = selected_world
             input_events = pygame.event.get()
@@ -255,6 +284,8 @@ def main():
             underworldplayer.move_player(underworldcamera)
             underworldplayer.custom_update()
 
+            gamestate.update_sprite_dict_and_drawn_map(underworldcamera, underworldplayer.rect.center)
+
             dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction, underworldplayer.is_moving_x, underworldplayer.is_moving_y)
 
             #Moves player to front in case of new blocks being built (which are automatically appended to the end of the group)
@@ -270,11 +301,12 @@ def main():
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             
-            for key in gamestate.underworld_tile_sprite_dict.keys():
-                gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
-            for sprite in underworldcamera.sprites():
-                if sprite.type == "npc":
-                    sprite.apply_lighting_from_player(underworldplayer.rect.center)
+            if not underworld.tiles.DARKNESS_DEBUG:
+                for key in gamestate.underworld_tile_sprite_dict.keys():
+                    gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
+                for sprite in underworldcamera.sprites():
+                    if sprite.type == "npc":
+                        sprite.apply_lighting_from_player(underworldplayer.rect.center)
 
             selected_world = underworldplayer.gameworld
             pygame.display.update()

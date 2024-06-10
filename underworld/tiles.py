@@ -6,6 +6,10 @@ import random
 WALKABLE = ["cobblestone"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
+DARKNESS_PARAMETER = 0.3 #1 Max
+
+DARKNESS_DEBUG = True
+darkenmax = (255, 255, 255)
 
 class UnderworldTile(pygame.sprite.Sprite):
     """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
@@ -33,7 +37,7 @@ class UnderworldTile(pygame.sprite.Sprite):
         player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
         player_gridy = player_mid_coords[1] // settings.UNDERWORLD_TILE_SIZE
         distance = ((self.gridx - player_gridx) ** 2 + (self.gridy - player_gridy) ** 2) ** 0.5
-        darkenmax = (255, 255, 255)
+        
         
         #These two statements are to speed up the algorithm
         if distance > 14.7:
@@ -41,8 +45,6 @@ class UnderworldTile(pygame.sprite.Sprite):
         if distance > 8.1:
             self.image = self.raw_image.copy()
             self.image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
-        
-        DARKNESS_PARAMETER = 0.8 #1 Max
         
         darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
         darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
