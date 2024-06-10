@@ -8,7 +8,7 @@ underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
 
-DARKNESS_DEBUG = False
+DARKNESS_DEBUG = True
 darkenmax = (255, 255, 255)
 
 class UnderworldTile(pygame.sprite.Sprite):
@@ -32,7 +32,7 @@ class UnderworldTile(pygame.sprite.Sprite):
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
-        self.apply_lighting_from_player(player_mid_coords)
+        if not DARKNESS_DEBUG: self.apply_lighting_from_player(player_mid_coords)
 
     def apply_lighting_from_player(self, player_mid_coords):
         player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
@@ -87,6 +87,16 @@ class UnderworldTile(pygame.sprite.Sprite):
 
 
 def generate_new_map_dict_and_spawns():
+    def calculate_edge_tile_coords_from_room_created(room_width, room_height, topleftx, toplefty):
+        left, right, top, bottom = [], [], [], []
+        for x in range(0, room_height):
+            top.append((topleftx + x, toplefty))
+            bottom.append((topleftx + x, toplefty + room_height))
+        for y in range(0, room_width):
+            left.append((topleftx, toplefty + y))
+            right.append((topleftx + room_width, toplefty + y))
+        return left, right, top, bottom
+    
     def generate_cobblestone_square_with_border(map, gridwidth, gridheight, start_x, start_y, spawn_stairs = False):
         new_map = map
         for i in range(start_x - 1, start_x + gridwidth + 1): #Adding border around spawn room
@@ -112,17 +122,40 @@ def generate_new_map_dict_and_spawns():
                     new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
         return new_map 
 
+    def generate_random_map_off_spawn_room(map, min_rooms, max_rooms):
+        new_map = map
+        roomcount = random.randint(min_rooms, max_rooms)
+        PRIOR_DIRECTION = None
+        directions = ["left", "right", "up", "down"]
+        direction = directions[random.randint(0, 3)]
+        
+        MIN_ROOMS
+        return new_map
+
+
     map = {}
     taken_ranges = []
     MIN_ROOMS = 4
     MAX_ROOMS = 12
-    rooms = random.randint(MIN_ROOMS, MAX_ROOMS)
-    rooms = 1
+
     
     #Spawn room:
     map = generate_cobblestone_square_with_border(map, 8, 16, 0, 0, True)
+    left_wall, right_wall, top_wall, bottom_wall = calculate_edge_tile_coords_from_room_created(8, 16, 0, 0)
+    wall_selection = left_wall[random.randint(0, len(left_wall)-1)]
+    wall_side = "left"
+    ymultiplier = 0
+    xmultiplier = 0
+    walkway_length = 10
+    walkway_height = 1
+    if wall_side == "left":
+        xmultiplier = -1
+        ymultiplier = 1
+        
+    map = generate_cobblestone_square_with_border(map, 2, 2, wall_selection[0]-10, wall_selection[1])
     
-    map = generate_cobblestone_square_with_border(map, 8, 8, 4, 24)
-    map = generate_cobblestone_walkway(map, 2, 11, 5, 15)
+
+    #map = generate_cobblestone_square_with_border(map, 8, 8, 4, 24)
+    
 
     return map, None

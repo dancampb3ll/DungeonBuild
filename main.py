@@ -46,7 +46,7 @@ class GameState():
                 gridx = coord[0]
                 gridy = coord[1]
                 distance = calculate_distance_pythagoras((gridx, gridy), (player_gridx, player_gridy))
-                if distance < 8.1:
+                if distance < settings.UNDERWORLD_DRAW_DISTANCE:
                     self.underworld_todraw_tile_dict[(gridx, gridy)] = True
 
         determine_to_draw_dict(self, camera_group, player_center)
@@ -66,6 +66,12 @@ class GameState():
                 if self.underworld_tile_sprite_dict.get(coord, False) != False:
                     self.underworld_tile_sprite_dict[(gridx, gridy)].kill()
                     del self.underworld_tile_sprite_dict[(gridx, gridy)]
+
+    def clear_underworld_gamestate(self):
+        self.underworld_map_dict = {}
+        self.underworld_npc_spawn_dict = {}
+        self.underworld_tile_sprite_dict = {}
+        self.underworld_todraw_tile_dict = {}
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -211,6 +217,7 @@ def main():
     mainloop = True
     selected_world = "overworld"
     while mainloop:
+        gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera)
         while selected_world == "overworld":
             player.gameworld = selected_world
