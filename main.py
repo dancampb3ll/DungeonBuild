@@ -314,7 +314,7 @@ def main():
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             
-            if not underworld.tiles.DARKNESS_DEBUG:
+            if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():
                     gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
                 for sprite in underworldcamera.sprites():

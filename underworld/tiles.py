@@ -1,14 +1,13 @@
 import settings
 import pygame
 import random
-
+import time
 
 WALKABLE = ["cobblestone"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
 
-DARKNESS_DEBUG = True
 darkenmax = (255, 255, 255)
 
 class UnderworldTile(pygame.sprite.Sprite):
@@ -32,7 +31,7 @@ class UnderworldTile(pygame.sprite.Sprite):
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
-        if not DARKNESS_DEBUG: self.apply_lighting_from_player(player_mid_coords)
+        if not settings.DARKNESS_DEBUG: self.apply_lighting_from_player(player_mid_coords)
 
     def apply_lighting_from_player(self, player_mid_coords):
         player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
@@ -97,8 +96,8 @@ def generate_new_map_dict_and_spawns():
             right.append((topleftx + room_width, toplefty + y))
         return left, right, top, bottom
     
-    def generate_cobblestone_square_with_border(map, gridwidth, gridheight, start_x, start_y, spawn_stairs = False):
-        new_map = map
+    def generate_cobblestone_square_with_border(input_map, gridwidth, gridheight, start_x, start_y, spawn_stairs = False):
+        new_map = input_map
         for i in range(start_x - 1, start_x + gridwidth + 1): #Adding border around spawn room
             for j in range(start_y - 1, start_y + gridheight + 1):
                 new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
@@ -132,13 +131,13 @@ def generate_new_map_dict_and_spawns():
         MAX_ROOMWIDTH = 14
 
         MIN_WALKWAY_DISTANCE = 3
-        MAX_WALKWAY_DISTANCE = 8
-        MIN_WALKWAY_THICKNESS = 1
+        MAX_WALKWAY_DISTANCE = 14
+        MIN_WALKWAY_THICKNESS = 2
         MAX_WALKWAY_THICKNESS = 2
 
         new_map = map
         roomcount = random.randint(MIN_ROOMS, MAX_ROOMS)
-        roomcount = 2
+        roomcount = 5
         directions = ["left", "right", "top", "bottom"]
 
         previous_room_width = SPAWN_WIDTH
@@ -146,59 +145,73 @@ def generate_new_map_dict_and_spawns():
         previous_room_x = SPAWN_X_TOPLEFT
         previous_room_y = SPAWN_Y_TOPLEFT
         for i in range(roomcount):
-            left_wall, right_wall, top_wall, bottom_wall = calculate_edge_tile_coords_from_room_created(previous_room_width, previous_room_height, previous_room_x, previous_room_y)
-            wall_side = directions[random.randint(0, 3)]
-            if wall_side == "left":
-                wall = left_wall
-            elif wall_side == "right":
-                wall = right_wall
-            elif wall_side == "top":
-                wall = top_wall
-            elif wall_side == "bottom":
-                wall = bottom_wall
+            collide_checks_passed = False
+            while collide_checks_passed == False:
+                collide_check_map = {}
+                left_wall, right_wall, top_wall, bottom_wall = calculate_edge_tile_coords_from_room_created(previous_room_width, previous_room_height, previous_room_x, previous_room_y)
+                wall_side = directions[random.randint(0, len(directions)-1)]
+                if wall_side == "left":
+                    wall = left_wall
+                elif wall_side == "right":
+                    wall = right_wall
+                elif wall_side == "top":
+                    wall = top_wall
+                elif wall_side == "bottom":
+                    wall = bottom_wall
 
-            wall_coord_selection = wall[random.randint(0, len(left_wall)-1)]
+                wall_coord_selection = wall[random.randint(0, len(left_wall)-1)]
 
-            walkway_distance = random.randint(MIN_WALKWAY_DISTANCE, MAX_WALKWAY_DISTANCE)
-            walkway_thickness = random.randint(MIN_WALKWAY_THICKNESS, MAX_WALKWAY_THICKNESS)
-            new_room_width = random.randint(MIN_ROOMWIDTH, MAX_ROOMWIDTH)
-            new_room_height = random.randint(MIN_ROOMHEIGHT, MAX_ROOMHEIGHT)
+                walkway_distance = random.randint(MIN_WALKWAY_DISTANCE, MAX_WALKWAY_DISTANCE)
+                walkway_thickness = random.randint(MIN_WALKWAY_THICKNESS, MAX_WALKWAY_THICKNESS)
+                new_room_width = random.randint(MIN_ROOMWIDTH, MAX_ROOMWIDTH)
+                new_room_height = random.randint(MIN_ROOMHEIGHT, MAX_ROOMHEIGHT)
 
-            if wall_side == "left" or wall_side == "right":
-                walkway_width = walkway_distance
-                walkway_height = walkway_thickness
-            else:
-                walkway_width = walkway_thickness
-                walkway_height = walkway_distance
-            if wall_side == "left":
-                new_room_x_start = wall_coord_selection[0] - walkway_distance - new_room_width
-                new_room_y_start = wall_coord_selection[1]
-                walkway_startx = wall_coord_selection[0] - walkway_distance
-                walkway_starty = wall_coord_selection[1]
-            elif wall_side == "right":
-                new_room_x_start = wall_coord_selection[0] + walkway_distance
-                new_room_y_start = wall_coord_selection[1]
-                walkway_startx = wall_coord_selection[0]
-                walkway_starty = wall_coord_selection[1]
-            elif wall_side == "top":
-                new_room_x_start = wall_coord_selection[0]
-                new_room_y_start = wall_coord_selection[1] - walkway_distance - new_room_height
-                walkway_startx = wall_coord_selection[0]
-                walkway_starty = wall_coord_selection[1] - walkway_distance
-            elif wall_side == "bottom":
-                new_room_x_start = wall_coord_selection[0]
-                new_room_y_start = wall_coord_selection[1] + walkway_distance
-                walkway_startx = wall_coord_selection[0]
-                walkway_starty = wall_coord_selection[1]
+                if wall_side == "left" or wall_side == "right":
+                    walkway_width = walkway_distance
+                    walkway_height = walkway_thickness
+                else:
+                    walkway_width = walkway_thickness
+                    walkway_height = walkway_distance
+                if wall_side == "left":
+                    new_room_x_start = wall_coord_selection[0] - walkway_distance - new_room_width
+                    new_room_y_start = wall_coord_selection[1]
+                    walkway_startx = wall_coord_selection[0] - walkway_distance
+                    walkway_starty = wall_coord_selection[1]
+                elif wall_side == "right":
+                    new_room_x_start = wall_coord_selection[0] + walkway_distance
+                    new_room_y_start = wall_coord_selection[1]
+                    walkway_startx = wall_coord_selection[0]
+                    walkway_starty = wall_coord_selection[1]
+                elif wall_side == "top":
+                    new_room_x_start = wall_coord_selection[0]
+                    new_room_y_start = wall_coord_selection[1] - walkway_distance - new_room_height
+                    walkway_startx = wall_coord_selection[0]
+                    walkway_starty = wall_coord_selection[1] - walkway_distance
+                elif wall_side == "bottom":
+                    new_room_x_start = wall_coord_selection[0]
+                    new_room_y_start = wall_coord_selection[1] + walkway_distance
+                    walkway_startx = wall_coord_selection[0]
+                    walkway_starty = wall_coord_selection[1]
 
-            print("wall_side", wall_side)
-            print("room xstart", new_room_x_start)
-            print("room ystart", new_room_y_start)
-            print("walkway distance", walkway_distance)
+                collide_check_map = generate_cobblestone_square_with_border({}, new_room_width, new_room_height, new_room_x_start, new_room_y_start)
+
+                collide_check_map = generate_cobblestone_walkway(collide_check_map, walkway_width, walkway_height, walkway_startx, walkway_starty)
+                collide_checks_passed = True
+                for coord in collide_check_map.keys():
+                    if collide_check_map[coord][0] == "border":
+                        break
+                    material_check = new_map.get(coord, ["border"])[0]
+                    if material_check != "border":
+                        collide_checks_passed = False
+                        print("Collision at ", coord, " : ", "old material: ", material_check, "new material: ", collide_check_map[coord])
+                        break
+                    print("No collision")
             
-
-            new_map = generate_cobblestone_square_with_border(new_map, new_room_width, new_room_height, new_room_x_start, new_room_y_start)
-            new_map = generate_cobblestone_walkway(new_map, walkway_width, walkway_height, walkway_startx, walkway_starty)
+            for coord in collide_check_map.keys():
+                if new_map.get(coord, None) is None:
+                    new_map[coord] = collide_check_map[coord]
+                elif new_map.get(coord, None)[0] == "border":
+                    new_map[coord] = collide_check_map[coord]
 
             previous_room_x = new_room_x_start
             previous_room_y = new_room_y_start
