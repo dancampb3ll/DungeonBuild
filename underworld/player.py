@@ -18,8 +18,8 @@ class Player(pygame.sprite.Sprite):
         self.aniframe_time_count = 0
         self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.gridx = 0
-        self.gridy = 0
+        self.gridx = 1
+        self.gridy = 1
         self.rect.x = self.gridx * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
         self.speed = UNDERWORLD_PLAYERSPEED
