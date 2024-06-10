@@ -61,11 +61,11 @@ class GameState():
             #print(self.underworld_tile_sprite_dict.get((0, 0), "Undrawn"))
             if self.underworld_todraw_tile_dict.get(coord, False) == True:
                 if self.underworld_tile_sprite_dict.get(coord, False) == False:
-                    self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal)
+                    self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal, player_center)
             else:
                 if self.underworld_tile_sprite_dict.get(coord, False) != False:
                     self.underworld_tile_sprite_dict[(gridx, gridy)].kill()
-                    self.underworld_tile_sprite_dict[(gridx, gridy)] = False
+                    del self.underworld_tile_sprite_dict[(gridx, gridy)]
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.

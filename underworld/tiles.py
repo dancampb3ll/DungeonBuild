@@ -6,16 +6,16 @@ import random
 WALKABLE = ["cobblestone"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
-DARKNESS_PARAMETER = 0.3 #1 Max
+DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
 
-DARKNESS_DEBUG = True
+DARKNESS_DEBUG = False
 darkenmax = (255, 255, 255)
 
 class UnderworldTile(pygame.sprite.Sprite):
     """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
     #Portal information to be given as [portaltype, (x, y), collisionSide]
     """
-    def __init__(self, gridx, gridy, tiletypename, pygame_group, portal_information: list):
+    def __init__(self, gridx, gridy, tiletypename, pygame_group, portal_information: list, player_mid_coords):
         
         super().__init__(pygame_group)
         self.type = "tile"
@@ -32,6 +32,7 @@ class UnderworldTile(pygame.sprite.Sprite):
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
+        self.apply_lighting_from_player(player_mid_coords)
 
     def apply_lighting_from_player(self, player_mid_coords):
         player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
