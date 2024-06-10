@@ -201,7 +201,7 @@ class Weapon(pygame.sprite.Sprite):
         self.is_attacking = True
         self.attack_timer = 99999
         self.hitbox_rect = None
-        self.DEBUG_DRAW_HITBOXES = True
+        self.DEBUG_DRAW_HITBOXES = settings.DEBUG_DRAW_HITBOXES
 
         #Bobbing calcs
         self.player_is_moving_x = False

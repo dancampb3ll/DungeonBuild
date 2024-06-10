@@ -274,12 +274,12 @@ def main():
         underworldcamera = gamestate.underworldcamera
 
         
+        gamestate.generate_underworld_dungeon_and_update_map()
         enemies.append(underworld.npc.Npc(underworldcamera, 2, 4, "slime"))
         enemies.append(underworld.npc.Npc(underworldcamera, 3, 9, "slime"))
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
-        gamestate.generate_underworld_dungeon_and_update_map()
         
         while selected_world == "underworld":
             underworldplayer.gameworld = selected_world
@@ -309,7 +309,7 @@ def main():
             underworldcamera.custom_draw(underworldplayer)
             
             for enemy in enemies:
-                enemy.basic_pathfind(underworldplayer, underworldcamera)
+                enemy.custom_update(underworldplayer, underworldcamera)
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)

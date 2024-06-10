@@ -14,7 +14,6 @@ class Npc(pygame.sprite.Sprite):
         super().__init__(pygame_group)
         self.type = "npc"
         self.npc = npctype
-        self.health = 5
         self.ignorecolour = (255, 0, 255)
         self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}.png").convert_alpha()
         self.image = self.raw_image.copy()
@@ -34,9 +33,11 @@ class Npc(pygame.sprite.Sprite):
                 "knockback_resistance_min": 4,
                 "knockback_resistance_max": 8,
                 "speed_min" : 100,
-                "speed_max" : 100
+                "speed_max" : 100,
+                "health": 100 #Should be 5
             }
         }
+        self.health = self.attributes[self.npc]["health"]
         self.aggression_distance = self.attributes[self.npc]["aggression_distance"]
         self.damage_sfx = self.attributes[self.npc]["damage_sfx"]
         self.death_sfx = self.attributes[self.npc]["death_sfx"]
@@ -49,6 +50,10 @@ class Npc(pygame.sprite.Sprite):
 
         self.knockbackx = None
         self.knockbacky = None
+        
+        #Used to stop an enemy being stuck for too long.
+        self.knockback_timer = 0
+        self.KNOCKBACK_TIMER_MAX = 80
 
         self.ATTACK_INVINCIBILITY_TIME_LIMIT = 13
         self.invincibility_timecount = 0
@@ -82,24 +87,40 @@ class Npc(pygame.sprite.Sprite):
         elif weapon_direction == "down":
             self.knockbacky = self.rect.y + knockback_effect
 
-    def perform_knockback(self):
+    def perform_knockback(self, camera):
         if self.knockbackx == None and self.knockbacky == None:
+            self.knockback_timer = 0
             return
+        
+        self.knockback_timer += 1
+        if self.knockback_timer > self.KNOCKBACK_TIMER_MAX:
+            self.knockbackx = None
+            self.knockbacky = None
+            return
+
         knockback_speed = settings.KNOCKBACK_SPEED
 
         if self.knockbackx != None:
             if self.knockbackx > self.rect.x:
                 self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed)
+                if self.rect.x != self.knockbackx:
+                    self.detect_tile_collisions(camera, knockback_speed, 0)
             elif self.knockbackx < self.rect.x:
                 self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed)
+                if self.rect.x != self.knockbackx:
+                    self.detect_tile_collisions(camera, -knockback_speed, 0)
             else:
                 self.knockbackx = None
 
         if self.knockbacky != None:
             if self.knockbacky > self.rect.y:
                 self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed)
+                if self.rect.y != self.knockbacky:
+                    self.detect_tile_collisions(camera, 0, knockback_speed)
             elif self.knockbacky < self.rect.y:
                 self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed)
+                if self.rect.y != self.knockbacky:
+                    self.detect_tile_collisions(camera, 0, -knockback_speed)
             else:
                 self.knockbacky = None
 
@@ -222,10 +243,15 @@ class Npc(pygame.sprite.Sprite):
     def attack_sequence(self, player):
         None
 
+    def custom_update(self, player, camera):
+        self.perform_knockback(camera)
+        self.basic_pathfind(player, camera)
+        
+
     def update(self):
         self.update_grid_locations()
         self.manage_invincibility_state()
-        self.perform_knockback()
+        
         #self.image_flash_refresh()
         
         

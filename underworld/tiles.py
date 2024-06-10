@@ -159,7 +159,7 @@ def generate_new_map_dict_and_spawns():
                 elif wall_side == "bottom":
                     wall = bottom_wall
 
-                wall_coord_selection = wall[random.randint(0, len(left_wall)-1)]
+                wall_coord_selection = wall[random.randint(0, len(wall)-1)]
 
                 walkway_distance = random.randint(MIN_WALKWAY_DISTANCE, MAX_WALKWAY_DISTANCE)
                 walkway_thickness = random.randint(MIN_WALKWAY_THICKNESS, MAX_WALKWAY_THICKNESS)
