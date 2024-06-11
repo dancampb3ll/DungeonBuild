@@ -88,10 +88,10 @@ class UnderworldTile(pygame.sprite.Sprite):
 def generate_new_map_dict_and_spawns():
     def calculate_edge_tile_coords_from_room_created(room_width, room_height, topleftx, toplefty):
         left, right, top, bottom = [], [], [], []
-        for x in range(0, room_height):
+        for x in range(0, room_width):
             top.append((topleftx + x, toplefty))
             bottom.append((topleftx + x, toplefty + room_height))
-        for y in range(0, room_width):
+        for y in range(0, room_height):
             left.append((topleftx, toplefty + y))
             right.append((topleftx + room_width, toplefty + y))
         return left, right, top, bottom
@@ -137,7 +137,7 @@ def generate_new_map_dict_and_spawns():
 
         new_map = map
         roomcount = random.randint(MIN_ROOMS, MAX_ROOMS)
-        roomcount = 5
+        roomcount = 2
         directions = ["left", "right", "top", "bottom"]
 
         previous_room_width = SPAWN_WIDTH
@@ -145,80 +145,81 @@ def generate_new_map_dict_and_spawns():
         previous_room_x = SPAWN_X_TOPLEFT
         previous_room_y = SPAWN_Y_TOPLEFT
         for i in range(roomcount):
-            collide_checks_passed = False
-            while collide_checks_passed == False:
-                collide_check_map = {}
-                left_wall, right_wall, top_wall, bottom_wall = calculate_edge_tile_coords_from_room_created(previous_room_width, previous_room_height, previous_room_x, previous_room_y)
-                wall_side = directions[random.randint(0, len(directions)-1)]
-                if wall_side == "left":
-                    wall = left_wall
-                elif wall_side == "right":
-                    wall = right_wall
-                elif wall_side == "top":
-                    wall = top_wall
-                elif wall_side == "bottom":
-                    wall = bottom_wall
+            left_wall, right_wall, top_wall, bottom_wall = calculate_edge_tile_coords_from_room_created(previous_room_width, previous_room_height, previous_room_x, previous_room_y)
+            wall_side = directions[random.randint(0, len(directions)-1)]
+            if i == 0: wall_side = "bottom"
+            if wall_side == "left":
+                wall = left_wall
+            elif wall_side == "right":
+                wall = right_wall
+            elif wall_side == "top":
+                wall = top_wall
+            elif wall_side == "bottom":
+                wall = bottom_wall
 
-                wall_coord_selection = wall[random.randint(0, len(wall)-1)]
+            wall_coord_selection = wall[random.randint(0, len(wall)-1)]
 
-                walkway_distance = random.randint(MIN_WALKWAY_DISTANCE, MAX_WALKWAY_DISTANCE)
-                walkway_thickness = random.randint(MIN_WALKWAY_THICKNESS, MAX_WALKWAY_THICKNESS)
-                new_room_width = random.randint(MIN_ROOMWIDTH, MAX_ROOMWIDTH)
-                new_room_height = random.randint(MIN_ROOMHEIGHT, MAX_ROOMHEIGHT)
+            walkway_distance = random.randint(MIN_WALKWAY_DISTANCE, MAX_WALKWAY_DISTANCE)
+            walkway_thickness = random.randint(MIN_WALKWAY_THICKNESS, MAX_WALKWAY_THICKNESS)
+            new_room_width = random.randint(MIN_ROOMWIDTH, MAX_ROOMWIDTH)
+            new_room_height = random.randint(MIN_ROOMHEIGHT, MAX_ROOMHEIGHT)
 
-                if wall_side == "left" or wall_side == "right":
-                    walkway_width = walkway_distance
-                    walkway_height = walkway_thickness
-                else:
-                    walkway_width = walkway_thickness
-                    walkway_height = walkway_distance
-                if wall_side == "left":
-                    new_room_x_start = wall_coord_selection[0] - walkway_distance - new_room_width
-                    new_room_y_start = wall_coord_selection[1]
-                    walkway_startx = wall_coord_selection[0] - walkway_distance
-                    walkway_starty = wall_coord_selection[1]
-                elif wall_side == "right":
-                    new_room_x_start = wall_coord_selection[0] + walkway_distance
-                    new_room_y_start = wall_coord_selection[1]
-                    walkway_startx = wall_coord_selection[0]
-                    walkway_starty = wall_coord_selection[1]
-                elif wall_side == "top":
-                    new_room_x_start = wall_coord_selection[0]
-                    new_room_y_start = wall_coord_selection[1] - walkway_distance - new_room_height
-                    walkway_startx = wall_coord_selection[0]
-                    walkway_starty = wall_coord_selection[1] - walkway_distance
-                elif wall_side == "bottom":
-                    new_room_x_start = wall_coord_selection[0]
-                    new_room_y_start = wall_coord_selection[1] + walkway_distance
-                    walkway_startx = wall_coord_selection[0]
-                    walkway_starty = wall_coord_selection[1]
+            if wall_side == "left" or wall_side == "right":
+                walkway_width = walkway_distance
+                walkway_height = walkway_thickness
+            else:
+                walkway_width = walkway_thickness
+                walkway_height = walkway_distance
+            if wall_side == "left":
+                new_room_x_start = wall_coord_selection[0] - walkway_distance - new_room_width
+                new_room_y_start = wall_coord_selection[1]
+                walkway_startx = wall_coord_selection[0] - walkway_distance
+                walkway_starty = wall_coord_selection[1]
+            elif wall_side == "right":
+                new_room_x_start = wall_coord_selection[0] + walkway_distance
+                new_room_y_start = wall_coord_selection[1]
+                walkway_startx = wall_coord_selection[0]
+                walkway_starty = wall_coord_selection[1]
+            elif wall_side == "top":
+                new_room_x_start = wall_coord_selection[0]
+                new_room_y_start = wall_coord_selection[1] - walkway_distance - new_room_height
+                walkway_startx = wall_coord_selection[0]
+                walkway_starty = wall_coord_selection[1] - walkway_distance
+            elif wall_side == "bottom":
+                new_room_x_start = wall_coord_selection[0]
+                new_room_y_start = wall_coord_selection[1] + walkway_distance
+                walkway_startx = wall_coord_selection[0]
+                walkway_starty = wall_coord_selection[1]
 
-                collide_check_map = generate_cobblestone_square_with_border({}, new_room_width, new_room_height, new_room_x_start, new_room_y_start)
+            print(f"Wall coords: {wall}")
+            print(f"ROOM {i + 1}: Building from {wall_side} wall, coordinate ({wall_coord_selection[0]}, {wall_coord_selection[1]})")
 
-                collide_check_map = generate_cobblestone_walkway(collide_check_map, walkway_width, walkway_height, walkway_startx, walkway_starty)
-                collide_checks_passed = True
-                for coord in collide_check_map.keys():
-                    if collide_check_map[coord][0] == "border":
-                        break
-                    material_check = new_map.get(coord, ["border"])[0]
-                    if material_check != "border":
-                        collide_checks_passed = False
-                        print("Collision at ", coord, " : ", "old material: ", material_check, "new material: ", collide_check_map[coord])
-                        break
-                    print("No collision")
+            new_room = generate_cobblestone_square_with_border({}, new_room_width, new_room_height, new_room_x_start, new_room_y_start)
+            new_walkway = generate_cobblestone_walkway({}, walkway_width, walkway_height, walkway_startx, walkway_starty)
             
-            for coord in collide_check_map.keys():
-                if new_map.get(coord, None) is None:
-                    new_map[coord] = collide_check_map[coord]
-                elif new_map.get(coord, None)[0] == "border":
-                    new_map[coord] = collide_check_map[coord]
+            #For rooms, replace empty spaces only.
+            newcobblestone_oldborder_list = []
+            for coord in new_room.keys():
+                if new_map.get(coord, None) == None:
+                    new_map[coord] = new_room[coord]
+                elif new_map.get(coord, ["border"])[0] == "border" and new_room[coord][0] == "cobblestone":
+                    newcobblestone_oldborder_list.append(coord)
+            #Get a list of the existing map border intersections with the new room cobblestone, and then create one hole.
+            for i in range(0, 2):
+                if newcobblestone_oldborder_list != []:
+                    random_hole = newcobblestone_oldborder_list.pop(random.randint(0, len(newcobblestone_oldborder_list)-1))
+                    new_map[random_hole] = new_room[random_hole]
+
+            #For walkways, replace empty spaces AND borders
+            for coord in new_walkway.keys():
+                if new_map.get(coord, ["border"])[0] == "border":
+                    new_map[coord] = new_walkway[coord]
 
             previous_room_x = new_room_x_start
             previous_room_y = new_room_y_start
             previous_room_width = new_room_width
             previous_room_height = new_room_height
 
-            print(len(new_map.keys()))
         return new_map
 
     map = {}

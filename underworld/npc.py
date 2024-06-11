@@ -271,7 +271,7 @@ class Npc(pygame.sprite.Sprite):
         #self.image_flash_refresh()
     
     def drop_coins(self):
-        Coin(temp_coin_group, self.rect.centerx, self.rect.centery, 4)
+        Coin(temp_coin_group, self.rect.centerx, self.rect.centery, self.coins_dropped)
 
     def die(self):
         self.drop_coins()

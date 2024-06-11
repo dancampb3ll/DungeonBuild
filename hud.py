@@ -106,7 +106,7 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.COIN_FONT_SIZE = 17
         self.COIN_POSX = settings.SCREEN_WIDTH // 2 - 107
         self.COIN_POSY = settings.SCREEN_HEIGHT - 14
-        self.font_coin = pygame.font.SysFont("OpenSans-Bold.ttf", self.COIN_FONT_SIZE, bold=True)
+        self.font_coin = pygame.font.SysFont("OpenSans-Bold.ttf", self.COIN_FONT_SIZE, bold=False)
         self.COIN_TEXT_COLOUR = (255, 255, 255)
         self.coin_text = self.font_coin.render(str(self.coins_earned_in_dungeon), True, self.COIN_TEXT_COLOUR)
 
