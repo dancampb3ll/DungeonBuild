@@ -252,10 +252,16 @@ def generate_new_map_dict_and_spawns():
                     map[coord][0] = "cobblestoneMossy"
         return map
  
+    def generate_slime_spawns(map):
+        SLIME_SPAWN_CHANCE = 90
+        spawns = {}
+        for coord in map.keys():
+            if map[coord][0] in WALKABLE:
+                if random.randint(0, SLIME_SPAWN_CHANCE) == SLIME_SPAWN_CHANCE:
+                    spawns[coord] = "slime"
+        return spawns
 
     map = {}
-    taken_ranges = []
-
     
     #Spawn room:
     SPAWN_WIDTH, SPAWN_HEIGHT, SPAWN_X_TOPLEFT, SPAWN_Y_TOPLEFT = 8, 16, 0, 0
@@ -267,4 +273,6 @@ def generate_new_map_dict_and_spawns():
 
     map = add_mossy_cobblestone_randomly(map)
 
-    return map, None
+    spawns = generate_slime_spawns(map)
+
+    return map, spawns

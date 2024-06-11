@@ -32,6 +32,11 @@ class GameState():
     def generate_underworld_dungeon_and_update_map(self):
         self.underworld_map_dict, self.underworld_npc_spawn_dict = underworld.tiles.generate_new_map_dict_and_spawns()
     
+    def spawn_enemies_from_spawn_dict(self, sprite_group):
+        for coord in self.underworld_npc_spawn_dict:
+            enemy_type = self.underworld_npc_spawn_dict[coord]
+            underworld.npc.Npc(sprite_group, coord[0], coord[1], enemy_type)
+
     def update_sprite_dict_and_drawn_map(self, camera_group, player_center):
         map = self.underworld_map_dict
         def calculate_distance_pythagoras(point1: tuple, point2: tuple):
@@ -271,14 +276,15 @@ def main():
             clock.tick(60)
         player.kill()
 
-        enemies = []
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
 
         
         gamestate.generate_underworld_dungeon_and_update_map()
-        enemies.append(underworld.npc.Npc(underworldcamera, 2, 4, "slime"))
-        enemies.append(underworld.npc.Npc(underworldcamera, 3, 9, "slime"))
+        #enemies.append(underworld.npc.Npc(underworldcamera, 2, 4, "slime"))
+        #enemies.append(underworld.npc.Npc(underworldcamera, 3, 9, "slime"))
+        enemies = pygame.sprite.Group()
+        gamestate.spawn_enemies_from_spawn_dict(enemies)
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
@@ -319,6 +325,7 @@ def main():
             dagger.detect_enemy_weapon_collision(underworldcamera)
 
             #TEMP *******************************************************************
+            underworldcamera.add(enemies)
             coin_group = underworld.npc.temp_coin_group
             underworldcamera.add(coin_group)
             for coin in coin_group:
