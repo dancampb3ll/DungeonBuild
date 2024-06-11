@@ -147,7 +147,7 @@ def check_buildmode_and_update_tooltips(player_buildmode, player_selected_buildi
 
 def refresh_underworld_draw_order(camera_group):
     #Drawn from lowest priority to max
-    draw_order = ["tile", "npc", "player", "weapon"]
+    draw_order = ["tile", "npc", "player", "weapon", "coin"]
 
     for sprite_type in draw_order:
         for sprite in camera_group.sprites():
@@ -318,6 +318,9 @@ def main():
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
             
+            coin_group = underworld.npc.temp_coin_group
+            underworldcamera.add(coin_group)
+
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():
                     gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
@@ -329,6 +332,7 @@ def main():
             underworld_hudbar.custom_draw(screen)
             underworld_hudbar.update_health_hud(underworldplayer.health)
             selected_world = underworldplayer.gameworld
+            
             pygame.display.update()
             clock.tick(60)
 

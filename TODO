@@ -2,7 +2,7 @@ Short term
 
 Add coin drops
 Make pillow based map generation representation
-
+Refactor all sprite types into groups
 
 Sort out enemy knockback being stuck on walls
 Make enemies red when hit

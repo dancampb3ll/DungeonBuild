@@ -9,6 +9,8 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x2, y2 = point2
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+temp_coin_group = pygame.sprite.Group()
+
 class Npc(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy, npctype):
         super().__init__(pygame_group)
@@ -38,7 +40,9 @@ class Npc(pygame.sprite.Sprite):
                 "speed_max" : 100,
                 "health": 5, #Should be 5,
                 "damage": 1,
-                "knockback": 20
+                "knockback": 20,
+                "coindrop_min": 1,
+                "coindrop_max": 4
             }
         }
         self.health = self.attributes[self.npc]["health"]
@@ -53,6 +57,9 @@ class Npc(pygame.sprite.Sprite):
         self.speed = random.randint(self.speed_min, self.speed_max) / 100
         self.damage = self.attributes[self.npc]["damage"]
         self.knockback = self.attributes[self.npc]["knockback"]
+        self.coindrop_min = self.attributes[self.npc]["coindrop_min"]
+        self.coindrop_max = self.attributes[self.npc]["coindrop_max"]
+        self.coins_dropped = random.randint(self.coindrop_min, self.coindrop_max)
 
         self.knockbackx = None
         self.knockbacky = None
@@ -192,10 +199,6 @@ class Npc(pygame.sprite.Sprite):
         self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
         self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
 
-    def die(self):
-        self.kill()
-        self.alive = False
-
     """
         def image_flash_refresh(self):
             FLASH_MODULUS = 6
@@ -266,5 +269,25 @@ class Npc(pygame.sprite.Sprite):
         print("alive ", self.randomid)
         
         #self.image_flash_refresh()
+    
+    def drop_coins(self):
+        Coin(temp_coin_group, self.rect.centerx, self.rect.centery, 4)
+
+    def die(self):
+        self.drop_coins()
+        self.kill()
+        self.alive = False
         
-        
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, pygame_group, startx, starty, value):
+        super().__init__(pygame_group)
+        self.type = "coin"
+        self.value = value
+        self.ignorecolour = (255, 0, 255)
+        self.raw_image = pygame.image.load(f"assets/other/underworld/coin.png").convert_alpha()
+        self.image = self.raw_image.copy()
+
+        self.rect = self.image.get_rect()
+        self.rect.x = startx
+        self.rect.y = starty

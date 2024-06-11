@@ -88,8 +88,8 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
-replace_image_path = "assets/npc/underworld/slime.png"
-output_path = "assets/npc/underworld/slimeNew.png"
+replace_image_path = "assets/other/underworld/coin.png"
+output_path = "assets/other/underworld/coin1.png"
 make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
 
 
