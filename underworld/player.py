@@ -36,6 +36,11 @@ class Player(pygame.sprite.Sprite):
         self.is_moving_x = False
         self.is_moving_y = False
         
+        self.knockbackx = None
+        self.knockbacky = None
+        #Used to stop an enemy being stuck for too long.
+        self.knockback_timer = 0
+        self.KNOCKBACK_TIMER_MAX = 80
 
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         for sprite in camera_group:
@@ -65,11 +70,66 @@ class Player(pygame.sprite.Sprite):
             self.invincibility_state = False
 
 
-    def take_damage(self, damage):
+    def take_damage(self, npc):
         if self.invincibility_state:
+            print("invincible")
             return
-        self.health -= damage
+        self.health -= npc.damage
+        print("damage taken")
         self.invincibility_state = True
+        self.invincibility_timer = 0
+        
+        ##Audit
+        self.set_knockback_position(npc.direction, npc.knockback)
+
+    def set_knockback_position(self, enemy_direction, enemy_knockback):
+        npc_knockback = enemy_knockback
+        knockback_effect = npc_knockback
+        if enemy_direction == "left":
+            self.knockbackx = self.rect.x - knockback_effect
+        elif enemy_direction == "right":
+            self.knockbackx = self.rect.x + knockback_effect
+        elif enemy_direction == "up":
+            self.knockbacky = self.rect.y - knockback_effect
+        elif enemy_direction == "down":
+            self.knockbacky = self.rect.y + knockback_effect
+
+    def perform_knockback(self, camera):
+        if self.knockbackx == None and self.knockbacky == None:
+            self.knockback_timer = 0
+            return
+        
+        self.knockback_timer += 1
+        if self.knockback_timer > self.KNOCKBACK_TIMER_MAX:
+            self.knockbackx = None
+            self.knockbacky = None
+            return
+
+        knockback_speed = settings.KNOCKBACK_SPEED
+
+        if self.knockbackx != None:
+            if self.knockbackx > self.rect.x:
+                self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed)
+                if self.rect.x != self.knockbackx:
+                    self.detect_tile_collisions(camera, knockback_speed, 0)
+            elif self.knockbackx < self.rect.x:
+                self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed)
+                if self.rect.x != self.knockbackx:
+                    self.detect_tile_collisions(camera, -knockback_speed, 0)
+            else:
+                self.knockbackx = None
+
+        if self.knockbacky != None:
+            if self.knockbacky > self.rect.y:
+                self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed)
+                if self.rect.y != self.knockbacky:
+                    self.detect_tile_collisions(camera, 0, knockback_speed)
+            elif self.knockbacky < self.rect.y:
+                self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed)
+                if self.rect.y != self.knockbacky:
+                    self.detect_tile_collisions(camera, 0, -knockback_speed)
+            else:
+                self.knockbacky = None
 
     def move_player(self, camera_group):
         self.is_moving = False #Used to check if player is walking
@@ -181,13 +241,16 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = sprite.portal_destination[1] * settings.OVERWORLD_TILE_SIZE
         self.gameworld = sprite.portal_type
 
-    def update(self):
-        self.update_invincibility_state()
-        print("running")
+    def update_death_status(self):
+        if self.health <= 0:
+            self.gameworld = "overworld"
 
-    def custom_update(self):
+    def custom_update(self, camera):
+        self.update_invincibility_state()
+        self.perform_knockback(camera)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
+        self.update_death_status()
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, pygame_group, weapon_name):

@@ -300,7 +300,7 @@ def main():
             screen.fill((0, 0, 0))
 
             underworldplayer.move_player(underworldcamera)
-            underworldplayer.custom_update()
+            underworldplayer.custom_update(underworldcamera)
 
             gamestate.update_sprite_dict_and_drawn_map(underworldcamera, underworldplayer.rect.center)
 
@@ -312,7 +312,8 @@ def main():
             underworldcamera.custom_draw(underworldplayer)
             
             for enemy in enemies:
-                enemy.custom_update(underworldplayer, underworldcamera)
+                if enemy.alive:
+                    enemy.custom_update(underworldplayer, underworldcamera)
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)

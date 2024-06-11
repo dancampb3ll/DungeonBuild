@@ -23,7 +23,9 @@ class Npc(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = self.gridx * settings.UNDERWORLD_TILE_SIZE
         self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
-        
+        self.direction = "right"
+        self.randomid = random.randint(0, 99999)
+        self.living = True
         
         self.attributes = {
             "slime": {
@@ -35,7 +37,8 @@ class Npc(pygame.sprite.Sprite):
                 "speed_min" : 100,
                 "speed_max" : 100,
                 "health": 5, #Should be 5,
-                "damage": 1
+                "damage": 1,
+                "knockback": 20
             }
         }
         self.health = self.attributes[self.npc]["health"]
@@ -49,6 +52,7 @@ class Npc(pygame.sprite.Sprite):
         self.speed_max = self.attributes[self.npc]["speed_max"]
         self.speed = random.randint(self.speed_min, self.speed_max) / 100
         self.damage = self.attributes[self.npc]["damage"]
+        self.knockback = self.attributes[self.npc]["knockback"]
 
         self.knockbackx = None
         self.knockbacky = None
@@ -190,6 +194,7 @@ class Npc(pygame.sprite.Sprite):
 
     def die(self):
         self.kill()
+        self.alive = False
 
     """
         def image_flash_refresh(self):
@@ -231,19 +236,24 @@ class Npc(pygame.sprite.Sprite):
         if distance_from_player < self.aggression_distance:
             if self.rect.x < player_center_pos[0]:
                 self.rect.x += self.speed
+                self.direction = "right"
                 self.detect_tile_collisions(underworldcamera, self.speed, 0)
             elif self.rect.x > player_center_pos[0]:
                 self.rect.x -= self.speed
+                self.direction = "left"
                 self.detect_tile_collisions(underworldcamera, -self.speed, 0)
             if self.rect.y < player_center_pos[1]:
                 self.rect.y += self.speed
+                self.direction = "down"
                 self.detect_tile_collisions(underworldcamera, 0, self.speed)
             elif self.rect.y > player_center_pos[1]:
                 self.rect.y -= self.speed
+                self.direction = "up"
                 self.detect_tile_collisions(underworldcamera, 0, -self.speed)
 
     def attack_sequence(self, player):
-        player.take_damage(self.damage)
+        player.take_damage(self)
+        print("Attack sequence launched: ", self.randomid)
 
     def custom_update(self, player, camera):
         self.perform_knockback(camera)
@@ -253,6 +263,7 @@ class Npc(pygame.sprite.Sprite):
     def update(self):
         self.update_grid_locations()
         self.manage_invincibility_state()
+        print("alive ", self.randomid)
         
         #self.image_flash_refresh()
         
