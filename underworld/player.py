@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.gridy * settings.UNDERWORLD_TILE_SIZE
         self.health = 100
         self.speed = UNDERWORLD_PLAYERSPEED
+        self.coins_collected = 0
 
         self.gameworld = "underworld"
 

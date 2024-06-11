@@ -291,3 +291,15 @@ class Coin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = startx
         self.rect.y = starty
+    
+    def play_random_sfx_from_list(self):
+        sfx_list = ["coin.mp3"]
+        random_sfx_num = random.randint(0, len(sfx_list) - 1)
+        sfx = pygame.mixer.Sound(f"assets/sfx/underworld/coin/{sfx_list[random_sfx_num]}")
+        sfx.play()
+
+    def detect_coin_collision(self, player):
+        if self.rect.colliderect(player.rect):
+            player.coins_collected += self.value
+            self.play_random_sfx_from_list()
+            self.kill()

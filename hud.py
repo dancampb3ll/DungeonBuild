@@ -78,7 +78,7 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.rect.x = settings.SCREEN_WIDTH // 2 - self.rect.w // 2
         self.rect.y = settings.SCREEN_HEIGHT - self.rect.h + 3
         self.health = 100
-        self.coins_earned_in_dungeon = 2
+        self.coins_earned_in_dungeon = 0
 
         #Defining Healthbars
         self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 8
@@ -103,7 +103,7 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.health_text = self.font_health.render(str(self.health), True, self.HEALTH_TEXT_COLOUR)
 
         #Defining coincount
-        self.COIN_FONT_SIZE = 14
+        self.COIN_FONT_SIZE = 17
         self.COIN_POSX = settings.SCREEN_WIDTH // 2 - 107
         self.COIN_POSY = settings.SCREEN_HEIGHT - 14
         self.font_coin = pygame.font.SysFont("OpenSans-Bold.ttf", self.COIN_FONT_SIZE, bold=True)
@@ -126,6 +126,9 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.red_healthbar_start_pixelx = self.RED_HEALTHBAR_END_PIXELX - self.RED_HEALTHBAR_WIDTH
         self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
 
+    def update_coin_text(self, current_coins):
+        self.coins_earned_in_dungeon = current_coins
+        self.coin_text = self.font_coin.render(str(self.coins_earned_in_dungeon), True, self.COIN_TEXT_COLOUR)
     
 
     def custom_draw(self, screen):

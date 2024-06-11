@@ -317,9 +317,14 @@ def main():
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
-            
+
+            #TEMP *******************************************************************
             coin_group = underworld.npc.temp_coin_group
             underworldcamera.add(coin_group)
+            for coin in coin_group:
+                coin.detect_coin_collision(underworldplayer)
+            underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
+            #************************************************************************
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():
