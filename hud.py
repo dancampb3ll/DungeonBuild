@@ -78,7 +78,7 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.rect.x = settings.SCREEN_WIDTH // 2 - self.rect.w // 2
         self.rect.y = settings.SCREEN_HEIGHT - self.rect.h + 3
 
-
+        #Defining Healthbars
         self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 8
         self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 9
         self.GREEN_HEALTHBAR_WIDTH = 210
@@ -92,16 +92,50 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.RED_HEALTHBAR_WIDTH = 0
         self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
 
+        #Defining health_text
+        self.HEALTH_FONT_SIZE = 12
+        self.HEALTH_TEXT_COLOUR = (30, 30, 30)
+        self.font_health = pygame.font.SysFont("OpenSans-Bold.ttf", self.HEALTH_FONT_SIZE, bold=True)
+        self.HEALTH_POSX = settings.SCREEN_WIDTH // 2 - 8
+        self.HEALTH_POSY = settings.SCREEN_HEIGHT - 26
+        self.health_text = self.font_health.render(str(100), True, self.HEALTH_TEXT_COLOUR)
+
+        #Defining coincount
+        self.COIN_FONT_SIZE = 14
+        self.COIN_POSX = settings.SCREEN_WIDTH // 2 - 107
+        self.COIN_POSY = settings.SCREEN_HEIGHT - 14
+        self.font_coin = pygame.font.SysFont("OpenSans-Bold.ttf", self.COIN_FONT_SIZE, bold=True)
+        self.coins_earned_in_dungeon = 2
+        self.COIN_TEXT_COLOUR = (255, 255, 255)
+        self.coin_text = self.font_coin.render(str(self.coins_earned_in_dungeon), True, self.COIN_TEXT_COLOUR)
+
+
+    def update_health_hud(self, health):
+        self.update_red_healthbar(health)
+        self.update_health_text(health)
+
+    def update_health_text(self, health):
+        None
+
     def update_red_healthbar(self, health):
         percentage_health_taken = (1 - health/100)
         total_healthbar_width = self.GREEN_HEALTHBAR_WIDTH
-        self.RED_HEALTHBAR_WIDTH = percentage_health_taken * self.GREEN_HEALTHBAR_WIDTH
+        self.RED_HEALTHBAR_WIDTH = percentage_health_taken * total_healthbar_width
         self.red_healthbar_start_pixelx = self.RED_HEALTHBAR_END_PIXELX - self.RED_HEALTHBAR_WIDTH
         self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
 
+    
+
     def custom_draw(self, screen):
+        #Healthbars
         pygame.draw.rect(screen, (100, 255, 100), self.healthrect_green, 0)
         pygame.draw.rect(screen, (255, 100, 100), self.healthrect_red, 0)
+
+        #Health Text
+        screen.blit(self.health_text, (self.HEALTH_POSX, self.HEALTH_POSY))
+
+        #Coin text
+        screen.blit(self.coin_text, (self.COIN_POSX, self.COIN_POSY))
 
 class ToolTip(pygame.sprite.Sprite):
     def __init__(self, initx, inity, building_type):

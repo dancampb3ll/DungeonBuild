@@ -327,7 +327,7 @@ def main():
             
             underworld_hudgroup.draw(screen)
             underworld_hudbar.custom_draw(screen)
-            underworld_hudbar.update_red_healthbar(underworldplayer.health)
+            underworld_hudbar.update_health_hud(underworldplayer.health)
             selected_world = underworldplayer.gameworld
             pygame.display.update()
             clock.tick(60)
