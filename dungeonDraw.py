@@ -43,7 +43,9 @@ def save_image_from_map(save_address, map, material_colour_representations):
 material_colour_representations = {
     "cobblestone": (54, 50, 40),
     "stairs": (200, 200, 200),
-    "border": (20, 20, 20)
+    "border": (20, 20, 20),
+    "cobblestoneMossy": (54, 90, 54),
+    "boulderSmall": (180, 50, 40)
 }
 
 GENERATE_COUNT = 10

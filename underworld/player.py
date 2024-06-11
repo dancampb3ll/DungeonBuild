@@ -93,12 +93,20 @@ class Player(pygame.sprite.Sprite):
                 tiley = check[1] * settings.UNDERWORLD_TILE_SIZE
                 if abs(tiley - self.rect.y) <= SNAP_RANGE:
                     self.rect.y = tiley
+                    if direction == "left":
+                        self.rect.x -= self.speed
+                    else:
+                        self.rect.x += self.speed
                     return
         else:
             for check in [check_tile_one, check_tile_two]:
                 tilex = check[0] * settings.UNDERWORLD_TILE_SIZE 
                 if abs(tilex - self.rect.x) <= SNAP_RANGE:
                     self.rect.x = tilex
+                    if direction == "up":
+                        self.rect.y -= self.speed
+                    else:
+                        self.rect.y += self.speed
                     return
 
 

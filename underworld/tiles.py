@@ -3,7 +3,7 @@ import pygame
 import random
 import time
 
-WALKABLE = ["cobblestone"]
+WALKABLE = ["cobblestone", "cobblestoneMossy"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
@@ -83,7 +83,21 @@ class UnderworldTile(pygame.sprite.Sprite):
             self.image = self.raw_image.copy()
             self.image.fill(darken9, special_flags=pygame.BLEND_RGB_SUB)
 
-
+def check_adjacent_and_diagonal_tiles_walkable(map, coord):
+        x = coord[0]
+        y = coord[1]
+        adjacent_and_diagonal_coords = []
+        for i in range(0, 3):
+            for j in range(0, 3):
+                checkx = x + i - 1
+                checky = y + j - 1
+                if (checkx, checky) != coord:
+                    adjacent_and_diagonal_coords.append((checkx, checky))
+        print(adjacent_and_diagonal_coords)
+        for coordinate in adjacent_and_diagonal_coords:
+            if map[coordinate][0] not in WALKABLE:
+                return False
+        return True
 
 def generate_new_map_dict_and_spawns():
     def calculate_edge_tile_coords_from_room_created(room_width, room_height, topleftx, toplefty):
@@ -190,8 +204,8 @@ def generate_new_map_dict_and_spawns():
                 walkway_startx = wall_coord_selection[0]
                 walkway_starty = wall_coord_selection[1]
 
-            print(f"Wall coords: {wall}")
-            print(f"ROOM {i + 1}: Building from {wall_side} wall, coordinate ({wall_coord_selection[0]}, {wall_coord_selection[1]})")
+            #print(f"Wall coords: {wall}")
+            #print(f"ROOM {i + 1}: Building from {wall_side} wall, coordinate ({wall_coord_selection[0]}, {wall_coord_selection[1]})")
 
             new_room = generate_cobblestone_square_with_border({}, new_room_width, new_room_height, new_room_x_start, new_room_y_start)
             new_walkway = generate_cobblestone_walkway({}, walkway_width, walkway_height, walkway_startx, walkway_starty)
@@ -221,6 +235,24 @@ def generate_new_map_dict_and_spawns():
 
         return new_map
 
+    def add_boulderSmall_randomly(map):
+        BOULDERSMALL_CHANCE = 140
+        for coord in map.keys():
+            if map[coord][0] == "cobblestone":
+                if random.randint(0, BOULDERSMALL_CHANCE) == BOULDERSMALL_CHANCE:
+                    if check_adjacent_and_diagonal_tiles_walkable(map, coord) == True:
+                        map[coord][0] = "boulderSmall"
+        return map
+
+    def add_mossy_cobblestone_randomly(map):
+        MOSSY_CHANCE = 15
+        for coord in map.keys():
+            if map[coord][0] == "cobblestone":
+                if random.randint(0, MOSSY_CHANCE) == MOSSY_CHANCE:
+                    map[coord][0] = "cobblestoneMossy"
+        return map
+ 
+
     map = {}
     taken_ranges = []
 
@@ -229,7 +261,10 @@ def generate_new_map_dict_and_spawns():
     SPAWN_WIDTH, SPAWN_HEIGHT, SPAWN_X_TOPLEFT, SPAWN_Y_TOPLEFT = 8, 16, 0, 0
     map = generate_cobblestone_square_with_border(map, SPAWN_WIDTH, SPAWN_HEIGHT, SPAWN_X_TOPLEFT, SPAWN_Y_TOPLEFT, True)
 
-    #map = generate_cobblestone_square_with_border(map, 8, 8, 4, 24)
     map = generate_random_rooms_and_walkways(map)
+
+    map = add_boulderSmall_randomly(map)
+
+    map = add_mossy_cobblestone_randomly(map)
 
     return map, None

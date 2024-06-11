@@ -6,6 +6,9 @@ Add player damaged sound
 Refactor all sprite types into groups
 Add sword attack animation
 
+animate slime
+make skeleton with spear throw
+
 Sort out enemy knockback being stuck on walls
 Properly fix knockback out of walls.
 
@@ -28,8 +31,6 @@ Add npc tile collision
 Make portal side collision work - why does it work from every side?
 
 
-
-
 Make enemies not walk on each other
 add knockback resistance to npcs
 
@@ -39,7 +40,7 @@ List before completion
 1. Random dungeon generation (semi complete)
 2. Inventory System
 3. Chest generation
-4. Coin drops/Coin pickup/Coin counter
+    4. Coin drops/Coin pickup/Coin counter
 5. Overworld tile/building selling npc
 6. Save game
 7. Dungeon entry generation system (in overworld)

@@ -88,17 +88,19 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
+"""Replace with transparency
 replace_image_path = "assets/other/underworld/coin.png"
 output_path = "assets/other/underworld/coin1.png"
 make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
-
-
 """
-replace_image_path = "assets/unused/tinyPot.png"
-grass_texture_path = "assets/overgroundGrass.png"
+
+""" Replace chroma with other image
+replace_image_path = "assets/underworldtiles/boulderSmall.png"
+replacement_texture_path = "assets/underworldtiles/cobblestone.png"
 new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 255, 255), grass_texture_path, new_path)
+replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 """
+
 #split_image("assets/Unused/Hero.png", "assets/Unused/player")
 """
 files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
