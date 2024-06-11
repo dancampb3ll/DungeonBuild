@@ -1,13 +1,14 @@
 Short term
 
-Add coin drops
-Make pillow based map generation representation
+Look through sword animation code - change for different directions
+
 Add player damaged sound
 Refactor all sprite types into groups
-Add sword attack animation
+
 
 animate slime
 make skeleton with spear throw
+Make coin drops random/move a bit
 
 Sort out enemy knockback being stuck on walls
 Properly fix knockback out of walls.
