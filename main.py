@@ -299,8 +299,8 @@ def main():
             gamestate.update_current_music(underworld_track)
             screen.fill((0, 0, 0))
 
-            underworldplayer.move_player(underworldcamera)
-            underworldplayer.custom_update(underworldcamera)
+            underworldplayer.move_player(underworldcamera, gamestate.underworld_map_dict)
+            underworldplayer.custom_update(underworldcamera, gamestate.underworld_map_dict)
 
             gamestate.update_sprite_dict_and_drawn_map(underworldcamera, underworldplayer.rect.center)
 

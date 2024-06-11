@@ -266,7 +266,7 @@ class Npc(pygame.sprite.Sprite):
     def update(self):
         self.update_grid_locations()
         self.manage_invincibility_state()
-        print("alive ", self.randomid)
+        #print("alive ", self.randomid)
         
         #self.image_flash_refresh()
     

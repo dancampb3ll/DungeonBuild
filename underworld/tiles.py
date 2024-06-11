@@ -125,19 +125,18 @@ def generate_new_map_dict_and_spawns():
         MIN_ROOMS = 4
         MAX_ROOMS = 12
 
-        MIN_ROOMHEIGHT = 6
-        MAX_ROOMHEIGHT = 14
-        MIN_ROOMWIDTH = 4
-        MAX_ROOMWIDTH = 14
+        MIN_ROOMHEIGHT = 4
+        MAX_ROOMHEIGHT = 15
+        MIN_ROOMWIDTH = 3
+        MAX_ROOMWIDTH = 17
 
         MIN_WALKWAY_DISTANCE = 3
-        MAX_WALKWAY_DISTANCE = 14
+        MAX_WALKWAY_DISTANCE = 18
         MIN_WALKWAY_THICKNESS = 2
-        MAX_WALKWAY_THICKNESS = 2
+        MAX_WALKWAY_THICKNESS = 3
 
         new_map = map
         roomcount = random.randint(MIN_ROOMS, MAX_ROOMS)
-        roomcount = 2
         directions = ["left", "right", "top", "bottom"]
 
         previous_room_width = SPAWN_WIDTH

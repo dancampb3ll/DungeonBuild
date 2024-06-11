@@ -2,8 +2,9 @@ Short term
 
 Add coin drops
 Make pillow based map generation representation
+Add player damaged sound
 Refactor all sprite types into groups
-
+Add sword attack animation
 
 Sort out enemy knockback being stuck on walls
 Properly fix knockback out of walls.

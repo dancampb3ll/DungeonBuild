@@ -43,24 +43,65 @@ class Player(pygame.sprite.Sprite):
         self.knockback_timer = 0
         self.KNOCKBACK_TIMER_MAX = 80
 
-    def detect_tile_collisions(self, camera_group, xspeed, yspeed):
+    def detect_tile_collisions(self, camera_group, xspeed, yspeed, underworld_map_dict):
         for sprite in camera_group:
             if sprite.type == "tile":
                 collide = sprite.rect.colliderect(self.rect)
                 if collide:
                     if sprite.tile not in underworld.tiles.WALKABLE:
+                        #right
+                        print("tile colliding with: ", (sprite.gridx, sprite.gridy), " : ", sprite.tile)
                         if xspeed > 0:
                             self.rect.right = sprite.rect.left
                             self.check_portal_collisions("right", sprite)
+                            self.snap_to_1by1_tile("right", sprite, underworld_map_dict)
+                        #left
                         elif xspeed < 0:
                             self.rect.left = sprite.rect.right
                             self.check_portal_collisions("left", sprite)
+                            self.snap_to_1by1_tile("left", sprite, underworld_map_dict)
+                        #down
                         if yspeed > 0:
                             self.rect.bottom = sprite.rect.top
                             self.check_portal_collisions("bottom", sprite)
+                            self.snap_to_1by1_tile("down", sprite, underworld_map_dict)
+                        #up
                         elif yspeed < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
+                            self.snap_to_1by1_tile("up", sprite, underworld_map_dict)
+
+    def snap_to_1by1_tile(self, direction, tile_sprite, underworld_map_dict):
+        
+        SNAP_RANGE = 8
+
+        if direction == "left" or direction == "right":
+            check_tile_one = (tile_sprite.gridx, tile_sprite.gridy + 1)
+            check_tile_two = (tile_sprite.gridx, tile_sprite.gridy - 1)
+        else:
+            check_tile_one = (tile_sprite.gridx + 1, tile_sprite.gridy)
+            check_tile_two = (tile_sprite.gridx - 1, tile_sprite.gridy)
+        
+        print("Check tile one coords:", underworld_map_dict.get(check_tile_one, None))
+        print("Check tile two coords:", underworld_map_dict.get(check_tile_two, None))
+        
+        #No need to snap the player to tile if not a 1 by 1 opening:
+        if (underworld_map_dict.get(check_tile_one, ["border"])[0] != "border" and underworld_map_dict.get(check_tile_two, ["border"])[0] != "border"):
+            return
+        if direction == "left" or direction == "right":
+            for check in [check_tile_one, check_tile_two]:
+                tiley = check[1] * settings.UNDERWORLD_TILE_SIZE
+                if abs(tiley - self.rect.y) <= SNAP_RANGE:
+                    self.rect.y = tiley
+                    return
+        else:
+            for check in [check_tile_one, check_tile_two]:
+                tilex = check[0] * settings.UNDERWORLD_TILE_SIZE 
+                if abs(tilex - self.rect.x) <= SNAP_RANGE:
+                    self.rect.x = tilex
+                    return
+
+
 
     def update_invincibility_state(self):
         if not self.invincibility_state:
@@ -95,7 +136,7 @@ class Player(pygame.sprite.Sprite):
         elif enemy_direction == "down":
             self.knockbacky = self.rect.y + knockback_effect
 
-    def perform_knockback(self, camera):
+    def perform_knockback(self, camera, underworld_map_dict):
         if self.knockbackx == None and self.knockbacky == None:
             self.knockback_timer = 0
             return
@@ -112,11 +153,11 @@ class Player(pygame.sprite.Sprite):
             if self.knockbackx > self.rect.x:
                 self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, knockback_speed, 0)
+                    self.detect_tile_collisions(camera, knockback_speed, 0, underworld_map_dict)
             elif self.knockbackx < self.rect.x:
                 self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, -knockback_speed, 0)
+                    self.detect_tile_collisions(camera, -knockback_speed, 0, underworld_map_dict)
             else:
                 self.knockbackx = None
 
@@ -124,15 +165,15 @@ class Player(pygame.sprite.Sprite):
             if self.knockbacky > self.rect.y:
                 self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, knockback_speed)
+                    self.detect_tile_collisions(camera, 0, knockback_speed, underworld_map_dict)
             elif self.knockbacky < self.rect.y:
                 self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, -knockback_speed)
+                    self.detect_tile_collisions(camera, 0, -knockback_speed, underworld_map_dict)
             else:
                 self.knockbacky = None
 
-    def move_player(self, camera_group):
+    def move_player(self, camera_group, underworld_map_dict):
         self.is_moving = False #Used to check if player is walking
         self.is_moving_x = False
         self.is_moving_y = False
@@ -155,28 +196,28 @@ class Player(pygame.sprite.Sprite):
         if key[pygame.K_a]:
             self.facing_direction = "left"
             self.rect.x -= speed
-            self.detect_tile_collisions(camera_group, -speed, 0)
+            self.detect_tile_collisions(camera_group, -speed, 0, underworld_map_dict)
             self.is_moving = True
             self.is_moving_x = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
             self.rect.x += speed
-            self.detect_tile_collisions(camera_group, speed, 0)
+            self.detect_tile_collisions(camera_group, speed, 0, underworld_map_dict)
             self.is_moving = True
             self.is_moving_x = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
             self.rect.y += speed
-            self.detect_tile_collisions(camera_group, 0, speed)
+            self.detect_tile_collisions(camera_group, 0, speed, underworld_map_dict)
             self.is_moving = True
             self.is_moving_y = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
             self.rect.y -= speed
-            self.detect_tile_collisions(camera_group, 0, -speed)
+            self.detect_tile_collisions(camera_group, 0, -speed, underworld_map_dict)
             self.is_moving = True
             self.is_moving_y = True
         
@@ -246,9 +287,9 @@ class Player(pygame.sprite.Sprite):
         if self.health <= 0:
             self.gameworld = "overworld"
 
-    def custom_update(self, camera):
+    def custom_update(self, camera, underworld_map_dict):
         self.update_invincibility_state()
-        self.perform_knockback(camera)
+        self.perform_knockback(camera, underworld_map_dict)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
         self.update_death_status()
