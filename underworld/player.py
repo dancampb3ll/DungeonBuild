@@ -704,9 +704,11 @@ class Weapon(pygame.sprite.Sprite):
         self.DEBUG_DRAW_HITBOXES = settings.DEBUG_DRAW_HITBOXES
 
         # Sinusoidal movement variables for attack swing
-        self.attack_swing_amplitude_active_direction = 10
-        self.attack_swing_amplitude_nonactive_direction = 24
-        self.attack_swing_speed = 0.27
+        self.attack_swing_amplitude_leftright_x = 10
+        self.attack_swing_amplitude_leftright_y = 18
+        self.attack_swing_amplitude_updown_x = 24
+        self.attack_swing_amplitude_updown_y = 4
+        self.attack_swing_speed = 0.4
         self.attack_swing_angle = 0
 
         # Bobbing calcs
@@ -765,17 +767,17 @@ class Weapon(pygame.sprite.Sprite):
             self.attack_swing_angle += self.attack_swing_speed
 
             if player_direction == "up":
-                swing_offset_x = self.attack_swing_amplitude_nonactive_direction * math.cos(self.attack_swing_angle)
-                swing_offset_y = -self.attack_swing_amplitude_active_direction * math.sin(self.attack_swing_angle)
+                swing_offset_x = min(0, self.attack_swing_amplitude_updown_x * math.cos(self.attack_swing_angle))
+                swing_offset_y = -self.attack_swing_amplitude_updown_y * math.sin(self.attack_swing_angle)
             elif player_direction == "down":
-                swing_offset_x = -self.attack_swing_amplitude_nonactive_direction * math.cos(self.attack_swing_angle)
-                swing_offset_y = self.attack_swing_amplitude_active_direction * math.sin(self.attack_swing_angle)
+                swing_offset_x = max(0, -self.attack_swing_amplitude_updown_x * math.cos(self.attack_swing_angle))
+                swing_offset_y = self.attack_swing_amplitude_updown_y * math.sin(self.attack_swing_angle)
             elif player_direction == "left":
-                swing_offset_x = -self.attack_swing_amplitude_active_direction * math.sin(self.attack_swing_angle)
-                swing_offset_y = -self.attack_swing_amplitude_nonactive_direction * math.cos(self.attack_swing_angle)
+                swing_offset_x = -self.attack_swing_amplitude_leftright_x * math.sin(self.attack_swing_angle)
+                swing_offset_y = max(0, -self.attack_swing_amplitude_leftright_y * math.cos(self.attack_swing_angle))
             elif player_direction == "right":
-                swing_offset_x = self.attack_swing_amplitude_active_direction * math.sin(self.attack_swing_angle)
-                swing_offset_y = self.attack_swing_amplitude_nonactive_direction * math.cos(self.attack_swing_angle)
+                swing_offset_x = self.attack_swing_amplitude_leftright_x * math.sin(self.attack_swing_angle)
+                swing_offset_y = min(0, self.attack_swing_amplitude_leftright_y * math.cos(self.attack_swing_angle))
 
         # Apply the calculated offsets
         self.rect.x = player_coords[0] + xoffset + bobbing_offset_x + swing_offset_x
