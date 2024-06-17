@@ -43,6 +43,14 @@ class Player(pygame.sprite.Sprite):
         self.knockback_timer = 0
         self.KNOCKBACK_TIMER_MAX = 80
 
+        self.damage_sfx = ["take_damage1.mp3"]
+
+    def play_random_damage_sfx_from_list(self):
+        sfx_list = self.damage_sfx
+        random_sfx_num = random.randint(0, len(sfx_list) - 1)
+        sfx = pygame.mixer.Sound(f"assets/sfx/player/{sfx_list[random_sfx_num]}")
+        sfx.play()
+
     def detect_tile_collisions(self, camera_group, xspeed, yspeed, underworld_map_dict):
         for sprite in camera_group:
             if sprite.type == "tile":
@@ -125,6 +133,7 @@ class Player(pygame.sprite.Sprite):
             print("invincible")
             return
         self.health -= npc.damage
+        self.play_random_damage_sfx_from_list()
         print("damage taken")
         self.invincibility_state = True
         self.invincibility_timer = 0

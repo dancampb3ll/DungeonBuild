@@ -1,8 +1,9 @@
 Short term
 
-Look through sword animation code - change for different directions
+Add individual sprite ID incinvibility to the player rather than total invincibility
 
-Add player damaged sound
+Add 0 enemies left prompt?
+
 Refactor all sprite types into groups
 
 
@@ -18,16 +19,12 @@ Make enemies red when hit
 Work on dungeon generation.
 
 Add dungeon counts: Silver (total dungeons completed) and Gold (unique dungeons completed).
-    - Dungeon difficulty should scale off gold dungeons
+    - Dungeon difficulty should scale off gold dungeons?
 
-Add knockbackmin, knockbackmax to weapons for variation
-Add random speed variations to npcs in spawn
-Make slime into npc class (generic like weapon)
 
 Dungeons should spawn in the overworld
-Add player swipe animation
+
 Make underworld sprite dict?
-Add npc tile collision
 
 Make portal side collision work - why does it work from every side?
 
