@@ -45,7 +45,8 @@ material_colour_representations = {
     "stairs": (200, 200, 200),
     "border": (20, 20, 20),
     "cobblestoneMossy": (54, 90, 54),
-    "boulderSmall": (180, 50, 40)
+    "boulderSmall": (180, 50, 40), 
+    "woodenPlank": (30, 70, 70)
 }
 
 GENERATE_COUNT = 10

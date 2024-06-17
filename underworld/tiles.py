@@ -3,7 +3,7 @@ import pygame
 import random
 import time
 
-WALKABLE = ["cobblestone", "cobblestoneMossy"]
+WALKABLE = ["cobblestone", "cobblestoneMossy", "woodenPlank"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
@@ -123,6 +123,63 @@ def generate_cobblestone_square_with_border(input_map, gridwidth, gridheight, st
         new_map[(start_x + gridwidth - 1, start_y)] = ["stairs", ["overworld", (16, 16), "right"]]
     return new_map
 
+def generate_small_wooden_loot_island(map):
+    WALKWAY_LENGTH = 6
+    new_map = {}
+    start_tile_potentials = list(map.keys())
+    
+    collision = True
+
+    while collision:
+        #Selecting tile randomly to generate structure in
+        new_map = {}
+        random_start_tile = start_tile_potentials[random.randint(0, len(start_tile_potentials))]
+
+        topleftx = random_start_tile[0]
+        toplefty = random_start_tile[1]
+        
+        #Making path
+        for i in range(0, WALKWAY_LENGTH):
+            new_map[(topleftx, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
+            new_map[(topleftx + 1, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
+        
+        #Making cross section
+        for i in range(0,8):
+            for j in range(0, 11):
+                new_map[(topleftx - 3 + i, toplefty + WALKWAY_LENGTH + j)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
+        
+
+
+        #Collision checks
+        collision_list = []
+        for coord in new_map.keys():
+            if map.get((coord), ["border"])[0] != "border":
+                collision_list.append(coord)
+        if len(collision_list) == 0:
+            collision = False
+        
+    #Making border:
+    new_map_xs = []
+    new_map_ys = []
+    for coord in new_map.keys():
+        new_map_xs.append(coord[0])
+        new_map_ys.append(coord[1])
+
+    min_x = min(new_map_xs)
+    min_y = min(new_map_ys)
+    max_x = max(new_map_xs)
+    max_y = max(new_map_ys)
+    for i in range(min_x - 1, max_x + 2):
+        for y in range(min_y - 1, max_y + 2):
+            if new_map.get((i, y), None) == None:
+                new_map[(i, y)] = ["border", DEFAULT_NO_TILE_PORTAL]
+
+    for coord in new_map.keys():
+        if map.get(coord, ["border"])[0] == "border":
+            map[coord] = new_map[coord]
+
+    return map
+
 def generate_cobblestone_walkway(input_map, gridwidth, gridheight, start_x, start_y):
     new_map = input_map
     for i in range(start_x, start_x + gridwidth):
@@ -174,6 +231,8 @@ def generate_new_map_dict_and_spawns():
     map = add_boulderSmall_randomly(map)
 
     map = add_mossy_cobblestone_randomly(map)
+
+    map = generate_small_wooden_loot_island(map)
 
     spawns = generate_slime_spawns(map)
 
