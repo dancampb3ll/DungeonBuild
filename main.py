@@ -150,9 +150,12 @@ def check_buildmode_and_update_tooltips(player_buildmode, player_selected_buildi
         building_tooltips_group.add(rightTT)
         return leftTT, rightTT
 
-def refresh_underworld_draw_order(camera_group):
+def refresh_underworld_draw_order(camera_group, player):
     #Drawn from lowest priority to max
-    draw_order = ["tile", "npc", "player", "weapon", "coin"]
+    if player.facing_direction == "down":
+        draw_order = ["tile", "npc", "player", "weapon", "coin"]
+    else:
+        draw_order = ["tile", "npc", "weapon", "player", "coin"]
 
     for sprite_type in draw_order:
         for sprite in camera_group.sprites():
@@ -312,7 +315,7 @@ def main():
 
             dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction, underworldplayer.is_moving_x, underworldplayer.is_moving_y)
 
-            refresh_underworld_draw_order(underworldcamera)
+            refresh_underworld_draw_order(underworldcamera, underworldplayer)
             #*********************
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
@@ -332,6 +335,7 @@ def main():
                 coin.detect_coin_collision(underworldplayer)
             underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
             #************************************************************************
+            print(f"Enemies remaining: {len(enemies)}")
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():

@@ -42,7 +42,8 @@ class Npc(pygame.sprite.Sprite):
                 "damage": 1,
                 "knockback": 20,
                 "coindrop_min": 1,
-                "coindrop_max": 4
+                "coindrop_max": 4,
+                "damage_type": "melee"
             }
         }
         self.health = self.attributes[self.npc]["health"]

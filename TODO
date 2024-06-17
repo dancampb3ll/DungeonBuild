@@ -1,11 +1,12 @@
 Short term
 
+Add random structures to underworld, including chests + rooms
+
 Add individual sprite ID incinvibility to the player rather than total invincibility
-
 Add 0 enemies left prompt?
-
 Refactor all sprite types into groups
 
+Use 11 labs to make sfx
 
 animate slime
 make skeleton with spear throw
