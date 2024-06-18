@@ -132,6 +132,10 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
         play_sfx.play()
     return
 
+def reset_underworld_groups():
+    underworld.npc.enemy_group = pygame.sprite.Group()
+    underworld.npc.projectile_group = pygame.sprite.Group()
+    underworld.npc.temp_coin_group = pygame.sprite.Group()
 
 def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events, building_tooltips_group):
     if not player_buildmode:
@@ -279,20 +283,27 @@ def main():
             clock.tick(60)
         player.kill()
 
+
+        #Pre-Underworld Loop initialisation ************
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
 
-        
         gamestate.generate_underworld_dungeon_and_update_map()
-        #enemies.append(underworld.npc.Npc(underworldcamera, 2, 4, "slime"))
-        #enemies.append(underworld.npc.Npc(underworldcamera, 3, 9, "slime"))
-        enemies = pygame.sprite.Group()
-        gamestate.spawn_enemies_from_spawn_dict(enemies)
+        
+        reset_underworld_groups()
+        enemy_group = underworld.npc.enemy_group
+        coin_group = underworld.npc.coin_group
+        projectile_group = underworld.npc.projectile_group
+
+        gamestate.spawn_enemies_from_spawn_dict(enemy_group)
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
         underworldplayer = underworld.player.Player(underworldcamera)
         underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
         underworld_hudbar = hud.UnderworldHud()
         underworld_hudgroup.add(underworld_hudbar)
+
+
+        
         while selected_world == "underworld":
             underworldplayer.gameworld = selected_world
             input_events = pygame.event.get()
@@ -321,7 +332,7 @@ def main():
             underworldcamera.update()
             underworldcamera.custom_draw(underworldplayer)
             
-            for enemy in enemies:
+            for enemy in enemy_group:
                 if enemy.alive:
                     enemy.custom_update(underworldplayer, underworldcamera)
 
@@ -329,17 +340,19 @@ def main():
             dagger.detect_enemy_weapon_collision(underworldcamera)
 
             #TEMP *******************************************************************
-            underworldcamera.add(enemies)
-            coin_group = underworld.npc.temp_coin_group
-            projectile_group = underworld.npc.projectile_group
+            underworldcamera.add(enemy_group)
+            
             print(len(projectile_group))
             underworldcamera.add(coin_group)
             underworldcamera.add(projectile_group)
             for coin in coin_group:
                 coin.detect_coin_collision(underworldplayer)
+            for projectile in projectile_group:
+                projectile.check_player_collision(underworldplayer)
+
             underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
             #************************************************************************
-            print(f"Enemies remaining: {len(enemies)}")
+            print(f"Enemies remaining: {len(enemy_group)}")
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():

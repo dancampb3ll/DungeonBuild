@@ -9,8 +9,9 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x2, y2 = point2
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-temp_coin_group = pygame.sprite.Group()
+coin_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
 
 class Npc(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy, npctype):
@@ -113,7 +114,6 @@ class Npc(pygame.sprite.Sprite):
     def move_projectile_with_player(self):
         self.projectile.update_weapon_position()
 
-
     def take_damage(self, weapon):
         weapon_damage = weapon.damage
 
@@ -126,6 +126,7 @@ class Npc(pygame.sprite.Sprite):
 
         if self.health <= 0:
             self.play_random_sfx_from_list(self.death_sfx)
+            self.projectile.kill()
             self.die()
 
     def set_knockback_position(self, weapon):
@@ -239,21 +240,6 @@ class Npc(pygame.sprite.Sprite):
     def update_grid_locations(self):
         self.gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
         self.gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
-
-    """
-        def image_flash_refresh(self):
-            FLASH_MODULUS = 6
-            if self.invincibility_timer_active == False:
-                self.image_showing = True
-                self.image = self.image_visible
-                return
-            if self.invincibility_timecount % FLASH_MODULUS == 0:
-                self.image_showing = not self.image_showing
-                if self.image_showing == True:
-                    self.image = self.image_visible
-                else:
-                    self.image = self.image_invisible
-    """
                 
     def manage_invincibility_state(self):
         if self.invincibility_timer_active:
@@ -300,8 +286,7 @@ class Npc(pygame.sprite.Sprite):
         player.take_damage(self)
 
     def ranged_attack(self, player):
-        #print("Need to create ranged attack")
-        None
+        self.projectile.throw(player)
 
     def attack_sequence(self, player):
         if self.attack_type == "melee":
@@ -326,7 +311,7 @@ class Npc(pygame.sprite.Sprite):
         #self.image_flash_refresh()
     
     def drop_coins(self):
-        Coin(temp_coin_group, self.rect.centerx, self.rect.centery, self.coins_dropped)
+        Coin(coin_group, self.rect.centerx, self.rect.centery, self.coins_dropped)
 
     def die(self):
         self.drop_coins()
@@ -343,6 +328,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = -999
         self.rect.y = -999
+        self.in_thrown_state = False
         self.update_weapon_position()
 
     def update_weapon_position(self):
@@ -351,6 +337,15 @@ class Projectile(pygame.sprite.Sprite):
         npc_center = self.parent.rect.center
         self.rect.x = npc_center[0] + X_OFFSET_FROM_NPC
         self.rect.y = npc_center[1] + Y_OFFSET_FROM_NPC
+
+    def check_player_collision(self, player):
+        if not self.in_thrown_state:
+            return
+        if self.rect.colliderect(player.rect):
+            player.take_damage(self.parent)
+
+    def throw(self, player):
+        None
 
     def check_parent_alive(self):
         None

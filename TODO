@@ -1,5 +1,9 @@
 Short term
 
+Make projectile decouple with throw
+Make decoupled projectile follow player and then die at reaching destination
+
+
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
 
