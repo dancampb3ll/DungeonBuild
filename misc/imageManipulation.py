@@ -88,11 +88,12 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
-"""Replace with transparency
-replace_image_path = "assets/other/underworld/coin.png"
-output_path = "assets/other/underworld/coin1.png"
+#"""Replace chroma with transparency
+replace_image_path = "assets/npc/underworld/projectiles/spear.png"
+output_path = "assets/npc/underworld/projectiles/spear NEW.png"
 make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
-"""
+#"""
+
 
 """ Replace chroma with other image
 replace_image_path = "assets/underworldtiles/boulderSmall.png"

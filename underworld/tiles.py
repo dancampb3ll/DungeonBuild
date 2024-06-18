@@ -133,7 +133,7 @@ def generate_small_wooden_loot_island(map):
     while collision:
         #Selecting tile randomly to generate structure in
         new_map = {}
-        random_start_tile = start_tile_potentials[random.randint(0, len(start_tile_potentials))]
+        random_start_tile = start_tile_potentials[random.randint(0, len(start_tile_potentials) - 1)]
 
         topleftx = random_start_tile[0]
         toplefty = random_start_tile[1]
@@ -217,7 +217,7 @@ def generate_new_map_dict_and_spawns():
         for coord in map.keys():
             if map[coord][0] in WALKABLE:
                 if random.randint(0, SLIME_SPAWN_CHANCE) == SLIME_SPAWN_CHANCE:
-                    spawns[coord] = "slime"
+                    spawns[coord] = "skeleton"
         return spawns
 
     map = {}

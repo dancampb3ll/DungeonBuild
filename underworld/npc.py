@@ -10,6 +10,7 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 temp_coin_group = pygame.sprite.Group()
+projectile_group = pygame.sprite.Group()
 
 class Npc(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy, npctype):
@@ -29,7 +30,13 @@ class Npc(pygame.sprite.Sprite):
         self.randomid = random.randint(0, 99999)
         self.living = True
         
+        self.holding_projectile = False
+
         self.attributes = {
+            "default": {
+                "projectile_type": None
+            },
+
             "slime": {
                 "damage_sfx": ["take_damage1.mp3"],
                 "death_sfx": ["death1.mp3"],
@@ -38,14 +45,15 @@ class Npc(pygame.sprite.Sprite):
                 "knockback_resistance_max": 8,
                 "speed_min" : 100,
                 "speed_max" : 100,
-                "health": 5, #Should be 5,
-                "damage": 1,
+                "health": 3,
+                "damage": 5,
                 "knockback": 20,
                 "coindrop_min": 1,
                 "coindrop_max": 4,
                 "attack_type": "melee",
                 "attack_range": 14
             },
+
             "skeleton": {
                 "damage_sfx": ["take_damage1.mp3"],
                 "death_sfx": ["death1.mp3"],
@@ -54,11 +62,11 @@ class Npc(pygame.sprite.Sprite):
                 "knockback_resistance_max": 8,
                 "speed_min" : 100,
                 "speed_max" : 100,
-                "health": 5, #Should be 5,
-                "damage": 1,
+                "health": 7,
+                "damage": 20,
                 "knockback": 20,
-                "coindrop_min": 1,
-                "coindrop_max": 4,
+                "coindrop_min": 4,
+                "coindrop_max": 8,
                 "attack_type": "ranged",
                 "attack_range": 140
             }
@@ -80,6 +88,7 @@ class Npc(pygame.sprite.Sprite):
         self.coins_dropped = random.randint(self.coindrop_min, self.coindrop_max)
         self.attack_type = self.attributes[self.npc]["attack_type"]
         self.attack_range = self.attributes[self.npc]["attack_range"]
+        self.projectile_type = self.attributes[self.npc].get("projectile_type", self.attributes["default"]["projectile_type"])
 
         self.knockbackx = None
         self.knockbacky = None
@@ -92,6 +101,18 @@ class Npc(pygame.sprite.Sprite):
         self.invincibility_timecount = 0
         self.invincibility_timer_active = False
         self.image_showing = True
+
+    def check_projectile_held_and_create(self):
+        if self.attack_type != "ranged":
+            return
+        if self.holding_projectile:
+            return
+        self.projectile = Projectile(projectile_group, self)
+        self.holding_projectile = True
+
+    def move_projectile_with_player(self):
+        self.projectile.update_weapon_position()
+
 
     def take_damage(self, weapon):
         weapon_damage = weapon.damage
@@ -279,7 +300,8 @@ class Npc(pygame.sprite.Sprite):
         player.take_damage(self)
 
     def ranged_attack(self, player):
-        print("Need to create ranged attack")
+        #print("Need to create ranged attack")
+        None
 
     def attack_sequence(self, player):
         if self.attack_type == "melee":
@@ -287,7 +309,7 @@ class Npc(pygame.sprite.Sprite):
         elif self.attack_type == "ranged":
             self.ranged_attack(player)
 
-        print("Attack sequence launched: ", self.randomid)
+        #print("Attack sequence launched: ", self.randomid)
 
     def custom_update(self, player, camera):
         self.perform_knockback(camera)
@@ -297,6 +319,8 @@ class Npc(pygame.sprite.Sprite):
     def update(self):
         self.update_grid_locations()
         self.manage_invincibility_state()
+        self.check_projectile_held_and_create()
+        self.move_projectile_with_player()
         #print("alive ", self.randomid)
         
         #self.image_flash_refresh()
@@ -309,6 +333,31 @@ class Npc(pygame.sprite.Sprite):
         self.kill()
         self.alive = False
         
+class Projectile(pygame.sprite.Sprite):
+    def __init__(self, pygame_group, npc):
+        super().__init__(pygame_group)
+        self.parent = npc
+        self.type = "projectile"
+        self.raw_image = pygame.image.load(f"assets/npc/underworld/projectiles/spear.png").convert_alpha()
+        self.image = self.raw_image.copy()
+        self.rect = self.image.get_rect()
+        self.rect.x = -999
+        self.rect.y = -999
+        self.update_weapon_position()
+
+    def update_weapon_position(self):
+        X_OFFSET_FROM_NPC = 8
+        Y_OFFSET_FROM_NPC = -18
+        npc_center = self.parent.rect.center
+        self.rect.x = npc_center[0] + X_OFFSET_FROM_NPC
+        self.rect.y = npc_center[1] + Y_OFFSET_FROM_NPC
+
+    def check_parent_alive(self):
+        None
+
+    def update(self):
+        None
+
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, pygame_group, startx, starty, value):
