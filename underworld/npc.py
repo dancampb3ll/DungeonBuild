@@ -65,11 +65,11 @@ class Npc(pygame.sprite.Sprite):
                 "aggression_distance": 280,
                 "knockback_resistance_min": 4,
                 "knockback_resistance_max": 8,
-                "speed_min" : 100,
-                "speed_max" : 100,
+                "speed_min" : 400,
+                "speed_max" : 400,
                 "health": 7,
                 "damage": 20,
-                "knockback": 20,
+                "knockback": 4,
                 "coindrop_min": 4,
                 "coindrop_max": 8,
                 "attack_type": "ranged",
@@ -116,7 +116,8 @@ class Npc(pygame.sprite.Sprite):
         self.holding_projectile = True
 
     def move_projectile_with_player(self):
-        self.projectile.update_weapon_position()
+        if self.attack_type == "ranged":
+            self.projectile.update_weapon_position()
 
     def take_damage(self, weapon):
         weapon_damage = weapon.damage
@@ -130,7 +131,8 @@ class Npc(pygame.sprite.Sprite):
 
         if self.health <= 0:
             self.play_random_sfx_from_list(self.death_sfx)
-            self.projectile.kill()
+            if self.attack_type == "ranged":
+                self.projectile.kill()
             self.die()
 
     def set_knockback_position(self, weapon):
@@ -292,9 +294,7 @@ class Npc(pygame.sprite.Sprite):
     def ranged_attack(self, player):
         if self.projectile == None:
             return
-        if self.projectile_timer < self.PROJECTILE_THROW_COOLDOWN_TIMER:
-            self.projectile_timer += 1
-        else:
+        if self.projectile_timer > self.PROJECTILE_THROW_COOLDOWN_TIMER:
             self.projectile_timer = 0
             self.projectile.initialise_throw(player)
 
@@ -310,8 +310,12 @@ class Npc(pygame.sprite.Sprite):
         self.perform_knockback(camera)
         self.basic_pathfind(player, camera)
         
+    def increment_projectile_timer(self):
+        if self.holding_projectile:
+            self.projectile_timer += 1
 
     def update(self):
+        self.increment_projectile_timer()
         self.update_grid_locations()
         self.manage_invincibility_state()
         self.check_projectile_held_and_create()
@@ -343,7 +347,7 @@ class Projectile(pygame.sprite.Sprite):
         self.update_weapon_position()
         
 
-        self.honing_speed = 3
+        self.honing_speed = 1/20
 
 
     def update_weapon_position(self):
@@ -366,20 +370,43 @@ class Projectile(pygame.sprite.Sprite):
             return
         self.in_thrown_state = True
         self.honing_coordinates = (player.rect.center[0], player.rect.center[1])
+        self.abs_x_diff = int(self.honing_speed * abs(self.rect.x - self.honing_coordinates[0]))
+        self.abs_y_diff = int(self.honing_speed * abs(self.rect.y - self.honing_coordinates[1]))
+
+    def rotate_spear(self):
+        if self.honing_coordinates:
+            x1, y1 = self.rect.center
+            x2, y2 = self.honing_coordinates
+            
+            # Calculate the angle in radians
+            angle_radians = math.atan2(y2 - y1, x2 - x1)
+            
+            # Convert to degrees
+            angle_degrees = math.degrees(angle_radians) + 90
+            
+            # Rotate image (negative because Pygame rotates counter-clockwise)
+            self.image = pygame.transform.rotate(self.raw_image, -angle_degrees)
+            
+            # Update rect to center the rotated image
+            self.rect = self.image.get_rect(center=(x1, y1))
+        
 
     def perform_throw_honing_movement(self):
         if self.honing_coordinates == None:
             return
-        print(f"{self.parent.randomid} Honing to {self.honing_coordinates}")
+        print(f"{self.parent.randomid} Honing to {self.honing_coordinates}. Xdiff: {self.abs_x_diff}")
         if self.rect.centerx < self.honing_coordinates[0]:
-            self.rect.x += self.honing_speed
+            self.rect.x += self.abs_x_diff
         elif self.rect.centerx > self.honing_coordinates[0]:
-            self.rect.x -= self.honing_speed
+            self.rect.x -= self.abs_x_diff
         if self.rect.centery < self.honing_coordinates[1]:
-            self.rect.y += self.honing_speed
+            self.rect.y += self.abs_y_diff
         elif self.rect.centery > self.honing_coordinates[1]:
-            self.rect.y -= self.honing_speed
-        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 4:
+            self.rect.y -= self.abs_y_diff
+        
+        self.rotate_spear()
+        
+        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 6:
             self.kill_custom()
             self.honing_coordinates = None
 

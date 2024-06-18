@@ -217,6 +217,15 @@ def generate_new_map_dict_and_spawns():
         for coord in map.keys():
             if map[coord][0] in WALKABLE:
                 if random.randint(0, SLIME_SPAWN_CHANCE) == SLIME_SPAWN_CHANCE:
+                    spawns[coord] = "slime"
+        return spawns
+
+    def generate_skeleton_spawns(map):
+        SKELTON_SPAWN_CHANCE = 180
+        spawns = {}
+        for coord in map.keys():
+            if map[coord][0] in WALKABLE:
+                if random.randint(0, SKELTON_SPAWN_CHANCE) == SKELTON_SPAWN_CHANCE:
                     spawns[coord] = "skeleton"
         return spawns
 
@@ -234,7 +243,14 @@ def generate_new_map_dict_and_spawns():
 
     map = generate_small_wooden_loot_island(map)
 
-    spawns = generate_slime_spawns(map)
+    spawns = {}
+    slime_spawns = generate_slime_spawns(map)
+    skeleton_spawns = generate_skeleton_spawns(map)
+
+    for coord in slime_spawns.keys():
+        spawns[coord] = slime_spawns[coord]
+    for coord in skeleton_spawns.keys():
+        spawns[coord] = skeleton_spawns[coord]
 
     return map, spawns
 

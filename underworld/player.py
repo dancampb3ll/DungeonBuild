@@ -39,9 +39,9 @@ class Player(pygame.sprite.Sprite):
         
         self.knockbackx = None
         self.knockbacky = None
-        #Used to stop an enemy being stuck for too long.
+        #Used to stop the player being stuck for too long.
         self.knockback_timer = 0
-        self.KNOCKBACK_TIMER_MAX = 80
+        self.KNOCKBACK_TIMER_MAX = 30
 
         self.damage_sfx = ["take_damage1.mp3"]
 
