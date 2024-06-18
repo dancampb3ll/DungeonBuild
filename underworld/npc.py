@@ -286,7 +286,7 @@ class Npc(pygame.sprite.Sprite):
         player.take_damage(self)
 
     def ranged_attack(self, player):
-        self.projectile.throw(player)
+        self.projectile.initialise_throw(player)
 
     def attack_sequence(self, player):
         if self.attack_type == "melee":
@@ -329,29 +329,53 @@ class Projectile(pygame.sprite.Sprite):
         self.rect.x = -999
         self.rect.y = -999
         self.in_thrown_state = False
+        self.honing_coordinates = None
         self.update_weapon_position()
+        
+
+        self.honing_speed = 3
+
 
     def update_weapon_position(self):
-        X_OFFSET_FROM_NPC = 8
-        Y_OFFSET_FROM_NPC = -18
-        npc_center = self.parent.rect.center
-        self.rect.x = npc_center[0] + X_OFFSET_FROM_NPC
-        self.rect.y = npc_center[1] + Y_OFFSET_FROM_NPC
+        if self.honing_coordinates == None:
+            X_OFFSET_FROM_NPC = 8
+            Y_OFFSET_FROM_NPC = -18
+            npc_center = self.parent.rect.center
+            self.rect.x = npc_center[0] + X_OFFSET_FROM_NPC
+            self.rect.y = npc_center[1] + Y_OFFSET_FROM_NPC
 
     def check_player_collision(self, player):
         if not self.in_thrown_state:
             return
         if self.rect.colliderect(player.rect):
             player.take_damage(self.parent)
+            self.kill()
 
-    def throw(self, player):
-        None
+    def initialise_throw(self, player):
+        if self.in_thrown_state:
+            return
+        self.in_thrown_state = True
+        self.honing_coordinates = (player.rect.center[0], player.rect.center[1])
 
-    def check_parent_alive(self):
-        None
+    def perform_throw_honing_movement(self):
+        if self.honing_coordinates == None:
+            return
+        print(f"{self.parent.randomid} Honing to {self.honing_coordinates}")
+        if self.rect.centerx < self.honing_coordinates[0]:
+            self.rect.x += self.honing_speed
+        elif self.rect.centerx > self.honing_coordinates[0]:
+            self.rect.x -= self.honing_speed
+        if self.rect.centery < self.honing_coordinates[1]:
+            self.rect.y += self.honing_speed
+        elif self.rect.centery > self.honing_coordinates[1]:
+            self.rect.y -= self.honing_speed
+        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 4:
+            self.kill()
+            self.honing_coordinates = None
+
 
     def update(self):
-        None
+        self.perform_throw_honing_movement()
 
 
 class Coin(pygame.sprite.Sprite):

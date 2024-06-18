@@ -341,8 +341,7 @@ def main():
 
             #TEMP *******************************************************************
             underworldcamera.add(enemy_group)
-            
-            print(len(projectile_group))
+            #print(len(projectile_group))
             underworldcamera.add(coin_group)
             underworldcamera.add(projectile_group)
             for coin in coin_group:
@@ -352,7 +351,7 @@ def main():
 
             underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
             #************************************************************************
-            print(f"Enemies remaining: {len(enemy_group)}")
+            #print(f"Enemies remaining: {len(enemy_group)}")
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():
