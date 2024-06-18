@@ -43,7 +43,24 @@ class Npc(pygame.sprite.Sprite):
                 "knockback": 20,
                 "coindrop_min": 1,
                 "coindrop_max": 4,
-                "damage_type": "melee"
+                "attack_type": "melee",
+                "attack_range": 14
+            },
+            "skeleton": {
+                "damage_sfx": ["take_damage1.mp3"],
+                "death_sfx": ["death1.mp3"],
+                "aggression_distance": 280,
+                "knockback_resistance_min": 4,
+                "knockback_resistance_max": 8,
+                "speed_min" : 100,
+                "speed_max" : 100,
+                "health": 5, #Should be 5,
+                "damage": 1,
+                "knockback": 20,
+                "coindrop_min": 1,
+                "coindrop_max": 4,
+                "attack_type": "ranged",
+                "attack_range": 140
             }
         }
         self.health = self.attributes[self.npc]["health"]
@@ -61,6 +78,8 @@ class Npc(pygame.sprite.Sprite):
         self.coindrop_min = self.attributes[self.npc]["coindrop_min"]
         self.coindrop_max = self.attributes[self.npc]["coindrop_max"]
         self.coins_dropped = random.randint(self.coindrop_min, self.coindrop_max)
+        self.attack_type = self.attributes[self.npc]["attack_type"]
+        self.attack_range = self.attributes[self.npc]["attack_range"]
 
         self.knockbackx = None
         self.knockbacky = None
@@ -234,7 +253,8 @@ class Npc(pygame.sprite.Sprite):
         player_rect = player.rect
         player_center_pos = player_rect.center
         distance_from_player = calculate_distance_pythagoras(self.rect.center, player_center_pos)
-        if self.rect.collidepoint(player_rect.center):
+        #print(f"Distance from player: {distance_from_player} attack range: {self.attack_range}")
+        if distance_from_player <= self.attack_range:
             self.attack_sequence(player)
             return
         if distance_from_player < self.aggression_distance:
@@ -255,8 +275,18 @@ class Npc(pygame.sprite.Sprite):
                 self.direction = "up"
                 self.detect_tile_collisions(underworldcamera, 0, -self.speed)
 
-    def attack_sequence(self, player):
+    def melee_attack(self, player):
         player.take_damage(self)
+
+    def ranged_attack(self, player):
+        print("Need to create ranged attack")
+
+    def attack_sequence(self, player):
+        if self.attack_type == "melee":
+            self.melee_attack(player)
+        elif self.attack_type == "ranged":
+            self.ranged_attack(player)
+
         print("Attack sequence launched: ", self.randomid)
 
     def custom_update(self, player, camera):

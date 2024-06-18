@@ -1,6 +1,9 @@
 Short term
 
 Add random structures to underworld, including chests + rooms
+Make min to max border adding structure its own function (currently within wood structure)
+
+Properly fix preventing enemy knockback out of walls.
 
 Add individual sprite ID incinvibility to the player rather than total invincibility
 Add 0 enemies left prompt?
@@ -13,7 +16,7 @@ make skeleton with spear throw
 Make coin drops random/move a bit
 
 Sort out enemy knockback being stuck on walls
-Properly fix knockback out of walls.
+
 
 Make enemies red when hit
 
