@@ -31,6 +31,10 @@ class Npc(pygame.sprite.Sprite):
         self.randomid = random.randint(0, 99999)
         self.living = True
         
+        self.projectile = None
+        self.PROJECTILE_THROW_COOLDOWN_TIMER = 100
+        self.projectile_timer = 0
+
         self.holding_projectile = False
 
         self.attributes = {
@@ -286,7 +290,13 @@ class Npc(pygame.sprite.Sprite):
         player.take_damage(self)
 
     def ranged_attack(self, player):
-        self.projectile.initialise_throw(player)
+        if self.projectile == None:
+            return
+        if self.projectile_timer < self.PROJECTILE_THROW_COOLDOWN_TIMER:
+            self.projectile_timer += 1
+        else:
+            self.projectile_timer = 0
+            self.projectile.initialise_throw(player)
 
     def attack_sequence(self, player):
         if self.attack_type == "melee":
@@ -349,7 +359,7 @@ class Projectile(pygame.sprite.Sprite):
             return
         if self.rect.colliderect(player.rect):
             player.take_damage(self.parent)
-            self.kill()
+            self.kill_custom()
 
     def initialise_throw(self, player):
         if self.in_thrown_state:
@@ -370,9 +380,13 @@ class Projectile(pygame.sprite.Sprite):
         elif self.rect.centery > self.honing_coordinates[1]:
             self.rect.y -= self.honing_speed
         if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 4:
-            self.kill()
+            self.kill_custom()
             self.honing_coordinates = None
 
+    def kill_custom(self):
+        #Needed to re-initialise spear in parent npc
+        self.parent.holding_projectile = False
+        self.kill()
 
     def update(self):
         self.perform_throw_honing_movement()
