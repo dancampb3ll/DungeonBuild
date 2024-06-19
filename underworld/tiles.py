@@ -134,20 +134,19 @@ def generate_small_wooden_loot_island(map):
         #Selecting tile randomly to generate structure in
         new_map = {}
         random_start_tile = start_tile_potentials[random.randint(0, len(start_tile_potentials) - 1)]
-
         topleftx = random_start_tile[0]
         toplefty = random_start_tile[1]
         
         #Making path
         for i in range(0, WALKWAY_LENGTH):
+            new_map[(topleftx - 1, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
             new_map[(topleftx, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
-            new_map[(topleftx + 1, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
         
         #Making cross section
         for i in range(0,8):
             for j in range(0, 11):
                 new_map[(topleftx - 3 + i, toplefty + WALKWAY_LENGTH + j)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
-        
+        new_map[(topleftx - 3 + 7, toplefty + WALKWAY_LENGTH + 10)] = ["rope", ["overworld", (16, 16), "right"]]
 
 
         #Collision checks
@@ -157,6 +156,7 @@ def generate_small_wooden_loot_island(map):
                 collision_list.append(coord)
         if len(collision_list) == 0:
             collision = False
+
         
     #Making border:
     new_map_xs = []
@@ -221,7 +221,7 @@ def generate_new_map_dict_and_spawns():
         return spawns
 
     def generate_skeleton_spawns(map):
-        SKELTON_SPAWN_CHANCE = 180
+        SKELTON_SPAWN_CHANCE = 400
         spawns = {}
         for coord in map.keys():
             if map[coord][0] in WALKABLE:

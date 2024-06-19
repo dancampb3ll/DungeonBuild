@@ -32,10 +32,11 @@ class Npc(pygame.sprite.Sprite):
         self.living = True
         
         self.projectile = None
-        self.PROJECTILE_THROW_COOLDOWN_TIMER = 100
+        self.PROJECTILE_THROW_COOLDOWN_TIMER = 300
         self.projectile_timer = 0
 
         self.holding_projectile = False
+
 
         self.attributes = {
             "default": {
@@ -65,8 +66,8 @@ class Npc(pygame.sprite.Sprite):
                 "aggression_distance": 280,
                 "knockback_resistance_min": 4,
                 "knockback_resistance_max": 8,
-                "speed_min" : 400,
-                "speed_max" : 400,
+                "speed_min" : 200,
+                "speed_max" : 200,
                 "health": 7,
                 "damage": 20,
                 "knockback": 4,
@@ -298,6 +299,8 @@ class Npc(pygame.sprite.Sprite):
             self.projectile_timer = 0
             self.projectile.initialise_throw(player)
 
+
+
     def attack_sequence(self, player):
         if self.attack_type == "melee":
             self.melee_attack(player)
@@ -346,6 +349,8 @@ class Projectile(pygame.sprite.Sprite):
         self.honing_coordinates = None
         self.update_weapon_position()
         
+        self.MAX_LIFE_TIMER = 40
+        self.life_timer = 0
 
         self.honing_speed = 1/20
 
@@ -394,7 +399,7 @@ class Projectile(pygame.sprite.Sprite):
     def perform_throw_honing_movement(self):
         if self.honing_coordinates == None:
             return
-        print(f"{self.parent.randomid} Honing to {self.honing_coordinates}. Xdiff: {self.abs_x_diff}")
+        #print(f"{self.parent.randomid} Honing to {self.honing_coordinates}. Xdiff: {self.abs_x_diff}")
         if self.rect.centerx < self.honing_coordinates[0]:
             self.rect.x += self.abs_x_diff
         elif self.rect.centerx > self.honing_coordinates[0]:
@@ -406,7 +411,8 @@ class Projectile(pygame.sprite.Sprite):
         
         self.rotate_spear()
         
-        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 6:
+        #print(f"Distance: {calculate_distance_pythagoras(self.rect.center, self.honing_coordinates)}")
+        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 14:
             self.kill_custom()
             self.honing_coordinates = None
 
@@ -415,8 +421,18 @@ class Projectile(pygame.sprite.Sprite):
         self.parent.holding_projectile = False
         self.kill()
 
+    def update_life_timer(self):
+        if self.honing_coordinates == None:
+            return
+        if self.life_timer < self.MAX_LIFE_TIMER:
+            self.life_timer += 1
+            print(self.life_timer)
+            return
+        self.kill_custom()
+
     def update(self):
         self.perform_throw_honing_movement()
+        self.update_life_timer()
 
 
 class Coin(pygame.sprite.Sprite):
