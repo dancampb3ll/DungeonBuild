@@ -1,4 +1,5 @@
 Short term
+Make sure random structures do not spawn around stairs (although, is this a problem?)
 
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)

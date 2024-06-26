@@ -117,7 +117,19 @@ class Npc(pygame.sprite.Sprite):
         self.animation_frames_list = self.attributes[self.npc]["animation_frames_list"]
         self.animation_frame = 0
         self.animation_timer = 0
+        self.animation_facing_direction = "left"
 
+    def maintain_animation_facing_direction(self, player):
+        if player.rect.x < self.rect.x:
+            if self.animation_facing_direction != "left":
+                self.animation_facing_direction = "left"
+                self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}/{self.animation_facing_direction}{self.animation_frames_list[self.animation_frame]}.png").convert_alpha()
+                self.image = self.raw_image.copy()
+        else:
+            if self.animation_facing_direction != "right":
+                self.animation_facing_direction = "right"
+                self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}/{self.animation_facing_direction}{self.animation_frames_list[self.animation_frame]}.png").convert_alpha()
+                self.image = self.raw_image.copy()
 
     def update_animation_frame(self):
         self.animation_timer += 1
@@ -129,7 +141,7 @@ class Npc(pygame.sprite.Sprite):
         else:
             self.animation_frame += 1
 
-        self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}/{self.animation_frames_list[self.animation_frame]}.png").convert_alpha()
+        self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}/{self.animation_facing_direction}{self.animation_frames_list[self.animation_frame]}.png").convert_alpha()
         self.image = self.raw_image.copy()
 
     def check_projectile_held_and_create(self):
@@ -324,8 +336,6 @@ class Npc(pygame.sprite.Sprite):
             self.projectile_timer = 0
             self.projectile.initialise_throw(player)
 
-
-
     def attack_sequence(self, player):
         if self.attack_type == "melee":
             self.melee_attack(player)
@@ -337,6 +347,7 @@ class Npc(pygame.sprite.Sprite):
     def custom_update(self, player, camera):
         self.perform_knockback(camera)
         self.basic_pathfind(player, camera)
+        self.maintain_animation_facing_direction(player)
         
     def increment_projectile_timer(self):
         if self.holding_projectile:
