@@ -33,7 +33,7 @@ class Npc(pygame.sprite.Sprite):
         self.living = True
         
         self.projectile = None
-        self.PROJECTILE_THROW_COOLDOWN_TIMER = 300
+        self.PROJECTILE_THROW_COOLDOWN_TIMER = 180
         self.projectile_timer = 0
 
         self.holding_projectile = False

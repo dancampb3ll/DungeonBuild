@@ -375,10 +375,19 @@ def main():
             pygame.display.update()
             clock.tick(60)
 
+        dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
+        dungeon_complete_rect = dungeon_complete.get_rect()
         while gamestate.selected_world == "dungeonComplete":
             pygame.mixer.music.stop()
             screen.fill((0, 0, 0))
+            dungeon_complete_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
+            screen.blit(dungeon_complete, dungeon_complete_rect.topleft)
             pygame.display.update()
+            input_events = pygame.event.get()
+            for event in input_events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        gamestate.selected_world = "overworld"
             clock.tick(60)
 
 if __name__ == "__main__":
