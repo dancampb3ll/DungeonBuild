@@ -25,6 +25,7 @@ class GameState():
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
+        self.selected_world = "overworld"
 
     def update_current_music(self, track):
         self.current_music = track
@@ -229,12 +230,10 @@ def main():
     tooltip_right = None
 
     mainloop = True
-    selected_world = "overworld"
     while mainloop:
         gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera)
-        while selected_world == "overworld":
-            player.gameworld = selected_world
+        while gamestate.selected_world == "overworld":
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
@@ -278,7 +277,7 @@ def main():
             building_tooltips.update()
             building_tooltips.draw(screen)
 
-            selected_world = player.gameworld
+            gamestate.selected_world = player.gameworld
             pygame.display.update()
             clock.tick(60)
         player.kill()
@@ -304,8 +303,7 @@ def main():
 
 
         
-        while selected_world == "underworld":
-            underworldplayer.gameworld = selected_world
+        while gamestate.selected_world == "underworld":
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
@@ -363,8 +361,20 @@ def main():
             underworld_hudgroup.draw(screen)
             underworld_hudbar.custom_draw(screen)
             underworld_hudbar.update_health_hud(underworldplayer.health)
-            selected_world = underworldplayer.gameworld
+            gamestate.selected_world = underworldplayer.gameworld
             
+            pygame.display.update()
+            clock.tick(60)
+
+        while gamestate.selected_world == "death":
+            pygame.mixer.music.stop()
+            screen.fill((0, 0, 0))
+            pygame.display.update()
+            clock.tick(60)
+
+        while gamestate.selected_world == "dungeonComplete":
+            pygame.mixer.music.stop()
+            screen.fill((0, 0, 0))
             pygame.display.update()
             clock.tick(60)
 

@@ -146,7 +146,7 @@ def generate_small_wooden_loot_island(map):
         for i in range(0,8):
             for j in range(0, 11):
                 new_map[(topleftx - 3 + i, toplefty + WALKWAY_LENGTH + j)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
-        new_map[(topleftx - 3 + 7, toplefty + WALKWAY_LENGTH + 10)] = ["rope", ["overworld", (16, 16), "right"]]
+        new_map[(topleftx - 3 + 7, toplefty + WALKWAY_LENGTH + 10)] = ["rope", ["dungeonComplete", (16, 16), "right"]]
 
 
         #Collision checks
@@ -221,7 +221,7 @@ def generate_new_map_dict_and_spawns():
         return spawns
 
     def generate_skeleton_spawns(map):
-        SKELTON_SPAWN_CHANCE = 400
+        SKELTON_SPAWN_CHANCE = 250
         spawns = {}
         for coord in map.keys():
             if map[coord][0] in WALKABLE:

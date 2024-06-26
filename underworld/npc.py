@@ -57,7 +57,9 @@ class Npc(pygame.sprite.Sprite):
                 "coindrop_min": 1,
                 "coindrop_max": 4,
                 "attack_type": "melee",
-                "attack_range": 14
+                "attack_range": 14,
+                "animation_speed" : 50,
+                "animation_frames_list": [1, 2]
             },
 
             "skeleton": {
@@ -74,7 +76,9 @@ class Npc(pygame.sprite.Sprite):
                 "coindrop_min": 4,
                 "coindrop_max": 8,
                 "attack_type": "ranged",
-                "attack_range": 140
+                "attack_range": 150,
+                "animation_speed": 20,
+                "animation_frames_list": [1, 2]
             }
         }
         self.health = self.attributes[self.npc]["health"]
@@ -95,6 +99,7 @@ class Npc(pygame.sprite.Sprite):
         self.attack_type = self.attributes[self.npc]["attack_type"]
         self.attack_range = self.attributes[self.npc]["attack_range"]
         self.projectile_type = self.attributes[self.npc].get("projectile_type", self.attributes["default"]["projectile_type"])
+        
 
         self.knockbackx = None
         self.knockbacky = None
@@ -107,6 +112,25 @@ class Npc(pygame.sprite.Sprite):
         self.invincibility_timecount = 0
         self.invincibility_timer_active = False
         self.image_showing = True
+
+        self.animation_speed = self.attributes[self.npc]["animation_speed"]
+        self.animation_frames_list = self.attributes[self.npc]["animation_frames_list"]
+        self.animation_frame = 0
+        self.animation_timer = 0
+
+
+    def update_animation_frame(self):
+        self.animation_timer += 1
+        if self.animation_timer <= self.animation_speed:
+            return
+        self.animation_timer = 0
+        if self.animation_frame == len(self.animation_frames_list) - 1:
+            self.animation_frame = 0
+        else:
+            self.animation_frame += 1
+
+        self.raw_image = pygame.image.load(f"assets/npc/underworld/{self.npc}/{self.animation_frames_list[self.animation_frame]}.png").convert_alpha()
+        self.image = self.raw_image.copy()
 
     def check_projectile_held_and_create(self):
         if self.attack_type != "ranged":
@@ -288,6 +312,7 @@ class Npc(pygame.sprite.Sprite):
                 self.rect.y -= self.speed
                 self.direction = "up"
                 self.detect_tile_collisions(underworldcamera, 0, -self.speed)
+            self.update_animation_frame()
 
     def melee_attack(self, player):
         player.take_damage(self)

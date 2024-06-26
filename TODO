@@ -2,6 +2,7 @@ Short term
 
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
+Add +coin amount to pickups
 
 Properly fix preventing enemy knockback out of walls.
 
