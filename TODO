@@ -1,11 +1,10 @@
 Short term
-Make sure random structures do not spawn around stairs (although, is this a problem?)
+Properly fix preventing enemy knockback out of walls.
 
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
-Add +coin amount to pickups
 
-Properly fix preventing enemy knockback out of walls.
+
 
 Add individual sprite ID incinvibility to the player rather than total invincibility
 Add 0 enemies left prompt?
