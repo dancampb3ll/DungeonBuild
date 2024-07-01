@@ -27,14 +27,9 @@ class GameState():
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
         self.selected_world = "overworld"
-        self.monsters_killed_in_dungeon = 0
-
 
     def update_current_music(self, track):
         self.current_music = track
-
-    def set_monsters_killed_in_dungeon(self, count):
-        self.monsters_killed_in_dungeon = count
 
     def generate_underworld_dungeon_and_update_map(self):
         self.underworld_map_dict, self.underworld_npc_spawn_dict = underworld.tiles.generate_new_map_dict_and_spawns()
@@ -344,6 +339,11 @@ def main():
             for enemy in enemy_group:
                 if enemy.alive:
                     enemy.custom_update(underworldplayer, underworldcamera)
+            
+            #Applies lighting to projectile
+            for projectile in projectile_group:
+                projectile.custom_update(underworldplayer.rect.center)
+
             enemies_killed = enemy_count - len(enemy_group)
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
@@ -366,10 +366,7 @@ def main():
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():
-                    gamestate.underworld_tile_sprite_dict[key].apply_lighting_from_player(underworldplayer.rect.center)
-                for sprite in underworldcamera.sprites():
-                    if sprite.type == "npc":
-                        sprite.apply_lighting_from_player(underworldplayer.rect.center)
+                    gamestate.underworld_tile_sprite_dict[key].custom_update(underworldplayer.rect.center)
             
             underworld_hudgroup.draw(screen)
             underworld_hudbar.custom_draw(screen)

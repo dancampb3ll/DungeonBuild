@@ -2,6 +2,7 @@ import settings
 import pygame
 import random
 import time
+import lighting
 
 WALKABLE = ["cobblestone", "cobblestoneMossy", "woodenPlank"]
 underworldmapdict = {}
@@ -31,57 +32,10 @@ class UnderworldTile(pygame.sprite.Sprite):
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
-        if not settings.DARKNESS_DEBUG: self.apply_lighting_from_player(player_mid_coords)
+        self.custom_update(player_mid_coords)
 
-    def apply_lighting_from_player(self, player_mid_coords):
-        player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
-        player_gridy = player_mid_coords[1] // settings.UNDERWORLD_TILE_SIZE
-        distance = ((self.gridx - player_gridx) ** 2 + (self.gridy - player_gridy) ** 2) ** 0.5
-        
-        
-        #These two statements are to speed up the algorithm
-        if distance > 14.7:
-            return
-        if distance > 8.1:
-            self.image = self.raw_image.copy()
-            self.image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
-        
-        darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
-        darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
-        darken3 = (90*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER)
-        darken4 = (110*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER)
-        darken5 = (130*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER)
-        darken6 = (150*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER)
-        darken7 = (170*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER)
-        darken8 = (190*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER)
-        darken9 = (210*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER)
-        if distance <= 1:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken1, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 1.41 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken2, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 2.24 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken3, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 3.16 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken4, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 4.12 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken5, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 5.1 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken6, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 6.08 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken7, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 7.07 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken8, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 8.06 + 0.05:
-            self.image = self.raw_image.copy()
-            self.image.fill(darken9, special_flags=pygame.BLEND_RGB_SUB)
+    def custom_update(self, player_mid_coords):
+        self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.topleft, player_mid_coords)
 
 SPAWN_WIDTH, SPAWN_HEIGHT, SPAWN_X_TOPLEFT, SPAWN_Y_TOPLEFT = 8, 16, 0, 0
 

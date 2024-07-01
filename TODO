@@ -1,8 +1,8 @@
 Short term
-Get monster kill count set up
 Properly fix preventing enemy knockback out of walls.
 Add lighting to spear (make generic module?)
 Add screen sizes
+Put player coords into gamestate?
 
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
@@ -65,14 +65,11 @@ Free coin sounds
     - https://soundimage.org/sfx-coins/
 
 Long term
-Work on void detection in underworld
 Portal collisions are active on every corner. Fix this.
 Don't allow building on player - semi working. Make less conservative.
 
 Work out algorithm for optimising large maps (to avoid all sprites being created - only the screen should be created.)
 Create a dungeon entrance that loads into the dungeon loop.
-Make dungeons work
-    - Should they be similar to the tile based world outside or more close up?
 Create saves
 Create inventory
     - Shows gold, shows land

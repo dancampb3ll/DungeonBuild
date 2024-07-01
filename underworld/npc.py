@@ -3,6 +3,7 @@ import random
 import math
 import settings
 import underworld
+import lighting
 
 def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x1, y1 = point1
@@ -223,49 +224,6 @@ class Npc(pygame.sprite.Sprite):
             else:
                 self.knockbacky = None
 
-    def apply_lighting_from_player(self, player_mid_coords):
-        self.image = self.raw_image.copy()
-        player_gridx = player_mid_coords[0] // settings.UNDERWORLD_TILE_SIZE
-        player_gridy = player_mid_coords[1] // settings.UNDERWORLD_TILE_SIZE
-        distance = ((self.gridx - player_gridx) ** 2 + (self.gridy - player_gridy) ** 2) ** 0.5
-        darkenmax = (255, 255, 255)
-        
-        #These two statements are to speed up the algorithm
-        if distance > 14.7:
-            return
-        if distance > 8.1:
-            self.image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
-        
-        DARKNESS_PARAMETER = 0.8 #1 Max
-        
-        darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
-        darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
-        darken3 = (90*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER)
-        darken4 = (110*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER, 120*DARKNESS_PARAMETER)
-        darken5 = (130*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER, 140*DARKNESS_PARAMETER)
-        darken6 = (150*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER, 160*DARKNESS_PARAMETER)
-        darken7 = (170*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER, 180*DARKNESS_PARAMETER)
-        darken8 = (190*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER, 200*DARKNESS_PARAMETER)
-        darken9 = (210*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER, 220*DARKNESS_PARAMETER)
-        if distance <= 1:
-            self.image.fill(darken1, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 1.41 + 0.05:
-            self.image.fill(darken2, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 2.24 + 0.05:
-            self.image.fill(darken3, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 3.16 + 0.05:
-            self.image.fill(darken4, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 4.12 + 0.05:
-            self.image.fill(darken5, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 5.1 + 0.05:
-            self.image.fill(darken6, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 6.08 + 0.05:
-            self.image.fill(darken7, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 7.07 + 0.05:
-            self.image.fill(darken8, special_flags=pygame.BLEND_RGB_SUB)
-        elif distance <= 8.06 + 0.05:
-            self.image.fill(darken9, special_flags=pygame.BLEND_RGB_SUB)
-
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         for sprite in camera_group:
             if sprite.type == "tile":
@@ -349,6 +307,7 @@ class Npc(pygame.sprite.Sprite):
         self.perform_knockback(camera)
         self.basic_pathfind(player, camera)
         self.maintain_animation_facing_direction(player)
+        self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.center, player.rect.center)
         
     def increment_projectile_timer(self):
         if self.holding_projectile:
@@ -470,6 +429,9 @@ class Projectile(pygame.sprite.Sprite):
     def update(self):
         self.perform_throw_honing_movement()
         self.update_life_timer()
+    
+    def custom_update(self, player_mid_coords):
+        self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.center, player_mid_coords)
 
 
 class Coin(pygame.sprite.Sprite):
