@@ -312,8 +312,8 @@ def main():
         underworld_hudbar = hud.UnderworldHud()
         underworld_hudgroup.add(underworld_hudbar)
 
-
-        
+        enemy_count = len(enemy_group)
+        enemies_killed = 0
         while gamestate.selected_world == "underworld":
             input_events = pygame.event.get()
             for event in input_events:
@@ -344,6 +344,7 @@ def main():
             for enemy in enemy_group:
                 if enemy.alive:
                     enemy.custom_update(underworldplayer, underworldcamera)
+            enemies_killed = enemy_count - len(enemy_group)
 
             dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
             dagger.detect_enemy_weapon_collision(underworldcamera)
@@ -387,7 +388,7 @@ def main():
         dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
         dungeon_complete_rect = dungeon_complete.get_rect()
         
-        dungeon_complete_texts = hud.DungeonCompleteText(underworld_hudbar.coins_earned_in_dungeon, 999)
+        dungeon_complete_texts = hud.DungeonCompleteText(underworld_hudbar.coins_earned_in_dungeon, enemies_killed)
         
         while gamestate.selected_world == "dungeonComplete":
             pygame.mixer.music.stop()
