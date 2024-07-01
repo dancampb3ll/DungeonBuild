@@ -16,17 +16,26 @@ DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 class GameState():
     def __init__(self):
+        self.selected_world = "overworld"
+        self.current_music = None
+
         self.overworld_map_dict = overworld.tiles.overworldmapdict
-        self.sprite_dict = {}
+        self.overworld_tile_sprite_dict = {}
         self.overworldcamera = CameraGroup()
         self.overworld_coincount = 0
         self.underworldcamera = CameraGroup()
-        self.current_music = None
+        self.in_overworld_pause_menu = False
+
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
-        self.selected_world = "overworld"
+        
+    def toggle_overworld_pause_state(self):
+        if self.in_overworld_pause_menu:
+            self.in_overworld_pause_menu = False
+        else:
+            self.in_overworld_pause_menu = True
 
     def update_current_music(self, track):
         self.current_music = track
@@ -97,37 +106,35 @@ def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topl
             tilenum = change[1]
             tilename = overworld.tiles.TILE_MAPPINGS[tilenum]
             #Kills the original sprite before generating a new tile to replace it.
-            gamestate.sprite_dict[(x, y)].kill()
+            gamestate.overworld_tile_sprite_dict[(x, y)].kill()
             #Creates an instance of the new tile
-            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+            gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
         if play_sfx:
             play_sfx.play()
         return
-
 
 def draw_new_border_tiles_from_grass_placement(gamestate, placementx, placementy):
     for adjacentoffset in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
         checkx = placementx + adjacentoffset[0]
         checky = placementy + adjacentoffset[1]
 
-        check_sprite = gamestate.sprite_dict.get((checkx, checky), None)
+        check_sprite = gamestate.overworld_tile_sprite_dict.get((checkx, checky), None)
         if check_sprite is None:
-            gamestate.sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+            gamestate.overworld_tile_sprite_dict[(checkx, checky)] = overworld.tiles.OutdoorTile(checkx, checky, "overgroundBorder", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
             gamestate.overworld_map_dict[(checkx, checky)] = 4
-
 
 def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord, play_sfx = None):
     if placementcoord is None:
         return
     x = placementcoord[0]
     y = placementcoord[1]
-    tile_sprite = gamestate.sprite_dict.get((x,y), None)
+    tile_sprite = gamestate.overworld_tile_sprite_dict.get((x,y), None)
     if tile_sprite is None:
         return
     if tile_sprite.tile != "overgroundBorder":
         return
-    gamestate.sprite_dict[(x, y)].kill()
-    gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+    gamestate.overworld_tile_sprite_dict[(x, y)].kill()
+    gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
     draw_new_border_tiles_from_grass_placement(gamestate, x, y)
     gamestate.overworld_map_dict[(x, y)] = 2
     if play_sfx:
@@ -203,9 +210,6 @@ def main():
     #Drawing tiles
     overworld_map_dict = gamestate.overworld_map_dict
 
-    #Used to maintain sprites at given locations.
-    gamestate.sprite_dict = gamestate.sprite_dict
-
     #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
     #Need to make this a general adding block function
     for coord in overworld_map_dict.keys():
@@ -214,13 +218,13 @@ def main():
         tiletype = overworld_map_dict[(x, y)]
         if tiletype != 0:
             tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
-            gamestate.sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, overworldcamera, DEFAULT_NO_TILE_PORTAL)
+            gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, overworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     #Temporary test for making portal work
     build_and_perform_tiledict_spritedict_updates(gamestate, "smallDungeon", (20, 20))
-    gamestate.sprite_dict.get((20, 20)).portal_type = "underworld"
-    gamestate.sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
-    gamestate.sprite_dict.get((20, 20)).portal_collision_side = "bottom"
+    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_type = "underworld"
+    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
+    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     
 
     debugtext = hud.DebugText()
@@ -240,6 +244,24 @@ def main():
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        gamestate.toggle_overworld_pause_state()
+
+            if gamestate.in_overworld_pause_menu:
+                overworld_pause_menu = hud.OverworldPauseMenu()
+                while gamestate.in_overworld_pause_menu:
+                    input_events = pygame.event.get()
+                    for event in input_events:
+                        if event.type == pygame.QUIT:
+                            mainloop = False
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                gamestate.toggle_overworld_pause_state()
+                    overworld_pause_menu.custom_update(screen)
+                    pygame.display.update()
+                overworld_pause_menu.kill()
+
             if gamestate.current_music != overworld_track:
                 pygame.mixer.music.load(overworld_track)
                 pygame.mixer.music.play(-1) #Repeat unlimited

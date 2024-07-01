@@ -168,7 +168,6 @@ class DungeonCompleteText(pygame.sprite.Sprite):
         def custom_draw(self, screen):
             screen.blit(self.coin_text, (self.COIN_POSX, self.COIN_POSY))
             screen.blit(self.monster_text, (self.MONSTER_POSX, self.MONSTER_POSY))
-            
 
 class ToolTip(pygame.sprite.Sprite):
     def __init__(self, initx, inity, building_type):
@@ -211,3 +210,21 @@ class ToolTip(pygame.sprite.Sprite):
 
     def update(self):
         self.redraw_building_left()
+
+class OverworldPauseMenu(pygame.sprite.Sprite):
+        def __init__(self):
+            super().__init__()
+            self.type = "pauseMenu"
+            self.menu_image = pygame.image.load(f"assets/hud/overworldPause.png").convert()
+            self.rect = self.menu_image.get_rect()
+
+            self.menux = settings.SCREEN_WIDTH // 2 - self.rect.width // 2
+            self.menuy = settings.SCREEN_HEIGHT // 2 - self.rect.height // 2
+
+            self.quit_image = pygame.image.load(f"assets/hud/overworldPauseQuit.png").convert_alpha()
+            self.quitx = self.menux + 4
+            self.quity = self.menuy + 28
+        
+        def custom_update(self, screen):
+            screen.blit(self.menu_image, (self.menux, self.menuy))
+            screen.blit(self.quit_image, (self.quitx, self.quity))
