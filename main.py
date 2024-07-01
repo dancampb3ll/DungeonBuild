@@ -19,6 +19,7 @@ class GameState():
         self.overworld_map_dict = overworld.tiles.overworldmapdict
         self.sprite_dict = {}
         self.overworldcamera = CameraGroup()
+        self.overworld_coincount = 0
         self.underworldcamera = CameraGroup()
         self.current_music = None
         self.underworld_map_dict = {}
@@ -26,9 +27,14 @@ class GameState():
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
         self.selected_world = "overworld"
+        self.monsters_killed_in_dungeon = 0
+
 
     def update_current_music(self, track):
         self.current_music = track
+
+    def set_monsters_killed_in_dungeon(self, count):
+        self.monsters_killed_in_dungeon = count
 
     def generate_underworld_dungeon_and_update_map(self):
         self.underworld_map_dict, self.underworld_npc_spawn_dict = underworld.tiles.generate_new_map_dict_and_spawns()
@@ -191,7 +197,7 @@ def main():
     #HUD is separate from the camera
     overworld_hudgroup = pygame.sprite.Group()
     overworld_hudbar = hud.OverworldHud()
-    overworld_cointext = hud.CoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1])
+    overworld_cointext = hud.OverworldCoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1], gamestate.overworld_coincount)
     buildhud = hud.BuildHud()
     overworld_hudgroup.add(overworld_hudbar)
     overworld_hudgroup.add(overworld_cointext)
@@ -245,6 +251,9 @@ def main():
             gamestate.update_current_music(overworld_track)
             screen.fill((10, 10, 18))
             
+            overworld_cointext.update_coin_count(gamestate.overworld_coincount)
+
+
 
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
@@ -377,17 +386,22 @@ def main():
 
         dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
         dungeon_complete_rect = dungeon_complete.get_rect()
+        
+        dungeon_complete_texts = hud.DungeonCompleteText(underworld_hudbar.coins_earned_in_dungeon, 999)
+        
         while gamestate.selected_world == "dungeonComplete":
             pygame.mixer.music.stop()
             screen.fill((0, 0, 0))
             dungeon_complete_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
             screen.blit(dungeon_complete, dungeon_complete_rect.topleft)
+            dungeon_complete_texts.custom_draw(screen)
             pygame.display.update()
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         gamestate.selected_world = "overworld"
+                        gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
             clock.tick(60)
 
 if __name__ == "__main__":

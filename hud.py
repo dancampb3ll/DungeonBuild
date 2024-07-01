@@ -45,8 +45,8 @@ class BuildHud(pygame.sprite.Sprite):
         #There must be a better way to do this
         self.rect.x = 2*settings.SCREEN_WIDTH
 
-class CoinText(pygame.sprite.Sprite):
-    def __init__(self, hudx, hudy):
+class OverworldCoinText(pygame.sprite.Sprite):
+    def __init__(self, hudx, hudy, coincount):
         super().__init__()
         self.font_size = 12
         self.font = pygame.font.SysFont("Calibri", self.font_size)
@@ -55,7 +55,7 @@ class CoinText(pygame.sprite.Sprite):
         self.hudy = hudy
         self.hud_xoffset = 150
         self.hud_yoffset = 15
-        self.coincount = 0
+        self.coincount = coincount
         self.update_coin_display()
 
     def update_coin_display(self):
@@ -82,9 +82,9 @@ class UnderworldHud(pygame.sprite.Sprite):
 
         #Defining Healthbars
         self.GREEN_HEALTHBAR_START_PIXELX = self.rect.x + 8
-        self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 9
+        self.GREEN_HEALTHBAR_START_PIXELY = self.rect.y + 6
         self.GREEN_HEALTHBAR_WIDTH = 210
-        self.GREEN_HEALTHBAR_HEIGHT = 10
+        self.GREEN_HEALTHBAR_HEIGHT = 12
         self.healthrect_green = pygame.Rect(self.GREEN_HEALTHBAR_START_PIXELX, self.GREEN_HEALTHBAR_START_PIXELY, self.GREEN_HEALTHBAR_WIDTH, self.GREEN_HEALTHBAR_HEIGHT)
         
         self.RED_HEALTHBAR_END_PIXELX = self.GREEN_HEALTHBAR_START_PIXELX + self.GREEN_HEALTHBAR_WIDTH + 1
@@ -95,11 +95,11 @@ class UnderworldHud(pygame.sprite.Sprite):
         self.healthrect_red = pygame.Rect(self.red_healthbar_start_pixelx, self.RED_HEALTHBAR_START_PIXELY, self.RED_HEALTHBAR_WIDTH, self.RED_HEALTHBAR_HEIGHT)
 
         #Defining health_text
-        self.HEALTH_FONT_SIZE = 13
+        self.HEALTH_FONT_SIZE = 16
         self.HEALTH_TEXT_COLOUR = (30, 30, 30)
-        self.font_health = pygame.font.SysFont("OpenSans-Bold.ttf", self.HEALTH_FONT_SIZE, bold=True)
-        self.HEALTH_POSX = settings.SCREEN_WIDTH // 2 - 8
-        self.HEALTH_POSY = settings.SCREEN_HEIGHT - 27
+        self.font_health = pygame.font.SysFont("Courier New", self.HEALTH_FONT_SIZE, bold=True)
+        self.HEALTH_POSX = settings.SCREEN_WIDTH // 2 - 14
+        self.HEALTH_POSY = settings.SCREEN_HEIGHT - 34
         self.health_text = self.font_health.render(str(self.health), True, self.HEALTH_TEXT_COLOUR)
 
         #Defining coincount
@@ -141,6 +141,34 @@ class UnderworldHud(pygame.sprite.Sprite):
 
         #Coin text
         screen.blit(self.coin_text, (self.COIN_POSX, self.COIN_POSY))
+
+class DungeonCompleteText(pygame.sprite.Sprite):
+        def __init__(self, coins_earned, monsters_killed):
+            super().__init__()
+            self.type = "dungeonCompleteText"
+            self.coins_earned_in_dungeon = coins_earned
+            self.monsters_killed_in_dungeon = monsters_killed
+
+            #Defining coins earnt count
+            self.COIN_FONT_SIZE = 17
+            self.COIN_POSX = settings.SCREEN_WIDTH // 2 - 190
+            self.COIN_POSY = settings.SCREEN_HEIGHT // 2 + 10
+            self.font_coin = pygame.font.SysFont("Courier New", self.COIN_FONT_SIZE, bold=True)
+            self.COIN_TEXT_COLOUR = (255, 220, 220)
+            self.coin_text = self.font_coin.render(str(self.coins_earned_in_dungeon), True, self.COIN_TEXT_COLOUR)
+
+            #Defining monsters killed text
+            self.MONSTER_FONT_SIZE = 17
+            self.MONSTER_TEXT_COLOUR = (220, 255, 220)
+            self.font_monster = pygame.font.SysFont("Courier New", self.MONSTER_FONT_SIZE, bold=True)
+            self.MONSTER_POSX = settings.SCREEN_WIDTH // 2 + 140
+            self.MONSTER_POSY = settings.SCREEN_HEIGHT // 2 + 10
+            self.monster_text = self.font_monster.render(str(self.monsters_killed_in_dungeon), True, self.MONSTER_TEXT_COLOUR)
+        
+        def custom_draw(self, screen):
+            screen.blit(self.coin_text, (self.COIN_POSX, self.COIN_POSY))
+            screen.blit(self.monster_text, (self.MONSTER_POSX, self.MONSTER_POSY))
+            
 
 class ToolTip(pygame.sprite.Sprite):
     def __init__(self, initx, inity, building_type):
