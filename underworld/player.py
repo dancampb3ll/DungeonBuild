@@ -258,26 +258,8 @@ class Player(pygame.sprite.Sprite):
         """
         Used to update the gridx and gridy locations of the player based on the current x and y values of the rect.
         """
-        self.gridx = round(self.rect.x / settings.OVERWORLD_TILE_SIZE)
-        self.gridy = round(self.rect.y / settings.OVERWORLD_TILE_SIZE)
-
-    def get_player_corner_grid_locations(self):
-        topleft = self.rect.topleft
-        topright = self.rect.topright
-        bottomleft = self.rect.bottomleft
-        bottomright = self.rect.bottomright
-        rawcoords = [topleft, topright, bottomleft, bottomright]
-        gridcoords = []
-        for rawcoord in rawcoords:
-            #Need to round up and round down so that any overlap pixels get accounted for.
-            gridcoord_rounddown = []
-            gridcoord_roundup = []
-            for raw_single_coord in rawcoord:
-                gridcoord_rounddown.append(math.floor(raw_single_coord / settings.OVERWORLD_TILE_SIZE))
-                gridcoord_roundup.append(math.ceil(raw_single_coord / settings.OVERWORLD_TILE_SIZE))
-            gridcoords.append(tuple(gridcoord_rounddown))
-            gridcoords.append(tuple(gridcoord_roundup))
-        return gridcoords
+        self.gridx = round(self.rect.x / settings.UNDERWORLD_TILE_SIZE)
+        self.gridy = round(self.rect.y / settings.UNDERWORLD_TILE_SIZE)
 
     def update_player_image_from_direction_and_aniframe(self):
         self.image = pygame.image.load(f"assets/player/underworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
@@ -302,7 +284,7 @@ class Player(pygame.sprite.Sprite):
 
     def update_death_status(self):
         if self.health <= 0:
-            self.gameworld = "overworld"
+            self.gameworld = "dungeonDeath"
 
     def custom_update(self, camera, underworld_map_dict):
         self.update_invincibility_state()

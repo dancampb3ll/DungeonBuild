@@ -384,9 +384,7 @@ def main():
 
         dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
         dungeon_complete_rect = dungeon_complete.get_rect()
-        
         dungeon_complete_texts = hud.DungeonCompleteText(underworld_hudbar.coins_earned_in_dungeon, enemies_killed)
-        
         while gamestate.selected_world == "dungeonComplete":
             pygame.mixer.music.stop()
             screen.fill((0, 0, 0))
@@ -401,6 +399,21 @@ def main():
                         gamestate.selected_world = "overworld"
                         gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
             clock.tick(60)
+
+        dungeon_death = pygame.image.load('assets/splashscreens/dungeonDeath.png').convert_alpha()
+        dungeon_death_rect = dungeon_death.get_rect()
+        while gamestate.selected_world == "dungeonDeath":
+            pygame.mixer.music.stop()
+            screen.fill((0, 0, 0))
+            dungeon_death_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
+            screen.blit(dungeon_death, dungeon_death_rect.topleft)
+            pygame.display.update()
+            input_events = pygame.event.get()
+            for event in input_events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        gamestate.selected_world = "overworld"
+            clock.tick(60)            
 
 if __name__ == "__main__":
     main()
