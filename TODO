@@ -1,5 +1,7 @@
 Short term
-Work on menu
+Continue working on class TitleMenu, save files.
+Work on overworld pause menu
+
 Properly fix preventing enemy knockback out of walls.
 Add screen sizes
 Put player coords into gamestate?
@@ -8,6 +10,7 @@ Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
 
 
+Don't allow buildings near dungeons (to stop player flying out the map)
 
 Add individual sprite ID incinvibility to the player rather than total invincibility
 Add 0 enemies left prompt?

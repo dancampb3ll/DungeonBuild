@@ -215,16 +215,47 @@ class OverworldPauseMenu(pygame.sprite.Sprite):
         def __init__(self):
             super().__init__()
             self.type = "pauseMenu"
-            self.menu_image = pygame.image.load(f"assets/hud/overworldPause.png").convert()
+            self.menu_image = pygame.image.load(f"assets/hud/overworldPause/menu.png").convert()
             self.rect = self.menu_image.get_rect()
 
             self.menux = settings.SCREEN_WIDTH // 2 - self.rect.width // 2
             self.menuy = settings.SCREEN_HEIGHT // 2 - self.rect.height // 2
 
-            self.quit_image = pygame.image.load(f"assets/hud/overworldPauseQuit.png").convert_alpha()
+            self.quit_image = pygame.image.load(f"assets/hud/overworldPause/quit.png").convert_alpha()
             self.quitx = self.menux + 4
             self.quity = self.menuy + 28
         
         def custom_update(self, screen):
             screen.blit(self.menu_image, (self.menux, self.menuy))
             screen.blit(self.quit_image, (self.quitx, self.quity))
+
+
+class TitleMenu(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.type = "titleMenu"
+        self.title_state = "title"
+
+        self.title_screen = pygame.image.load('assets/splashscreens/titleScreen.png').convert_alpha()
+        self.title_screen_rect = self.title_screen.get_rect()
+        self.title_screen_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
+        
+        self.newgame_button = pygame.image.load('assets/hud/titleMenu/newGame.png').convert_alpha()
+        self.newgame_button_rect = self.newgame_button.get_rect()
+        self.newgame_button_rect.x = self.title_screen_rect.x + 189
+        self.newgame_button_rect.y = self.title_screen_rect.y + 192
+
+        self.loadgame_button = pygame.image.load('assets/hud/titleMenu/loadGame.png').convert_alpha()
+        self.loadgame_button_rect = self.loadgame_button.get_rect()
+        self.loadgame_button_rect.x = self.title_screen_rect.x + 350
+        self.loadgame_button_rect.y = self.title_screen_rect.y + 192
+
+    def title_draw(self, screen):
+        screen.blit(self.title_screen, self.title_screen_rect.topleft)
+        screen.blit(self.newgame_button, self.newgame_button_rect.topleft)
+        screen.blit(self.loadgame_button, self.loadgame_button_rect.topleft)
+
+    def custom_draw(self, screen):
+        if self.title_state == "title":
+            self.title_draw(screen)
+        

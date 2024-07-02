@@ -16,7 +16,7 @@ DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 class GameState():
     def __init__(self):
-        self.selected_world = "overworld"
+        self.selected_world = "title"
         self.current_music = None
 
         self.overworld_map_dict = overworld.tiles.overworldmapdict
@@ -187,7 +187,6 @@ def main():
     pygame.mixer.init()
     overworld_track = "assets/music/overworld/Lost-Jungle.mp3"
     pygame.mixer.music.load(overworld_track)
-    pygame.mixer.music.play(-1) #Repeat unlimited
     GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
     BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
 
@@ -237,6 +236,19 @@ def main():
 
     mainloop = True
     while mainloop:
+
+        title_screen = hud.TitleMenu()
+        while gamestate.selected_world == "title":
+            input_events = pygame.event.get()
+            for event in input_events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        gamestate.selected_world = "overworld"
+            screen.fill((0, 0, 0))
+            title_screen.custom_draw(screen)
+            pygame.display.update()
+        
+        pygame.mixer.music.play(-1) #Repeat unlimited
         gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera)
         while gamestate.selected_world == "overworld":
