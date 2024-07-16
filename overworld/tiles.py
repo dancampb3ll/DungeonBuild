@@ -26,10 +26,19 @@ class OutdoorTile(pygame.sprite.Sprite):
         self.gridy = gridy
         self.rect.x = gridx * settings.OVERWORLD_TILE_SIZE
         self.rect.y = gridy * settings.OVERWORLD_TILE_SIZE
+        self.portal_information = portal_information
         self.portal_type = portal_information[0]
         self.portal_destination = None
         self.portal_collision_side = None
 
+    def __json__(self):
+        json_data = {
+            "gridx": self.gridx,
+            "gridy": self.gridy,
+            "tile": self.tile,
+            "portal_information": self.portal_information
+        }
+        return json_data
 
     def update(self):
         None

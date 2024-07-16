@@ -40,7 +40,7 @@ class GameState():
     def create_new_game_gamestate(self):
         self.overworldplayer_init_grid_x = 16
         self.overworldplayer_init_grid_y = 16
-        
+
         #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
         #Need to make this a general adding block function
         for coord in self.overworld_map_dict.keys():
@@ -57,8 +57,40 @@ class GameState():
         self.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
         self.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
 
+        #Temporary, delete from this spot
+        self.save_game_file(15, 15)
 
-    def load_save_file(self, save_name):
+    def save_game_file(self, playergridx, playergridy):
+        def convert_dict_keys_to_str(data):
+            """
+            Needed to save coordinates of tiles to the save file, as tuples are not valid
+            """
+            if isinstance(data, dict):
+                return {str(k): convert_dict_keys_to_str(v) for k, v in data.items()}
+            elif isinstance(data, list):
+                return [convert_dict_keys_to_str(item) for item in data]
+            elif isinstance(data, set):
+                return {convert_dict_keys_to_str(item) for item in data}
+            elif isinstance(data, tuple):
+                return tuple(convert_dict_keys_to_str(item) for item in data)
+            elif hasattr(data, '__json__'):
+                return data.__json__()
+            else:
+                return data
+        
+        save_data = {
+            "playergridx": playergridx,
+            "playergridy": playergridy,
+            "overworld_coincount": self.overworld_coincount,
+            "overworld_map_dict": convert_dict_keys_to_str(self.overworld_map_dict),
+            "overworld_tile_sprite_dict": convert_dict_keys_to_str(self.overworld_tile_sprite_dict)
+        }
+        
+        file_path = "saves/temp.json"
+        with open(file_path, 'w') as file:
+            json.dump(save_data, file, indent=4)
+
+    def load_game_file(self, save_name):
         with open(f"saves/{save_name}.json", "r") as file:
             save = json.load(file)
 
