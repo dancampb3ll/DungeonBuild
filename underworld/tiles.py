@@ -1,7 +1,6 @@
 import settings
 import pygame
 import random
-import time
 import lighting
 
 WALKABLE = ["cobblestone", "cobblestoneMossy", "woodenPlank"]
