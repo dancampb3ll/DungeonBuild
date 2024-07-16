@@ -10,7 +10,6 @@ import math
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
-
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
@@ -141,12 +140,6 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
         play_sfx.play()
     return
 
-def reset_underworld_groups():
-    underworld.npc.enemy_group = pygame.sprite.Group()
-    underworld.npc.projectile_group = pygame.sprite.Group()
-    underworld.npc.coin_group = pygame.sprite.Group()
-    underworld.npc.coin_drop_text_group = pygame.sprite.Group()
-
 def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events, building_tooltips_group):
     if not player_buildmode:
         for tooltip in building_tooltips_group:
@@ -189,7 +182,6 @@ def main():
     pygame.mixer.music.load(overworld_track)
     GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
     BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
-
     gamestate = GameState()
     gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
     #Camera must be the first Pygame object defined.
@@ -225,7 +217,6 @@ def main():
     gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
     gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
     
-
     debugtext = hud.DebugText()
     screentext = pygame.sprite.Group()
     screentext.add(debugtext)
@@ -234,9 +225,9 @@ def main():
     tooltip_left = None
     tooltip_right = None
 
+
     mainloop = True
     while mainloop:
-
         title_screen = hud.TitleMenu()
         while gamestate.selected_world == "title":
             input_events = pygame.event.get()
@@ -248,6 +239,11 @@ def main():
             title_screen.custom_draw(screen)
             pygame.display.update()
         
+
+        ################################################################################################
+        # Pre-overworld initialisation                                                                 #
+        ################################################################################################
+       
         pygame.mixer.music.play(-1) #Repeat unlimited
         gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera)
@@ -282,8 +278,6 @@ def main():
             
             overworld_cointext.update_coin_count(gamestate.overworld_coincount)
 
-
-
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
             player.check_build_mode(input_events, buildhud, overworldcamera)
@@ -297,11 +291,6 @@ def main():
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
             build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
-
-            #Moves player to front in case of new blocks being built (which are automatically appended to the end of the group)
-            overworldcamera.remove(player)
-            overworldcamera.add(player)
-            #*********************
 
             overworldcamera.update()
             overworldcamera.custom_draw(player)
@@ -322,13 +311,15 @@ def main():
         player.kill()
 
 
-        #Pre-Underworld Loop initialisation ************
+        ################################################################################################
+        # Pre-underworld initialisation                                                                 #
+        ################################################################################################
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera
 
         gamestate.generate_underworld_dungeon_and_update_map()
         
-        reset_underworld_groups()
+        underworld.npc.reset_groups()
         enemy_group = underworld.npc.enemy_group
         coin_group = underworld.npc.coin_group
         projectile_group = underworld.npc.projectile_group
@@ -407,12 +398,6 @@ def main():
             underworld_hudbar.update_health_hud(underworldplayer.health)
             gamestate.selected_world = underworldplayer.gameworld
             
-            pygame.display.update()
-            clock.tick(60)
-
-        while gamestate.selected_world == "death":
-            pygame.mixer.music.stop()
-            screen.fill((0, 0, 0))
             pygame.display.update()
             clock.tick(60)
 

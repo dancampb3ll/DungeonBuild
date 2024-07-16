@@ -18,3 +18,7 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in self.sprites():
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+        #Moves player to front in case of new blocks being built (which are automatically appended to the end of the camera group).
+        #This should be handled similarly to the underworld showing system.
+        self.remove(target)
+        self.add(target)

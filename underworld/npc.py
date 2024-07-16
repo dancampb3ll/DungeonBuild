@@ -5,15 +5,25 @@ import settings
 import underworld
 import lighting
 
+enemy_group = pygame.sprite.Group()
+projectile_group = pygame.sprite.Group()
+coin_group = pygame.sprite.Group()
+coin_drop_text_group = pygame.sprite.Group()
+
+def reset_groups():
+    global enemy_group, projectile_group, coin_group, coin_drop_text_group
+    enemy_group = pygame.sprite.Group()
+    projectile_group = pygame.sprite.Group()
+    coin_group = pygame.sprite.Group()
+    coin_drop_text_group = pygame.sprite.Group()
+
+
 def calculate_distance_pythagoras(point1: tuple, point2: tuple):
     x1, y1 = point1
     x2, y2 = point2
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-coin_group = pygame.sprite.Group()
-projectile_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
-coin_drop_text_group = pygame.sprite.Group()
+
 
 class Npc(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy, npctype):
