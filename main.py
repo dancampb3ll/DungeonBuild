@@ -7,6 +7,7 @@ import underworld.npc
 import settings
 import hud
 import math
+import json
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
@@ -21,15 +22,47 @@ class GameState():
         self.overworld_map_dict = overworld.tiles.overworldmapdict
         self.overworld_tile_sprite_dict = {}
         self.overworldcamera = CameraGroup()
+        self.overworldplayer_init_grid_x = 0
+        self.overworldplayer_init_grid_y = 0
         self.overworld_coincount = 0
-        self.underworldcamera = CameraGroup()
         self.in_overworld_pause_menu = False
 
+
+        self.underworldcamera = CameraGroup()
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
+
+        #test, delete
+        self.create_new_game_gamestate()
+
+    def create_new_game_gamestate(self):
+        self.overworldplayer_init_grid_x = 16
+        self.overworldplayer_init_grid_y = 16
         
+        #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
+        #Need to make this a general adding block function
+        for coord in self.overworld_map_dict.keys():
+            x = coord[0]
+            y = coord[1]
+            tiletype = self.overworld_map_dict[(x, y)]
+            if tiletype != 0:
+                tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
+                self.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, self.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+        
+        #Temporary test for making portal work - makes a dungeon at 20,20
+        build_and_perform_tiledict_spritedict_updates(self, "smallDungeon", (20, 20))
+        self.overworld_tile_sprite_dict.get((20, 20)).portal_type = "underworld"
+        self.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
+        self.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
+
+
+    def load_save_file(self, save_name):
+        with open(f"saves/{save_name}.json", "r") as file:
+            save = json.load(file)
+
+
     def toggle_overworld_pause_state(self):
         if self.in_overworld_pause_menu:
             self.in_overworld_pause_menu = False
@@ -201,22 +234,6 @@ def main():
     #Drawing tiles
     overworld_map_dict = gamestate.overworld_map_dict
 
-    #Map initialisation - creates sprites for tiles that aren't blanks (value 0)
-    #Need to make this a general adding block function
-    for coord in overworld_map_dict.keys():
-        x = coord[0]
-        y = coord[1]
-        tiletype = overworld_map_dict[(x, y)]
-        if tiletype != 0:
-            tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
-            gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, overworldcamera, DEFAULT_NO_TILE_PORTAL)
-
-    #Temporary test for making portal work
-    build_and_perform_tiledict_spritedict_updates(gamestate, "smallDungeon", (20, 20))
-    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_type = "underworld"
-    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
-    gamestate.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
-    
     debugtext = hud.DebugText()
     screentext = pygame.sprite.Group()
     screentext.add(debugtext)
@@ -246,7 +263,7 @@ def main():
        
         pygame.mixer.music.play(-1) #Repeat unlimited
         gamestate.clear_underworld_gamestate()
-        player = OverworldPlayer(overworldcamera)
+        player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
         while gamestate.selected_world == "overworld":
             input_events = pygame.event.get()
             for event in input_events:
@@ -339,7 +356,7 @@ def main():
             for event in input_events:
                 if event.type == pygame.QUIT:
                     mainloop = False
-                    selected_world = False
+                    gamestate.selected_world = False
 
 
             if gamestate.current_music != underworld_track:

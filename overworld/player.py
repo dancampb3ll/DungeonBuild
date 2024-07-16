@@ -10,7 +10,7 @@ BUILDING_TYPES = overworld.buildings.BUILDING_TYPES
 LIGHT_BLUE = (173, 216, 230)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pygame_group):
+    def __init__(self, pygame_group, gridx, gridy):
         super().__init__(pygame_group)
         self.type = "player"
         self.facing_direction = "down"
@@ -20,8 +20,8 @@ class Player(pygame.sprite.Sprite):
         self.aniframe_time_count = 0
         self.image = pygame.image.load(f"assets/player/overworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.gridx = 16
-        self.gridy = 16
+        self.gridx = gridx
+        self.gridy = gridy
         self.rect.x = self.gridx * settings.OVERWORLD_TILE_SIZE
         self.rect.y = self.gridy * settings.OVERWORLD_TILE_SIZE
         self.speed = PLAYERSPEED
