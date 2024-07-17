@@ -350,6 +350,7 @@ def main():
                     if gamestate.selected_world == "title":
                         pygame.mixer.music.stop()
                         gamestate.save_game_file(player.gridx, player.gridy)
+                        title_screen = hud.TitleMenu()
                     pygame.display.update()
                     clock.tick(60)
                 overworld_pause_menu.kill()

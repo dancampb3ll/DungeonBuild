@@ -271,21 +271,66 @@ class TitleMenu(pygame.sprite.Sprite):
         self.loadgame_button_rect.x = self.title_screen_rect.x + 350
         self.loadgame_button_rect.y = self.title_screen_rect.y + 192
 
+        #Load section
+        scroll_button_side_offsets = 140
+        self.scrollleft_button = pygame.image.load('assets/hud/titleMenu/scrollLeft.png').convert_alpha()
+        self.scrollleft_button_rect = self.scrollleft_button.get_rect()
+        self.scrollleft_button_rect.x = self.title_screen_rect.left + scroll_button_side_offsets
+        self.scrollleft_button_rect.y = self.title_screen_rect.y + 192
+
+        self.scrollright_button = pygame.image.load('assets/hud/titleMenu/scrollRight.png').convert_alpha()
+        self.scrollright_button_rect = self.scrollright_button.get_rect()
+        self.scrollright_button_rect.x = self.title_screen_rect.right - scroll_button_side_offsets - self.scrollright_button_rect.width
+        self.scrollright_button_rect.y = self.title_screen_rect.y + 192
+
+        
+        self.worldoption_left = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+        self.worldoption_left_rect = self.worldoption_left.get_rect()
+        space_between_scroll_buttons = self.scrollright_button_rect.left - self.scrollleft_button_rect.right
+        space_between_worldoptions = (space_between_scroll_buttons - 3*self.worldoption_left_rect.width) // 4
+        self.worldoption_left_rect.x = self.scrollleft_button_rect.right + space_between_worldoptions
+        self.worldoption_left_rect.y = self.title_screen_rect.y + 192 - 6
+
+        self.worldoption_middle = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+        self.worldoption_middle_rect = self.worldoption_middle.get_rect()
+        self.worldoption_middle_rect.x = self.worldoption_left_rect.right + space_between_worldoptions
+        self.worldoption_middle_rect.y = self.worldoption_left_rect.y
+
+        self.worldoption_right = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+        self.worldoption_right_rect = self.worldoption_right.get_rect()
+        self.worldoption_right_rect.x = self.worldoption_middle_rect.right + space_between_worldoptions
+        self.worldoption_right_rect.y = self.worldoption_left_rect.y
+
+        self.world_options_total = []
+        self.world_options_visible = []
+
+
     def title_draw(self, screen):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.newgame_button, self.newgame_button_rect.topleft)
         screen.blit(self.loadgame_button, self.loadgame_button_rect.topleft)
 
+    def load_screen_draw(self, screen):
+        screen.blit(self.title_screen, self.title_screen_rect.topleft)
+        screen.blit(self.scrollright_button, self.scrollright_button_rect.topleft)
+        screen.blit(self.scrollleft_button, self.scrollleft_button_rect.topleft)
+        screen.blit(self.worldoption_left, self.worldoption_left_rect.topleft)
+        screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
+        screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
+
     def custom_draw(self, screen):
         if self.title_state == "title":
             self.title_draw(screen)
+        elif self.title_state == "loadscreen":
+            self.load_screen_draw(screen)
     
     def get_newgame_or_loadgame_clicked(self, input_events):
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if self.loadgame_button_rect.collidepoint(mouse_pos):
-                    return "loadgame"
+                    self.title_state = "loadscreen"
+                    return None
                 elif self.newgame_button_rect.collidepoint(mouse_pos):
                     return "newgame"
         return None
