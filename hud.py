@@ -248,7 +248,6 @@ class OverworldPauseMenu(pygame.sprite.Sprite):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if self.quit_button_hitbox_rect.collidepoint(mouse_pos):
-                        print("clicked")
                         return "title", False
             return "overworld", True
 

@@ -231,7 +231,7 @@ class Player(pygame.sprite.Sprite):
             if self.right_mouse_button_held:
                 raw_mouse_pos = pygame.mouse.get_pos()
                 offset_adjusted_mouse_pos = (raw_mouse_pos[0] + camera_group.offset.x, raw_mouse_pos[1] + camera_group.offset.y)
-                placement_coords = (offset_adjusted_mouse_pos[0] // settings.OVERWORLD_TILE_SIZE, offset_adjusted_mouse_pos[1] // settings.OVERWORLD_TILE_SIZE)
+                placement_coords = (int(offset_adjusted_mouse_pos[0] // settings.OVERWORLD_TILE_SIZE), int(offset_adjusted_mouse_pos[1] // settings.OVERWORLD_TILE_SIZE))
         
         if placement_coords is None:
             return None

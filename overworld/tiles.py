@@ -129,7 +129,7 @@ for i in range(0, 40):
             overworldmap.append([i, j, 2])
 
 #Overworldmapdict is the ultimate world map. The world map above is just a quick way of initialising. I should rename the above and call the below overworldmap.
-overworldmapdict = {}
+default_overworldmapdict = {}
 #The format (x, y) = tilenum must be maintained.
 worldborderquick = []
 for i in range(14, 32):
@@ -137,7 +137,7 @@ for i in range(14, 32):
         worldborderquick.append([i, j, 4])
 
 for tile in worldborderquick:
-    overworldmapdict[(tile[0], tile[1])] = tile[2]
+    default_overworldmapdict[(tile[0], tile[1])] = tile[2]
 
 for tile in overworldmap:
-    overworldmapdict[(tile[0], tile[1])] = tile[2]
+    default_overworldmapdict[(tile[0], tile[1])] = tile[2]

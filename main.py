@@ -8,6 +8,7 @@ import settings
 import hud
 import math
 import json
+import copy
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 
@@ -19,13 +20,14 @@ class GameState():
         self.selected_world = "title"
         self.current_music = None
 
-        self.overworld_map_dict = overworld.tiles.overworldmapdict
+        self.overworld_map_dict = {}
         self.overworld_tile_sprite_dict = {}
         self.overworldcamera = CameraGroup()
         self.overworldplayer_init_grid_x = 0
         self.overworldplayer_init_grid_y = 0
         self.overworld_coincount = 0
         self.in_overworld_pause_menu = False
+        self.save_name = "NaN"
 
         self.underworldcamera = CameraGroup()
         self.underworld_map_dict = {}
@@ -41,6 +43,7 @@ class GameState():
         self.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
 
     def initialise_tile_sprite_dict_from_tilemap(self):
+        self.overworld_tile_sprite_dict.clear()
         #Map initialisation - creates pygame sprites for tiles that aren't blanks (value 0)
         for coord in self.overworld_map_dict.keys():
             x = coord[0]
@@ -51,6 +54,8 @@ class GameState():
                 self.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, self.overworldcamera, DEFAULT_NO_TILE_PORTAL)
 
     def create_new_game_gamestate(self):
+        self.reset_initial_gamestate()
+        self.overworld_map_dict = copy.deepcopy(overworld.tiles.default_overworldmapdict)
         self.overworldplayer_init_grid_x = 16
         self.overworldplayer_init_grid_y = 16
         self.initialise_tile_sprite_dict_from_tilemap()
@@ -84,12 +89,13 @@ class GameState():
             "overworld_tile_sprite_dict": convert_dict_keys_to_str(self.overworld_tile_sprite_dict)
         }
         
-        file_path = "saves/temp.json"
+        file_path = f"saves/{self.save_name}.json"
         with open(file_path, 'w') as file:
             json.dump(save_data, file, indent=4)
 
     def load_game_file(self, save_name):
-        with open(f"saves/{save_name}.json", "r") as file:
+        self.reset_initial_gamestate()
+        with open(f"saves/{self.save_name}.json", "r") as file:
             save = json.load(file)
 
         self.overworldplayer_init_grid_x = save["playergridx"]
@@ -167,11 +173,14 @@ class GameState():
                     self.underworld_tile_sprite_dict[(gridx, gridy)].kill()
                     del self.underworld_tile_sprite_dict[(gridx, gridy)]
 
-    def clear_underworld_gamestate(self):
-        self.underworld_map_dict = {}
-        self.underworld_npc_spawn_dict = {}
-        self.underworld_tile_sprite_dict = {}
-        self.underworld_todraw_tile_dict = {}
+    def reset_initial_gamestate(self):
+        self.overworldcamera = CameraGroup()
+
+    def reset_underworld_gamestate(self):
+        self.underworld_map_dict.clear()
+        self.underworld_npc_spawn_dict.clear()
+        self.underworld_tile_sprite_dict.clear()
+        self.underworld_todraw_tile_dict.clear()
 
 def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
@@ -220,7 +229,7 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
     gamestate.overworld_tile_sprite_dict[(x, y)].kill()
     gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
     draw_new_border_tiles_from_grass_placement(gamestate, x, y)
-    gamestate.overworld_map_dict[(x, y)] = 2
+    gamestate.overworld_map_dict[(int(x), int(y))] = 2
     if play_sfx:
         play_sfx.play()
     return
@@ -269,30 +278,6 @@ def main():
     BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
     gamestate = GameState()
     gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
-    #Camera must be the first Pygame object defined.
-    overworldcamera = gamestate.overworldcamera
-
-    #HUD is separate from the camera
-    overworld_hudgroup = pygame.sprite.Group()
-    overworld_hudbar = hud.OverworldHud()
-    overworld_cointext = hud.OverworldCoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1], gamestate.overworld_coincount)
-    buildhud = hud.BuildHud()
-    overworld_hudgroup.add(overworld_hudbar)
-    overworld_hudgroup.add(overworld_cointext)
-    overworld_hudgroup.add(buildhud)
-
-    underworld_hudgroup = pygame.sprite.Group()
-
-    #Drawing tiles
-    overworld_map_dict = gamestate.overworld_map_dict
-
-    debugtext = hud.DebugText()
-    screentext = pygame.sprite.Group()
-    screentext.add(debugtext)
-
-    building_tooltips = pygame.sprite.Group()
-    tooltip_left = None
-    tooltip_right = None
 
 
     mainloop = True
@@ -303,7 +288,7 @@ def main():
             screen.fill((0, 0, 0))
             button_clicked_state = title_screen.get_newgame_or_loadgame_clicked(input_events)
             if button_clicked_state == "loadgame":
-                gamestate.load_game_file("temp")
+                gamestate.load_game_file("NaN")
             elif button_clicked_state == "newgame":
                 gamestate.create_new_game_gamestate()
             title_screen.custom_draw(screen)
@@ -313,11 +298,34 @@ def main():
         ################################################################################################
         # Pre-overworld initialisation                                                                 #
         ################################################################################################
-       
+        
+        #Camera must be the first Pygame object defined.
+        overworldcamera = gamestate.overworldcamera
+
+        #HUD is separate from the camera
+        overworld_hudgroup = pygame.sprite.Group()
+        overworld_hudbar = hud.OverworldHud()
+        overworld_cointext = hud.OverworldCoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1], gamestate.overworld_coincount)
+        buildhud = hud.BuildHud()
+        overworld_hudgroup.add(overworld_hudbar)
+        overworld_hudgroup.add(overworld_cointext)
+        overworld_hudgroup.add(buildhud)
+
+        underworld_hudgroup = pygame.sprite.Group()
+
+        debugtext = hud.DebugText()
+        screentext = pygame.sprite.Group()
+        screentext.add(debugtext)
+
+        building_tooltips = pygame.sprite.Group()
+        tooltip_left = None
+        tooltip_right = None
         pygame.mixer.music.play(-1) #Repeat unlimited
-        gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
+        gamestate.reset_underworld_gamestate()
         while gamestate.selected_world == "overworld":
+            #print("len of camera group: ", len(overworldcamera))
+            #print(gamestate.overworld_map_dict)
             gamestate.selected_world = player.gameworld
             input_events = pygame.event.get()
             for event in input_events:
@@ -341,6 +349,7 @@ def main():
                     gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
                     if gamestate.selected_world == "title":
                         pygame.mixer.music.stop()
+                        gamestate.save_game_file(player.gridx, player.gridy)
                     pygame.display.update()
                     clock.tick(60)
                 overworld_pause_menu.kill()
@@ -365,12 +374,13 @@ def main():
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
+            print(player_Grass_placement_coords)
             build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
 
             overworldcamera.update()
             overworldcamera.custom_draw(player)
 
-            debugtext.update(player.gridx, player.gridy, overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
+            debugtext.update(player.gridx, player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
 
             tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
