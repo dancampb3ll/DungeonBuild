@@ -35,7 +35,7 @@ class GameState():
         self.underworld_todraw_tile_dict = {}
 
         #test, delete
-        self.create_new_game_gamestate()
+        #self.create_new_game_gamestate()
         self.load_game_file("temp")
 
     def temp_portal_REFACTOR(self):
@@ -54,6 +54,7 @@ class GameState():
             if tiletype != 0:
                 tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
                 self.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, self.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+        print(self.overworld_tile_sprite_dict)
 
     def create_new_game_gamestate(self):
         self.overworldplayer_init_grid_x = 16
@@ -61,7 +62,6 @@ class GameState():
 
         self.initialise_tile_sprite_dict_from_tilemap()
         self.temp_portal_REFACTOR()
-
 
     def save_game_file(self, playergridx, playergridy):
         def convert_dict_keys_to_str(data):
@@ -98,8 +98,14 @@ class GameState():
         with open(f"saves/{save_name}.json", "r") as file:
             save = json.load(file)
 
+        self.overworldplayer_init_grid_x = save["playergridx"]
+        self.overworldplayer_init_grid_y = save["playergridy"]
+        self.overworld_coincount = save["overworld_coincount"]
+
         #Manipulating tiles in JSON string format back to tuple key format
         raw_save_overworld_map_dict = save["overworld_map_dict"]
+        
+        
         overworld_map_dict = {}
         for key_str, value in raw_save_overworld_map_dict.items():
             # Convert string key to tuple
@@ -109,11 +115,10 @@ class GameState():
             overworld_map_dict[key_tuple] = value
 
         self.overworld_map_dict = overworld_map_dict
+
         self.initialise_tile_sprite_dict_from_tilemap()
         
         self.temp_portal_REFACTOR()
-
-
 
     def toggle_overworld_pause_state(self):
         if self.in_overworld_pause_menu:

@@ -58,8 +58,18 @@ class OverworldCoinText(pygame.sprite.Sprite):
         self.coincount = coincount
         self.update_coin_display()
 
+    def format_cointext(self, n):
+        if n < 1:
+            return "Number must be 1 or greater"
+        elif n < 100000:
+            return f"{n:,}"
+        elif n < 10000000:
+            return f"{n // 1000}k"
+        else:
+            return f"{n // 1000000}.{(n % 1000000) // 100000}m"
+
     def update_coin_display(self):
-        self.text = str(self.coincount)
+        self.text = self.format_cointext((self.coincount))
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (self.hudx + self.hud_xoffset, self.hudy + self.hud_yoffset))
 
@@ -228,7 +238,6 @@ class OverworldPauseMenu(pygame.sprite.Sprite):
         def custom_update(self, screen):
             screen.blit(self.menu_image, (self.menux, self.menuy))
             screen.blit(self.quit_image, (self.quitx, self.quity))
-
 
 class TitleMenu(pygame.sprite.Sprite):
     def __init__(self):
