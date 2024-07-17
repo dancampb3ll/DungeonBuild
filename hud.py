@@ -232,12 +232,25 @@ class OverworldPauseMenu(pygame.sprite.Sprite):
             self.menuy = settings.SCREEN_HEIGHT // 2 - self.rect.height // 2
 
             self.quit_image = pygame.image.load(f"assets/hud/overworldPause/quit.png").convert_alpha()
+            self.quit_button_hitbox_rect = self.quit_image.get_rect()
+            
             self.quitx = self.menux + 4
             self.quity = self.menuy + 28
-        
-        def custom_update(self, screen):
+            self.quit_button_hitbox_rect.x = self.quitx
+            self.quit_button_hitbox_rect.y = self.quity
+                    
+        def custom_draw(self, screen):
             screen.blit(self.menu_image, (self.menux, self.menuy))
             screen.blit(self.quit_image, (self.quitx, self.quity))
+
+        def get_gamestate_world_and_pause_status_from_quit_button(self, input_events):
+            for event in input_events:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    if self.quit_button_hitbox_rect.collidepoint(mouse_pos):
+                        print("clicked")
+                        return "title", False
+            return "overworld", True
 
 class TitleMenu(pygame.sprite.Sprite):
     def __init__(self):

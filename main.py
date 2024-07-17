@@ -49,7 +49,6 @@ class GameState():
             if tiletype != 0:
                 tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
                 self.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, self.overworldcamera, DEFAULT_NO_TILE_PORTAL)
-        print(self.overworld_tile_sprite_dict)
 
     def create_new_game_gamestate(self):
         self.overworldplayer_init_grid_x = 16
@@ -307,11 +306,9 @@ def main():
                 gamestate.load_game_file("temp")
             elif button_clicked_state == "newgame":
                 gamestate.create_new_game_gamestate()
-
-            print(gamestate.selected_world)
             title_screen.custom_draw(screen)
             pygame.display.update()
-        
+            clock.tick(60)
 
         ################################################################################################
         # Pre-overworld initialisation                                                                 #
@@ -321,6 +318,7 @@ def main():
         gamestate.clear_underworld_gamestate()
         player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
         while gamestate.selected_world == "overworld":
+            gamestate.selected_world = player.gameworld
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.QUIT:
@@ -339,8 +337,12 @@ def main():
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE:
                                 gamestate.toggle_overworld_pause_state()
-                    overworld_pause_menu.custom_update(screen)
+                    overworld_pause_menu.custom_draw(screen)
+                    gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
+                    if gamestate.selected_world == "title":
+                        pygame.mixer.music.stop()
                     pygame.display.update()
+                    clock.tick(60)
                 overworld_pause_menu.kill()
 
             if gamestate.current_music != overworld_track:
@@ -378,7 +380,6 @@ def main():
             building_tooltips.update()
             building_tooltips.draw(screen)
 
-            gamestate.selected_world = player.gameworld
             pygame.display.update()
             clock.tick(60)
         player.kill()
@@ -483,13 +484,14 @@ def main():
             dungeon_complete_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
             screen.blit(dungeon_complete, dungeon_complete_rect.topleft)
             dungeon_complete_texts.custom_draw(screen)
-            pygame.display.update()
+            
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         gamestate.selected_world = "overworld"
                         gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
+            pygame.display.update()
             clock.tick(60)
 
         dungeon_death = pygame.image.load('assets/splashscreens/dungeonDeath.png').convert_alpha()
@@ -499,13 +501,13 @@ def main():
             screen.fill((0, 0, 0))
             dungeon_death_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
             screen.blit(dungeon_death, dungeon_death_rect.topleft)
-            pygame.display.update()
             input_events = pygame.event.get()
             for event in input_events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         gamestate.selected_world = "overworld"
-            clock.tick(60)            
+            pygame.display.update()
+            clock.tick(60)
 
 if __name__ == "__main__":
     main()
