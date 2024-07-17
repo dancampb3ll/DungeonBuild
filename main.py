@@ -27,16 +27,11 @@ class GameState():
         self.overworld_coincount = 0
         self.in_overworld_pause_menu = False
 
-
         self.underworldcamera = CameraGroup()
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
-
-        #test, delete
-        #self.create_new_game_gamestate()
-        self.load_game_file("temp")
 
     def temp_portal_REFACTOR(self):
         #Temporary test for making portal work - makes a dungeon at 20,20
@@ -59,9 +54,9 @@ class GameState():
     def create_new_game_gamestate(self):
         self.overworldplayer_init_grid_x = 16
         self.overworldplayer_init_grid_y = 16
-
         self.initialise_tile_sprite_dict_from_tilemap()
         self.temp_portal_REFACTOR()
+        self.selected_world = "overworld"
 
     def save_game_file(self, playergridx, playergridy):
         def convert_dict_keys_to_str(data):
@@ -119,6 +114,7 @@ class GameState():
         self.initialise_tile_sprite_dict_from_tilemap()
         
         self.temp_portal_REFACTOR()
+        self.selected_world = "overworld"
 
     def toggle_overworld_pause_state(self):
         if self.in_overworld_pause_menu:
@@ -305,11 +301,14 @@ def main():
         title_screen = hud.TitleMenu()
         while gamestate.selected_world == "title":
             input_events = pygame.event.get()
-            for event in input_events:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        gamestate.selected_world = "overworld"
             screen.fill((0, 0, 0))
+            button_clicked_state = title_screen.get_newgame_or_loadgame_clicked(input_events)
+            if button_clicked_state == "loadgame":
+                gamestate.load_game_file("temp")
+            elif button_clicked_state == "newgame":
+                gamestate.create_new_game_gamestate()
+
+            print(gamestate.selected_world)
             title_screen.custom_draw(screen)
             pygame.display.update()
         

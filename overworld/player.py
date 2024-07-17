@@ -126,7 +126,7 @@ class Player(pygame.sprite.Sprite):
         #if nothing pressed, reset animation cycle and counter
         else:
             self.aniframe = 1
-            self.aniframe_time_count = 0
+            self.aniframe_time_count = 9
         if self.aniframe_time_count > self.ANIFRAME_TIME_LIMIT:
             if self.aniframe == self.ANIFRAME_COUNT:
                 self.aniframe = 1

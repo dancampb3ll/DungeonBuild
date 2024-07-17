@@ -59,8 +59,8 @@ class OverworldCoinText(pygame.sprite.Sprite):
         self.update_coin_display()
 
     def format_cointext(self, n):
-        if n < 1:
-            return "Number must be 1 or greater"
+        if n == 0:
+            return "0"
         elif n < 100000:
             return f"{n:,}"
         elif n < 10000000:
@@ -267,4 +267,14 @@ class TitleMenu(pygame.sprite.Sprite):
     def custom_draw(self, screen):
         if self.title_state == "title":
             self.title_draw(screen)
+    
+    def get_newgame_or_loadgame_clicked(self, input_events):
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if self.loadgame_button_rect.collidepoint(mouse_pos):
+                    return "loadgame"
+                elif self.newgame_button_rect.collidepoint(mouse_pos):
+                    return "newgame"
+        return None
         
