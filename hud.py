@@ -1,5 +1,8 @@
 import pygame
 import settings
+import os
+import json
+
 
 class DebugText(pygame.sprite.Sprite):
     def __init__(self):
@@ -302,13 +305,59 @@ class TitleMenu(pygame.sprite.Sprite):
         self.worldoption_right_rect.y = self.worldoption_left_rect.y
 
         self.world_options_total = []
-        self.world_options_visible = []
+        self.world_list_index_current = 0
+
+        #Select World Text
+        self.SELECTWORLD_FONT_SIZE = 15
+        self.SELECTWORLD_FONT_COLOUR = (0, 0, 0)
+        self.FONT_SELECTWORLD = pygame.font.SysFont("Courier New", self.SELECTWORLD_FONT_SIZE, bold=True)        
+        self.SELECTWORLD_TEXT = self.FONT_SELECTWORLD.render(str("Select World:"), True, self.SELECTWORLD_FONT_COLOUR)
+        self.SELECTWORLD_TEXT_POSY = self.worldoption_middle_rect.y - 26
+        self.SELECTWORLD_TEXT_POSX = settings.SCREEN_WIDTH // 2 - self.SELECTWORLD_TEXT.get_width() // 2 
+
+        #Defining world_name font appearances
+        self.WORLD_NAME_FONT_SIZE = 11
+        self.WORLD_NAME_FONT_COLOUR = (0, 0, 0)
+        self.FONT_WORLD_NAME = pygame.font.SysFont("Courier New", self.WORLD_NAME_FONT_SIZE, bold=True)
+        self.WORLD_NAME_TEXT_POSY = self.worldoption_left_rect.bottom + 4
+        
+        self.world_name_left_text_pos_x = 9999
+        self.world_name_mid_text_pos_x = 9999
+        self.world_name_right_text_pos_x = 9999
+        
+        self.world_name_left_text = None
+        self.world_name_mid_text = None
+        self.world_name_right_text = None
 
 
     def title_draw(self, screen):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.newgame_button, self.newgame_button_rect.topleft)
         screen.blit(self.loadgame_button, self.loadgame_button_rect.topleft)
+
+    def load_screen_worldname_draw(self, screen):
+        """Determines the positions of texts to appear centered under blocks, and determines the 3 world texts to be shown based on current scroll index."""
+        #Getting names
+        name_left = self.world_options_total[self.world_list_index_current]
+        name_mid = self.world_options_total[self.world_list_index_current + 1]
+        name_right = self.world_options_total[self.world_list_index_current + 2]
+        #Rendering names in background
+        self.world_name_left_text = self.FONT_WORLD_NAME.render(str(name_left), True, self.WORLD_NAME_FONT_COLOUR)
+        self.world_name_mid_text = self.FONT_WORLD_NAME.render(str(name_mid), True, self.WORLD_NAME_FONT_COLOUR)
+        self.world_name_right_text = self.FONT_WORLD_NAME.render(str(name_right), True, self.WORLD_NAME_FONT_COLOUR)
+        #Getting widths (for centering)
+        name_left_width = self.world_name_left_text.get_width()
+        name_mid_width = self.world_name_mid_text.get_width()
+        name_right_width = self.world_name_right_text.get_width()
+
+        self.world_name_left_text_pos_x = self.worldoption_left_rect.centerx - name_left_width // 2
+        self.world_name_mid_text_pos_x = self.worldoption_middle_rect.centerx - name_mid_width // 2
+        self.world_name_right_text_pos_x = self.worldoption_right_rect.centerx - name_right_width // 2
+
+        screen.blit(self.world_name_left_text, (self.world_name_left_text_pos_x, self.WORLD_NAME_TEXT_POSY))
+        screen.blit(self.world_name_mid_text, (self.world_name_mid_text_pos_x, self.WORLD_NAME_TEXT_POSY))
+        screen.blit(self.world_name_right_text, (self.world_name_right_text_pos_x, self.WORLD_NAME_TEXT_POSY))
+
 
     def load_screen_draw(self, screen):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
@@ -317,6 +366,28 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.worldoption_left, self.worldoption_left_rect.topleft)
         screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
         screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
+        screen.blit(self.SELECTWORLD_TEXT, (self.SELECTWORLD_TEXT_POSX, self.SELECTWORLD_TEXT_POSY))
+        self.load_screen_worldname_draw(screen)
+
+    def fetch_savefile_names(self):
+        files_and_modified_times = []
+        sorted_files = []
+        folder_path = "saves"
+
+        for filename in os.listdir(folder_path):
+            if filename.endswith('.json'):
+                file_path = os.path.join(folder_path, filename)
+                last_modified_time = os.path.getmtime(file_path)
+                
+                files_and_modified_times.append((last_modified_time, os.path.splitext(filename)[0]))
+        
+        #Sorting by last modified time, so most recent files are shown first.
+        files_and_modified_times.sort(key=lambda x: x[0])
+        files_and_modified_times.reverse()
+        sorted_files = [filename[1] for filename in files_and_modified_times]
+
+        self.world_options_total = sorted_files
+        print(self.world_options_total)
 
     def custom_draw(self, screen):
         if self.title_state == "title":
@@ -328,10 +399,12 @@ class TitleMenu(pygame.sprite.Sprite):
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
-                if self.loadgame_button_rect.collidepoint(mouse_pos):
-                    self.title_state = "loadscreen"
-                    return None
-                elif self.newgame_button_rect.collidepoint(mouse_pos):
-                    return "newgame"
+                if self.title_state == "title":
+                    if self.loadgame_button_rect.collidepoint(mouse_pos):
+                        self.title_state = "loadscreen"
+                        self.fetch_savefile_names()
+                        return None
+                    elif self.newgame_button_rect.collidepoint(mouse_pos):
+                        return "newgame"
         return None
         

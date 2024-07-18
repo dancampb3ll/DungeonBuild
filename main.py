@@ -7,6 +7,7 @@ import underworld.npc
 import settings
 import hud
 import math
+import os
 import json
 import copy
 from overworld.player import Player as OverworldPlayer
