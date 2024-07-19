@@ -1,6 +1,6 @@
 {
-    "playergridx": 15,
-    "playergridy": 15,
+    "playergridx": 19,
+    "playergridy": 16,
     "overworld_coincount": 99999999,
     "overworld_map_dict": {
         "(14, 14)": 3,
@@ -332,7 +332,7 @@
         "(14, 14)": {
             "gridx": 14,
             "gridy": 14,
-            "tile": "overgroundBorder",
+            "tile": "overgroundWater",
             "portal_information": [
                 null,
                 null,
@@ -342,7 +342,7 @@
         "(14, 15)": {
             "gridx": 14,
             "gridy": 15,
-            "tile": "overgroundBorder",
+            "tile": "overgroundWater",
             "portal_information": [
                 null,
                 null,
@@ -2232,7 +2232,7 @@
         "(24, 24)": {
             "gridx": 24,
             "gridy": 24,
-            "tile": "overgroundGrass",
+            "tile": "overgroundSmallDungeonLeft",
             "portal_information": [
                 null,
                 null,

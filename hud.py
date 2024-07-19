@@ -276,15 +276,16 @@ class TitleMenu(pygame.sprite.Sprite):
 
         #Load section
         scroll_button_side_offsets = 140
+        worldoption_height_from_top_of_screen = 280
         self.scrollleft_button = pygame.image.load('assets/hud/titleMenu/scrollLeft.png').convert_alpha()
         self.scrollleft_button_rect = self.scrollleft_button.get_rect()
         self.scrollleft_button_rect.x = self.title_screen_rect.left + scroll_button_side_offsets
-        self.scrollleft_button_rect.y = self.title_screen_rect.y + 192
+        self.scrollleft_button_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen
 
         self.scrollright_button = pygame.image.load('assets/hud/titleMenu/scrollRight.png').convert_alpha()
         self.scrollright_button_rect = self.scrollright_button.get_rect()
         self.scrollright_button_rect.x = self.title_screen_rect.right - scroll_button_side_offsets - self.scrollright_button_rect.width
-        self.scrollright_button_rect.y = self.title_screen_rect.y + 192
+        self.scrollright_button_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen
 
         
         self.worldoption_left = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
@@ -292,7 +293,7 @@ class TitleMenu(pygame.sprite.Sprite):
         space_between_scroll_buttons = self.scrollright_button_rect.left - self.scrollleft_button_rect.right
         space_between_worldoptions = (space_between_scroll_buttons - 3*self.worldoption_left_rect.width) // 4
         self.worldoption_left_rect.x = self.scrollleft_button_rect.right + space_between_worldoptions
-        self.worldoption_left_rect.y = self.title_screen_rect.y + 192 - 6
+        self.worldoption_left_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen - 6
 
         self.worldoption_middle = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
         self.worldoption_middle_rect = self.worldoption_middle.get_rect()
@@ -306,6 +307,7 @@ class TitleMenu(pygame.sprite.Sprite):
 
         self.world_options_total = []
         self.world_list_index_current = 0
+        self.player_selected_option = None
 
         #Select World Text
         self.SELECTWORLD_FONT_SIZE = 15
@@ -328,6 +330,12 @@ class TitleMenu(pygame.sprite.Sprite):
         self.world_name_left_text = None
         self.world_name_mid_text = None
         self.world_name_right_text = None
+
+        #Load Game play button
+        self.loadgameplay_button = pygame.image.load('assets/hud/titleMenu/loadGame.png').convert_alpha()
+        self.loadgameplay_button_rect = self.loadgame_button.get_rect()
+        self.loadgameplay_button_rect.x = self.worldoption_middle_rect.centerx - self.loadgameplay_button_rect.width // 2
+        self.loadgameplay_button_rect.y = self.worldoption_middle_rect.bottom + 30
 
 
     def title_draw(self, screen):
@@ -358,8 +366,36 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.world_name_mid_text, (self.world_name_mid_text_pos_x, self.WORLD_NAME_TEXT_POSY))
         screen.blit(self.world_name_right_text, (self.world_name_right_text_pos_x, self.WORLD_NAME_TEXT_POSY))
 
+    def handle_selected_world_option(self, screen, input_events):
+        def reset_world_images():
+            self.worldoption_left = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+            self.worldoption_middle = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+            self.worldoption_right = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
+        selection = self.player_selected_option
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if self.worldoption_left_rect.collidepoint(mouse_pos):
+                    selection = "left"
+                elif self.worldoption_middle_rect.collidepoint(mouse_pos):
+                    selection = "middle"
+                elif self.worldoption_right_rect.collidepoint(mouse_pos):
+                    selection = "right"
+        if selection != self.player_selected_option:
+            reset_world_images()
+            self.player_selected_option = selection
+            if selection == "left":
+                 self.worldoption_left = pygame.image.load('assets/hud/titleMenu/worldOptionSelect.png').convert_alpha()
+            elif selection == "middle":
+                 self.worldoption_middle = pygame.image.load('assets/hud/titleMenu/worldOptionSelect.png').convert_alpha()
+            elif selection == "right":
+                 self.worldoption_right = pygame.image.load('assets/hud/titleMenu/worldOptionSelect.png').convert_alpha() 
 
-    def load_screen_draw(self, screen):
+    def handle_scroll_button_presses(self, input_events):
+        pass
+
+
+    def load_screen_draw(self, screen, input_events):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.scrollright_button, self.scrollright_button_rect.topleft)
         screen.blit(self.scrollleft_button, self.scrollleft_button_rect.topleft)
@@ -367,7 +403,10 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
         screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
         screen.blit(self.SELECTWORLD_TEXT, (self.SELECTWORLD_TEXT_POSX, self.SELECTWORLD_TEXT_POSY))
+        screen.blit(self.loadgameplay_button, (self.loadgameplay_button_rect.x, self.loadgameplay_button_rect.y))
+        self.handle_scroll_button_presses(input_events)
         self.load_screen_worldname_draw(screen)
+        self.handle_selected_world_option(screen, input_events)
 
     def fetch_savefile_names(self):
         files_and_modified_times = []
@@ -389,22 +428,39 @@ class TitleMenu(pygame.sprite.Sprite):
         self.world_options_total = sorted_files
         print(self.world_options_total)
 
-    def custom_draw(self, screen):
+    def custom_draw(self, screen, input_events):
         if self.title_state == "title":
             self.title_draw(screen)
-        elif self.title_state == "loadscreen":
-            self.load_screen_draw(screen)
+        elif self.title_state == "loadpage":
+            self.load_screen_draw(screen, input_events)
     
-    def get_newgame_or_loadgame_clicked(self, input_events):
+    def get_newgame_or_loadgame_or_loadgameselection_clicked(self, input_events):
         for event in input_events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if self.title_state == "title":
                     if self.loadgame_button_rect.collidepoint(mouse_pos):
-                        self.title_state = "loadscreen"
+                        self.title_state = "loadpage"
                         self.fetch_savefile_names()
                         return None
                     elif self.newgame_button_rect.collidepoint(mouse_pos):
                         return "newgame"
+                elif self.title_state == "loadpage":
+                    if self.loadgameplay_button_rect.collidepoint(mouse_pos):
+                        if self.player_selected_option is not None:
+                            return "loadgamefile"
         return None
-        
+    
+    def get_selected_world_name(self):
+        base_world = self.world_list_index_current
+        offset = 0
+        if self.player_selected_option == "left":
+            offset = 0
+        elif self.player_selected_option == "middle":
+            offset = 1
+        elif self.player_selected_option == "right":
+            offset = 2
+        selected_world = self.world_options_total[base_world + offset]
+
+        print(selected_world)
+        return selected_world

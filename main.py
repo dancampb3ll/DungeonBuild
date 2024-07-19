@@ -96,8 +96,10 @@ class GameState():
 
     def load_game_file(self, save_name):
         self.reset_initial_gamestate()
-        with open(f"saves/{self.save_name}.json", "r") as file:
+        with open(f"saves/{save_name}.json", "r") as file:
             save = json.load(file)
+
+        self.save_name = save_name
 
         self.overworldplayer_init_grid_x = save["playergridx"]
         self.overworldplayer_init_grid_y = save["playergridy"]
@@ -127,6 +129,7 @@ class GameState():
             self.in_overworld_pause_menu = False
         else:
             self.in_overworld_pause_menu = True
+        print("New pause state ", self.in_overworld_pause_menu)
 
     def update_current_music(self, track):
         self.current_music = track
@@ -287,12 +290,13 @@ def main():
         while gamestate.selected_world == "title":
             input_events = pygame.event.get()
             screen.fill((0, 0, 0))
-            button_clicked_state = title_screen.get_newgame_or_loadgame_clicked(input_events)
-            if button_clicked_state == "loadgame":
-                gamestate.load_game_file("NaN")
+            button_clicked_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
+            if button_clicked_state == "loadgamefile":
+                selected_world = title_screen.get_selected_world_name()
+                gamestate.load_game_file(selected_world)
             elif button_clicked_state == "newgame":
                 gamestate.create_new_game_gamestate()
-            title_screen.custom_draw(screen)
+            title_screen.custom_draw(screen, input_events)
             pygame.display.update()
             clock.tick(60)
 
@@ -346,8 +350,10 @@ def main():
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE:
                                 gamestate.toggle_overworld_pause_state()
+                                print("triggered")
                     overworld_pause_menu.custom_draw(screen)
-                    gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
+                    if gamestate.in_overworld_pause_menu:
+                        gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
                     if gamestate.selected_world == "title":
                         pygame.mixer.music.stop()
                         gamestate.save_game_file(player.gridx, player.gridy)
@@ -376,7 +382,6 @@ def main():
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
-            print(player_Grass_placement_coords)
             build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
 
             overworldcamera.update()
