@@ -54,13 +54,14 @@ class GameState():
                 tilename = overworld.tiles.TILE_MAPPINGS[tiletype]
                 self.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, self.overworldcamera, DEFAULT_NO_TILE_PORTAL)
 
-    def create_new_game_gamestate(self):
+    def create_new_game_gamestate(self, worldname):
         self.reset_initial_gamestate()
         self.overworld_map_dict = copy.deepcopy(overworld.tiles.default_overworldmapdict)
         self.overworldplayer_init_grid_x = 16
         self.overworldplayer_init_grid_y = 16
         self.initialise_tile_sprite_dict_from_tilemap()
         self.temp_portal_REFACTOR()
+        self.save_name = worldname
         self.selected_world = "overworld"
 
     def save_game_file(self, playergridx, playergridy):
@@ -290,14 +291,14 @@ def main():
         while gamestate.selected_world == "title":
             input_events = pygame.event.get()
             screen.fill((0, 0, 0))
-            button_clicked_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
-            if button_clicked_state == "loadgamefile":
+            title_screen.custom_draw(screen, input_events)
+            title_screen_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
+            if title_screen_state == "loadgamefile":
                 selected_world = title_screen.get_selected_world_name()
                 if selected_world != "":
                     gamestate.load_game_file(selected_world)
-            elif button_clicked_state == "newgamecreate":
-                gamestate.create_new_game_gamestate()
-            title_screen.custom_draw(screen, input_events)
+            elif title_screen_state == "newgamecreated":
+                gamestate.create_new_game_gamestate(title_screen.worldname_text_entered)
             pygame.display.update()
             clock.tick(60)
 

@@ -357,11 +357,6 @@ class TitleMenu(pygame.sprite.Sprite):
         self.NEWGAME_MENU_TEXT_POSY = self.SELECTWORLD_TEXT_POSY
         self.NEWGAME_MENU_TEXT_POSX = settings.SCREEN_WIDTH // 2 - self.NEWGAME_MENU_TEXT.get_width() // 2 
 
-        self.newgame_confirm_button = pygame.image.load('assets/hud/titleMenu/newGame.png').convert_alpha()
-        self.newgame_confirm_button_rect = self.newgame_confirm_button.get_rect()
-        self.newgame_confirm_button_rect.x = settings.SCREEN_WIDTH // 2 - (self.newgame_confirm_button_rect.width // 2)
-        self.newgame_confirm_button_rect.y = 500
-
         self.newgame_text_entry_bar = pygame.image.load('assets/hud/titleMenu/textEntryBar.png').convert_alpha()
         self.newgame_text_entry_bar_rect = self.newgame_text_entry_bar.get_rect()
         self.newgame_text_entry_bar_rect.x = settings.SCREEN_WIDTH // 2 - (self.newgame_text_entry_bar_rect.width // 2)
@@ -378,6 +373,11 @@ class TitleMenu(pygame.sprite.Sprite):
 
         self.newgame_text_underscore = pygame.image.load('assets/hud/titleMenu/underscore.png').convert_alpha()
         self.newgame_text_underscore_rect = self.newgame_text_underscore.get_rect()
+
+        self.newgame_confirm_button = pygame.image.load('assets/hud/titleMenu/newGame.png').convert_alpha()
+        self.newgame_confirm_button_rect = self.newgame_confirm_button.get_rect()
+        self.newgame_confirm_button_rect.x = settings.SCREEN_WIDTH // 2 - (self.newgame_confirm_button_rect.width // 2)
+        self.newgame_confirm_button_rect.y = self.newgame_text_entry_bar_rect.bottom + 40
 
     def handle_worldname_text_input(self, input_events):
         mods = pygame.key.get_mods()
@@ -492,6 +492,15 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.SELECTWORLD_TEXT, (self.SELECTWORLD_TEXT_POSX, self.SELECTWORLD_TEXT_POSY))
         screen.blit(self.loadgameplay_button, (self.loadgameplay_button_rect.x, self.loadgameplay_button_rect.y))
 
+    def handle_new_game_creation_button_titlestate(self, input_events):
+         for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if self.title_state == "newgamemenu":
+                    if self.newgame_confirm_button_rect.collidepoint(mouse_pos) and len(self.worldname_text_entered) != 0:
+                        self.title_state = "newgamecreated"
+
+
     def newgame_menu_draw(self, screen, input_events):
         self.handle_worldname_text_input(input_events)
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
@@ -499,7 +508,9 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.NEWGAME_MENU_TEXT, (self.NEWGAME_MENU_TEXT_POSX, self.NEWGAME_MENU_TEXT_POSY))
         screen.blit(self.newgame_text_entry_bar, self.newgame_text_entry_bar_rect.topleft)
         screen.blit(self.TEXT_ENTRY_TEXT, (self.TEXT_ENTRY_TEXT_POSX, self.TEXT_ENTRY_TEXT_POSY))
+        screen.blit(self.newgame_confirm_button, self.newgame_confirm_button_rect.topleft)
         self.refresh_worldname_text_drawn(screen)
+        self.handle_new_game_creation_button_titlestate(input_events)
 
     def fetch_savefile_names(self):
         files_and_modified_times = []
@@ -561,6 +572,8 @@ class TitleMenu(pygame.sprite.Sprite):
                     if self.loadgameplay_button_rect.collidepoint(mouse_pos):
                         if self.player_selected_option is not None:
                             return "loadgamefile"
+                elif self.title_state == "newgamecreated":
+                    return "newgamecreated"
         return None
     
     def get_selected_world_name(self):
