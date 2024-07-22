@@ -11,6 +11,18 @@ def get_smallDungeon_tiles(topleftTile: tuple):
     coordDict = {}
     coordDict[(topleftx, toplefty)] = 5
     coordDict[(topleftx + 1, toplefty)] = 6
+    #Adding fence
+    coordDict[(topleftx - 1, toplefty - 1)] = 8
+    coordDict[(topleftx, toplefty - 1)] = 9
+    coordDict[(topleftx + 1, toplefty - 1)] = 9
+    coordDict[(topleftx + 2, toplefty - 1)] = 10
+    coordDict[(topleftx - 1, toplefty + 0)] = 11
+    coordDict[(topleftx - 1, toplefty + 1)] = 11
+    coordDict[(topleftx - 1, toplefty + 2)] = 11
+    coordDict[(topleftx + 2, toplefty + 0)] = 12
+    coordDict[(topleftx + 2, toplefty + 1)] = 12
+    coordDict[(topleftx + 2, toplefty + 2)] = 12
+    
     return coordDict
 
 def get_largeHut_tiles(topleftTile: tuple):

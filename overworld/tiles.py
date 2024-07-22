@@ -55,7 +55,15 @@ TILE_MAPPINGS = {
     4: "overgroundBorder",
     5: "overgroundSmallDungeonLeft",
     6: "overgroundSmallDungeonRight",
-    7: "tinyPot"
+    7: "tinyPot",
+    8: "fenceTopLeft",
+    9: "fenceTop",
+    10: "fenceTopRight",
+    11: "fenceLeft",
+    12: "fenceRight",
+    13: "fenceBottomLeft",
+    14: "fenceBottom",
+    15: "fenceBottomRight"
 }
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_coords_list_to_avoid_building_on):

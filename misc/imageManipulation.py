@@ -89,21 +89,21 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
     img.save(image_output_path)
 
 """Replace chroma with transparency
-for path in ["assets/hud/titleMenu/underscore.png"]:
+for path in ["assets/Unused/fences_raw.png"]:
     replace_image_path = path
     output_path = path
-    make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
-"""
+    make_png_colour_transparent(255, 255, 255, replace_image_path, output_path)
+#"""
 
 
 """ Replace chroma with other image
-replace_image_path = "assets/underworldtiles/rope OLD.png"
-replacement_texture_path = "assets/underworldtiles/woodenPlank.png"
+replace_image_path = "assets/Unused/fences_raw.png"
+replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
-"""
+replace_chroma_color(replace_image_path, (255, 255, 255), replacement_texture_path, new_path)
+#"""
 
-#split_image("assets/Unused/Hero.png", "assets/Unused/player")
+split_image("assets/Unused/fences_raw.png", "assets/Unused/fences/")
 """
 files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
 for filename in files:
