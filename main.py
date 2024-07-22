@@ -293,7 +293,8 @@ def main():
             button_clicked_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
             if button_clicked_state == "loadgamefile":
                 selected_world = title_screen.get_selected_world_name()
-                gamestate.load_game_file(selected_world)
+                if selected_world != "":
+                    gamestate.load_game_file(selected_world)
             elif button_clicked_state == "newgame":
                 gamestate.create_new_game_gamestate()
             title_screen.custom_draw(screen, input_events)

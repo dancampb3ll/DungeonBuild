@@ -287,13 +287,12 @@ class TitleMenu(pygame.sprite.Sprite):
         self.scrollright_button_rect.x = self.title_screen_rect.right - scroll_button_side_offsets - self.scrollright_button_rect.width
         self.scrollright_button_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen
 
-        
         self.worldoption_left = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
         self.worldoption_left_rect = self.worldoption_left.get_rect()
         space_between_scroll_buttons = self.scrollright_button_rect.left - self.scrollleft_button_rect.right
         space_between_worldoptions = (space_between_scroll_buttons - 3*self.worldoption_left_rect.width) // 4
         self.worldoption_left_rect.x = self.scrollleft_button_rect.right + space_between_worldoptions
-        self.worldoption_left_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen - 6
+        self.worldoption_left_rect.y = self.title_screen_rect.y + worldoption_height_from_top_of_screen + 6
 
         self.worldoption_middle = pygame.image.load('assets/hud/titleMenu/worldOption.png').convert_alpha()
         self.worldoption_middle_rect = self.worldoption_middle.get_rect()
@@ -307,6 +306,8 @@ class TitleMenu(pygame.sprite.Sprite):
 
         self.world_options_total = []
         self.world_list_index_current = 0
+        self.scrollleft_active = False
+        self.scrollright_active = False
         self.player_selected_option = None
 
         #Select World Text
@@ -314,7 +315,7 @@ class TitleMenu(pygame.sprite.Sprite):
         self.SELECTWORLD_FONT_COLOUR = (0, 0, 0)
         self.FONT_SELECTWORLD = pygame.font.SysFont("Courier New", self.SELECTWORLD_FONT_SIZE, bold=True)        
         self.SELECTWORLD_TEXT = self.FONT_SELECTWORLD.render(str("Select World:"), True, self.SELECTWORLD_FONT_COLOUR)
-        self.SELECTWORLD_TEXT_POSY = self.worldoption_middle_rect.y - 26
+        self.SELECTWORLD_TEXT_POSY = self.worldoption_middle_rect.y - 48
         self.SELECTWORLD_TEXT_POSX = settings.SCREEN_WIDTH // 2 - self.SELECTWORLD_TEXT.get_width() // 2 
 
         #Defining world_name font appearances
@@ -391,22 +392,42 @@ class TitleMenu(pygame.sprite.Sprite):
             elif selection == "right":
                  self.worldoption_right = pygame.image.load('assets/hud/titleMenu/worldOptionSelect.png').convert_alpha() 
 
+    def determine_scroll_buttons_shown(self, input_events, screen):
+        if self.world_list_index_current != 0:
+            screen.blit(self.scrollleft_button, self.scrollleft_button_rect.topleft)
+            self.scrollleft_active = True
+        else:
+            self.scrollleft_active = False
+        if self.world_list_index_current + 2 < len(self.world_options_total) - 1:
+            screen.blit(self.scrollright_button, self.scrollright_button_rect.topleft)
+            self.scrollright_active = True
+        else:
+            self.scrollright_active = False
+
     def handle_scroll_button_presses(self, input_events):
-        pass
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if self.scrollleft_button_rect.collidepoint(mouse_pos) and self.scrollleft_active:
+                    self.world_list_index_current -= 1
+                    print("clicked")
+                elif self.scrollright_button_rect.collidepoint(mouse_pos) and self.scrollright_active:
+                    self.world_list_index_current += 1
+
 
 
     def load_screen_draw(self, screen, input_events):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
-        screen.blit(self.scrollright_button, self.scrollright_button_rect.topleft)
-        screen.blit(self.scrollleft_button, self.scrollleft_button_rect.topleft)
+        self.determine_scroll_buttons_shown(input_events, screen)
+        self.handle_scroll_button_presses(input_events)
+        self.load_screen_worldname_draw(screen)
+        self.handle_selected_world_option(screen, input_events)
         screen.blit(self.worldoption_left, self.worldoption_left_rect.topleft)
         screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
         screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
         screen.blit(self.SELECTWORLD_TEXT, (self.SELECTWORLD_TEXT_POSX, self.SELECTWORLD_TEXT_POSY))
         screen.blit(self.loadgameplay_button, (self.loadgameplay_button_rect.x, self.loadgameplay_button_rect.y))
-        self.handle_scroll_button_presses(input_events)
-        self.load_screen_worldname_draw(screen)
-        self.handle_selected_world_option(screen, input_events)
+
 
     def fetch_savefile_names(self):
         files_and_modified_times = []
@@ -425,6 +446,10 @@ class TitleMenu(pygame.sprite.Sprite):
         files_and_modified_times.reverse()
         sorted_files = [filename[1] for filename in files_and_modified_times]
 
+        #Adding blank file names to the list (these do not pull back save files, but stop any risk of overflow)
+        if len(sorted_files) < 3:
+            for i in range(0, 3 - len(sorted_files)):
+                sorted_files.append("")
         self.world_options_total = sorted_files
         print(self.world_options_total)
 
