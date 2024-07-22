@@ -367,6 +367,27 @@ class TitleMenu(pygame.sprite.Sprite):
         self.newgame_text_entry_bar_rect.x = settings.SCREEN_WIDTH // 2 - (self.newgame_text_entry_bar_rect.width // 2)
         self.newgame_text_entry_bar_rect.y = self.NEWGAME_MENU_TEXT_POSY + 50
 
+        self.worldname_text_entered = ""
+
+        self.TEXT_ENTRY_FONT_SIZE = self.SELECTWORLD_FONT_SIZE
+        self.TEXT_ENTRY_FONT_COLOUR = (0, 0, 0)
+        self.FONT_TEXT_ENTRY = pygame.font.SysFont("Courier New", self.TEXT_ENTRY_FONT_SIZE, bold=True)        
+        self.TEXT_ENTRY_TEXT = self.FONT_TEXT_ENTRY.render(str(self.worldname_text_entered), True, self.TEXT_ENTRY_FONT_COLOUR)
+        self.TEXT_ENTRY_TEXT_POSY = self.newgame_text_entry_bar_rect.y + 14
+        self.TEXT_ENTRY_TEXT_POSX = self.newgame_text_entry_bar_rect.x + 9
+
+    def handle_worldname_text_input(self, input_events):
+        for event in input_events:
+            if event.type == pygame.KEYDOWN:
+                if len(self.worldname_text_entered) <= 16:
+                    self.worldname_text_entered += settings.allowed_keystrokes.get(event.key, "")
+                if event.key == pygame.K_BACKSPACE and len(self.worldname_text_entered) > 0:
+                    self.worldname_text_entered = self.worldname_text_entered[:-1]
+
+    def refresh_worldname_text_drawn(self):
+        self.FONT_TEXT_ENTRY = pygame.font.SysFont("Courier New", self.TEXT_ENTRY_FONT_SIZE, bold=True)        
+        self.TEXT_ENTRY_TEXT = self.FONT_TEXT_ENTRY.render(str(self.worldname_text_entered), True, self.TEXT_ENTRY_FONT_COLOUR)
+
     def title_draw(self, screen):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.newgame_button, self.newgame_button_rect.topleft)
@@ -459,10 +480,13 @@ class TitleMenu(pygame.sprite.Sprite):
         screen.blit(self.loadgameplay_button, (self.loadgameplay_button_rect.x, self.loadgameplay_button_rect.y))
 
     def newgame_menu_draw(self, screen, input_events):
+        self.handle_worldname_text_input(input_events)
+        self.refresh_worldname_text_drawn()
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.back_button, self.back_button_rect.topleft)
         screen.blit(self.NEWGAME_MENU_TEXT, (self.NEWGAME_MENU_TEXT_POSX, self.NEWGAME_MENU_TEXT_POSY))
         screen.blit(self.newgame_text_entry_bar, self.newgame_text_entry_bar_rect.topleft)
+        screen.blit(self.TEXT_ENTRY_TEXT, (self.TEXT_ENTRY_TEXT_POSX, self.TEXT_ENTRY_TEXT_POSY))
 
     def fetch_savefile_names(self):
         files_and_modified_times = []
@@ -518,6 +542,7 @@ class TitleMenu(pygame.sprite.Sprite):
                         return None
                     elif self.newgame_button_rect.collidepoint(mouse_pos):
                         self.title_state = "newgamemenu"
+                        self.worldname_text_entered = ""
                         return None
                 elif self.title_state == "loadpage":
                     if self.loadgameplay_button_rect.collidepoint(mouse_pos):
