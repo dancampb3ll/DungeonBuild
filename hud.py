@@ -376,17 +376,30 @@ class TitleMenu(pygame.sprite.Sprite):
         self.TEXT_ENTRY_TEXT_POSY = self.newgame_text_entry_bar_rect.y + 14
         self.TEXT_ENTRY_TEXT_POSX = self.newgame_text_entry_bar_rect.x + 9
 
+        self.newgame_text_underscore = pygame.image.load('assets/hud/titleMenu/underscore.png').convert_alpha()
+        self.newgame_text_underscore_rect = self.newgame_text_underscore.get_rect()
+
     def handle_worldname_text_input(self, input_events):
+        mods = pygame.key.get_mods()
         for event in input_events:
             if event.type == pygame.KEYDOWN:
-                if len(self.worldname_text_entered) <= 16:
-                    self.worldname_text_entered += settings.allowed_keystrokes.get(event.key, "")
+                if len(self.worldname_text_entered) < settings.MAX_WORLDNAME_LENGTH:
+                    if mods & pygame.KMOD_LSHIFT or mods & pygame.KMOD_CAPS:                    
+                        self.worldname_text_entered += settings.allowed_keystrokes.get(event.key, "").upper()
+                    else:
+                        self.worldname_text_entered += settings.allowed_keystrokes.get(event.key, "")
+
                 if event.key == pygame.K_BACKSPACE and len(self.worldname_text_entered) > 0:
                     self.worldname_text_entered = self.worldname_text_entered[:-1]
 
-    def refresh_worldname_text_drawn(self):
+    def refresh_worldname_text_drawn(self, screen):
         self.FONT_TEXT_ENTRY = pygame.font.SysFont("Courier New", self.TEXT_ENTRY_FONT_SIZE, bold=True)        
         self.TEXT_ENTRY_TEXT = self.FONT_TEXT_ENTRY.render(str(self.worldname_text_entered), True, self.TEXT_ENTRY_FONT_COLOUR)
+        self.newgame_text_underscore_rect.x = self.TEXT_ENTRY_TEXT_POSX + self.TEXT_ENTRY_TEXT.get_width() + 2
+        self.newgame_text_underscore_rect.y = self.TEXT_ENTRY_TEXT_POSY + self.TEXT_ENTRY_TEXT.get_height() - 7
+        print(self.newgame_text_underscore_rect.topleft)
+        if len(self.worldname_text_entered) < settings.MAX_WORLDNAME_LENGTH:
+            screen.blit(self.newgame_text_underscore, self.newgame_text_underscore_rect.topleft)
 
     def title_draw(self, screen):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
@@ -481,12 +494,12 @@ class TitleMenu(pygame.sprite.Sprite):
 
     def newgame_menu_draw(self, screen, input_events):
         self.handle_worldname_text_input(input_events)
-        self.refresh_worldname_text_drawn()
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
         screen.blit(self.back_button, self.back_button_rect.topleft)
         screen.blit(self.NEWGAME_MENU_TEXT, (self.NEWGAME_MENU_TEXT_POSX, self.NEWGAME_MENU_TEXT_POSY))
         screen.blit(self.newgame_text_entry_bar, self.newgame_text_entry_bar_rect.topleft)
         screen.blit(self.TEXT_ENTRY_TEXT, (self.TEXT_ENTRY_TEXT_POSX, self.TEXT_ENTRY_TEXT_POSY))
+        self.refresh_worldname_text_drawn(screen)
 
     def fetch_savefile_names(self):
         files_and_modified_times = []

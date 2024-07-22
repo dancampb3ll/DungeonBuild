@@ -13,6 +13,8 @@ DEBUG_DRAW_HITBOXES = False
 
 KNOCKBACK_SPEED = 5
 
+MAX_WORLDNAME_LENGTH = 16
+
 allowed_keystrokes = {
     pygame.K_0: "0",
     pygame.K_1: "1",
