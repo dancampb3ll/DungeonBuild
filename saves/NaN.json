@@ -1,7 +1,7 @@
 {
-    "playergridx": 22,
-    "playergridy": 16,
-    "overworld_coincount": 66,
+    "playergridx": 26,
+    "playergridy": 9,
+    "overworld_coincount": 107,
     "overworld_map_dict": {
         "(14, 14)": 3,
         "(14, 15)": 3,

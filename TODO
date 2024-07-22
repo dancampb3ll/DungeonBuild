@@ -1,5 +1,4 @@
 Short term
-Continue working on class TitleMenu, save files.
 Work on overworld pause menu
 
 Properly fix preventing enemy knockback out of walls.
@@ -51,7 +50,7 @@ List before completion
 3. Chest generation
     4. Coin drops/Coin pickup/Coin counter
 5. Overworld tile/building selling npc
-6. Save game
+    6. Save game
 7. Dungeon entry generation system (in overworld)
 ********************************************************************************
 

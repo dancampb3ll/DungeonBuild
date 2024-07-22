@@ -304,6 +304,7 @@ class TitleMenu(pygame.sprite.Sprite):
         self.worldoption_right_rect.x = self.worldoption_middle_rect.right + space_between_worldoptions
         self.worldoption_right_rect.y = self.worldoption_left_rect.y
 
+        self.world_options_nonblanks = []
         self.world_options_total = []
         self.world_list_index_current = 0
         self.scrollleft_active = False
@@ -422,9 +423,12 @@ class TitleMenu(pygame.sprite.Sprite):
         self.handle_scroll_button_presses(input_events)
         self.load_screen_worldname_draw(screen)
         self.handle_selected_world_option(screen, input_events)
-        screen.blit(self.worldoption_left, self.worldoption_left_rect.topleft)
-        screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
-        screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
+        if len(self.world_options_nonblanks) > 0:
+            screen.blit(self.worldoption_left, self.worldoption_left_rect.topleft)
+        if len(self.world_options_nonblanks) > 1:
+            screen.blit(self.worldoption_middle, self.worldoption_middle_rect.topleft)
+        if len(self.world_options_nonblanks) > 2:
+            screen.blit(self.worldoption_right, self.worldoption_right_rect.topleft)
         screen.blit(self.SELECTWORLD_TEXT, (self.SELECTWORLD_TEXT_POSX, self.SELECTWORLD_TEXT_POSY))
         screen.blit(self.loadgameplay_button, (self.loadgameplay_button_rect.x, self.loadgameplay_button_rect.y))
 
@@ -447,6 +451,7 @@ class TitleMenu(pygame.sprite.Sprite):
         sorted_files = [filename[1] for filename in files_and_modified_times]
 
         #Adding blank file names to the list (these do not pull back save files, but stop any risk of overflow)
+        self.world_options_nonblanks = [i for i in sorted_files]
         if len(sorted_files) < 3:
             for i in range(0, 3 - len(sorted_files)):
                 sorted_files.append("")
