@@ -89,7 +89,7 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
     img.save(image_output_path)
 
 #"""Replace chroma with transparency
-for path in ["assets/hud/titleMenu/scrollLeft.png", "assets/hud/titleMenu/scrollRight.png"]:
+for path in ["assets/hud/titleMenu/buttonBack.png", "assets/hud/titleMenu/scrollRight.png"]:
     replace_image_path = path
     output_path = path
     make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)

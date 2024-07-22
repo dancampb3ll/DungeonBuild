@@ -295,7 +295,7 @@ def main():
                 selected_world = title_screen.get_selected_world_name()
                 if selected_world != "":
                     gamestate.load_game_file(selected_world)
-            elif button_clicked_state == "newgame":
+            elif button_clicked_state == "newgamecreate":
                 gamestate.create_new_game_gamestate()
             title_screen.custom_draw(screen, input_events)
             pygame.display.update()

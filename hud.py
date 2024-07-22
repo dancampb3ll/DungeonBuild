@@ -274,7 +274,9 @@ class TitleMenu(pygame.sprite.Sprite):
         self.loadgame_button_rect.x = self.title_screen_rect.x + 350
         self.loadgame_button_rect.y = self.title_screen_rect.y + 192
 
-        #Load section
+        #******************************************************************************************
+        # Load section 
+        #******************************************************************************************
         scroll_button_side_offsets = 140
         worldoption_height_from_top_of_screen = 280
         self.scrollleft_button = pygame.image.load('assets/hud/titleMenu/scrollLeft.png').convert_alpha()
@@ -303,6 +305,11 @@ class TitleMenu(pygame.sprite.Sprite):
         self.worldoption_right_rect = self.worldoption_right.get_rect()
         self.worldoption_right_rect.x = self.worldoption_middle_rect.right + space_between_worldoptions
         self.worldoption_right_rect.y = self.worldoption_left_rect.y
+
+        self.loadmenu_back_button = pygame.image.load('assets/hud/titleMenu/buttonBack.png').convert_alpha()
+        self.loadmenu_back_button_rect = self.loadmenu_back_button.get_rect()
+        self.loadmenu_back_button_rect.x = self.scrollleft_button_rect.x
+        self.loadmenu_back_button_rect.y = self.loadgame_button_rect.y + 380
 
         self.world_options_nonblanks = []
         self.world_options_total = []
@@ -338,6 +345,11 @@ class TitleMenu(pygame.sprite.Sprite):
         self.loadgameplay_button_rect = self.loadgame_button.get_rect()
         self.loadgameplay_button_rect.x = self.worldoption_middle_rect.centerx - self.loadgameplay_button_rect.width // 2
         self.loadgameplay_button_rect.y = self.worldoption_middle_rect.bottom + 30
+
+        #******************************************************************************************
+        # New game section 
+        #******************************************************************************************
+
 
 
     def title_draw(self, screen):
@@ -419,6 +431,7 @@ class TitleMenu(pygame.sprite.Sprite):
 
     def load_screen_draw(self, screen, input_events):
         screen.blit(self.title_screen, self.title_screen_rect.topleft)
+        screen.blit(self.loadmenu_back_button, self.loadmenu_back_button_rect.topleft)
         self.determine_scroll_buttons_shown(input_events, screen)
         self.handle_scroll_button_presses(input_events)
         self.load_screen_worldname_draw(screen)
@@ -458,7 +471,17 @@ class TitleMenu(pygame.sprite.Sprite):
         self.world_options_total = sorted_files
         print(self.world_options_total)
 
+    def check_loadmenu_back_button_pressed_set_title_state(self, input_events):
+        if self.title_state != "loadpage":
+            return
+        for event in input_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if self.loadmenu_back_button_rect.collidepoint(mouse_pos):
+                    self.title_state = "title"
+
     def custom_draw(self, screen, input_events):
+        self.check_loadmenu_back_button_pressed_set_title_state(input_events)
         if self.title_state == "title":
             self.title_draw(screen)
         elif self.title_state == "loadpage":
@@ -474,7 +497,8 @@ class TitleMenu(pygame.sprite.Sprite):
                         self.fetch_savefile_names()
                         return None
                     elif self.newgame_button_rect.collidepoint(mouse_pos):
-                        return "newgame"
+                        self.title_state = "newgamemenu"
+                        return None
                 elif self.title_state == "loadpage":
                     if self.loadgameplay_button_rect.collidepoint(mouse_pos):
                         if self.player_selected_option is not None:
