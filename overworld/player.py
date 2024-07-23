@@ -295,7 +295,7 @@ class Player(pygame.sprite.Sprite):
 
     def get_shop_window_shown_bool(self, shopkeeper_coords):
         result = False
-        if calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < 40:
+        if calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < settings.OVERWORLD_SHOPKEEPER_WORKING_DISTANCE:
             result = True
         print(result)
         return result

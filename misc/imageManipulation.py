@@ -1,9 +1,10 @@
 from PIL import Image
 
-def split_image(image_path, output_path_without_png_extension):
+def split_image(image_path, output_folder, filename, start_number_blockid):
     """Splits images into 16x16 chunks
     
     """
+    start_number_blockid = start_number_blockid
     original_image = Image.open(image_path)
     original_image = original_image.convert("RGBA")
 
@@ -28,7 +29,9 @@ def split_image(image_path, output_path_without_png_extension):
             chunk = original_image.crop((x_start, y_start, x_end, y_end))
 
             # Save the chunk as a PNG file
-            chunk.save(f"{output_path_without_png_extension}{i}{j}.png")
+            chunk.save(f"{output_folder}{"/"}{filename}{i}{j}.png")
+            print(f'{start_number_blockid}: "{filename}{i}{j}",')
+            start_number_blockid += 1
 
     print("Image successfully split into 16x16 chunks.")
 
@@ -95,15 +98,14 @@ for path in ["assets/Unused/fences_raw.png"]:
     make_png_colour_transparent(255, 255, 255, replace_image_path, output_path)
 #"""
 
-
-#""" Replace chroma with other image
+""" Replace chroma with other image
 replace_image_path = "assets/hud/buildhudbar.png"
 replacement_texture_path = "assets/Unused/paper background.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 #"""
 
-#split_image("assets/Unused/fences_raw.png", "assets/Unused/fences/")
+split_image("assets/Unused/Outdoor hut.png", "assets/overworldtiles/", "shopHut", 16)
 
 """
 files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]

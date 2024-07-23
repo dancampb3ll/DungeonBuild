@@ -127,21 +127,24 @@ def get_world_tilename_at_xy_from_mappingsdict(xy, overworldmapdict, tile_mappin
     return tile_mappings[tilenum]
 
 add_building_tile_mappings_starting_from_index(10000, 4, 4, "largeHut")
+add_building_tile_mappings_starting_from_index(10100, 4, 5, "shopHut")
 
 overworldmap = []
+GRASS_START = 12
+GRASS_END = 32
 for i in range(0, 40):
     for j in range(0, 40):
         if (i >= 27 and i <= 29) and (j >= 27 and j <= 29):
             overworldmap.append([i, j, 3])
-        elif (i >= 15 and i <= 30) and (j >= 15 and j <= 30):
+        elif (i >= GRASS_START and i <= GRASS_END) and (j >= GRASS_START and j <= GRASS_END):
             overworldmap.append([i, j, 2])
 
 #Overworldmapdict is the ultimate world map. The world map above is just a quick way of initialising. I should rename the above and call the below overworldmap.
 default_overworldmapdict = {}
 #The format (x, y) = tilenum must be maintained.
 worldborderquick = []
-for i in range(14, 32):
-    for j in range(14, 32):
+for i in range(GRASS_START - 1, GRASS_END + 1 + 1):
+    for j in range(GRASS_START - 1, GRASS_END + 1 + 1):
         worldborderquick.append([i, j, 4])
 
 for tile in worldborderquick:

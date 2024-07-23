@@ -36,12 +36,16 @@ class GameState():
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
 
-    def temp_portal_REFACTOR(self):
+    def temp_spawn_creation_REFACTOR(self):
         #Temporary test for making portal work - makes a dungeon at 20,20
         build_and_perform_tiledict_spritedict_updates(self, "smallDungeon", (20, 20))
         self.overworld_tile_sprite_dict.get((20, 20)).portal_type = "underworld"
-        self.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27) # Can't access from here?
+        self.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27)
         self.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
+        self.overworld_tile_sprite_dict.get((21, 20)).portal_type = "underworld"
+        self.overworld_tile_sprite_dict.get((21, 20)).portal_destination = (27, 27)
+        self.overworld_tile_sprite_dict.get((21, 20)).portal_collision_side = "bottom"
+        build_and_perform_tiledict_spritedict_updates(self, "shopHut", (28, 12))
 
     def initialise_tile_sprite_dict_from_tilemap(self):
         self.overworld_tile_sprite_dict.clear()
@@ -60,7 +64,7 @@ class GameState():
         self.overworldplayer_init_grid_x = 16
         self.overworldplayer_init_grid_y = 16
         self.initialise_tile_sprite_dict_from_tilemap()
-        self.temp_portal_REFACTOR()
+        self.temp_spawn_creation_REFACTOR()
         self.save_name = worldname
         self.selected_world = "overworld"
 
@@ -122,7 +126,7 @@ class GameState():
 
         self.initialise_tile_sprite_dict_from_tilemap()
         
-        self.temp_portal_REFACTOR()
+        self.temp_spawn_creation_REFACTOR()
         self.selected_world = "overworld"
 
     def toggle_overworld_pause_state(self):
@@ -376,7 +380,7 @@ def main():
             overworld_cointext.update_coin_count(gamestate.overworld_coincount)
 
             #Test
-            shopkeeper_test_coords = (16 * settings.OVERWORLD_TILE_SIZE, 16 * settings.OVERWORLD_TILE_SIZE)
+            shopkeeper_test_coords = settings.OVERWORLD_SHOPKEEPER_COORDS
             player_in_shop_range = player.get_shop_window_shown_bool(shopkeeper_test_coords)
 
 
