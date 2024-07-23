@@ -599,27 +599,58 @@ class ShopMenu(pygame.sprite.Sprite):
         self.sound_played = False
         
         self.ITEMS_PER_ROW = 3
-        self.ITEM_WIDTH = 16
-        self.SPACE_BETWEEN_OPTIONS = (self.shop_menu_rect.width - 3 * self.ITEM_WIDTH) // (1 + self.ITEMS_PER_ROW)
+        self.MAX_ITEM_WIDTHHEIGHT = 40
+        self.SPACE_BETWEEN_OPTIONS = (self.shop_menu_rect.width - 3 * self.MAX_ITEM_WIDTHHEIGHT) // (1 + self.ITEMS_PER_ROW)
 
         self.shop_options = {
             "overworldGrass": {
                 "imageLink": "assets/overworldtiles/overgroundGrass.png",
-                "image": None,
-                "rect": None
-            }
+                "cost": 1
+            },
+            "overworldGrass1": {
+                "imageLink": "assets/overworldtiles/overgroundGrass.png",
+                "cost": 1
+            },
+            "overworldGrass2": {
+                "imageLink": "assets/overworldtiles/overgroundGrass.png",
+                "cost": 1
+            },
+            "overworldGrass3": {
+                "imageLink": "assets/overworldtiles/overgroundGrass.png",
+                "cost": 1
+            },
         }
 
+        self.button_shell_rect_offset_x = -5
+
+        item_count = 0
         for key in self.shop_options.keys():
             self.shop_options[key]["image"] = pygame.image.load(self.shop_options[key]["imageLink"]).convert_alpha()
             self.shop_options[key]["rect"] = self.shop_options[key]["image"].get_rect()
+            self.shop_options[key]["width"] = self.shop_options[key]["rect"].width
+            self.shop_options[key]["height"] = self.shop_options[key]["rect"].height
+            self.shop_options[key]["count"] = item_count
+            self.shop_options[key]["row"] = item_count // self.ITEMS_PER_ROW
+            self.shop_options[key]["column"] = item_count % self.ITEMS_PER_ROW
+            self.shop_options[key]["rect"].x = self.shop_menu_rect.x + self.SPACE_BETWEEN_OPTIONS + self.shop_options[key]["column"] * (self.SPACE_BETWEEN_OPTIONS + self.MAX_ITEM_WIDTHHEIGHT) + self.MAX_ITEM_WIDTHHEIGHT // 2 - self.shop_options[key]["width"] // 2
+            self.shop_options[key]["rect"].y = self.shop_menu_rect.y + 10 + self.SPACE_BETWEEN_OPTIONS + self.shop_options[key]["row"] * (self.SPACE_BETWEEN_OPTIONS + self.MAX_ITEM_WIDTHHEIGHT) + self.MAX_ITEM_WIDTHHEIGHT // 2 - self.shop_options[key]["height"] // 2
+            self.shop_options[key]["buttonShell"] = pygame.image.load("assets/hud/purchaseMenu/buttonShell.png").convert_alpha()
+            self.shop_options[key]["buttonShellRect"] = self.shop_options[key]["buttonShell"].get_rect()
+            self.shop_options[key]["buttonShellRect"].x = self.shop_options[key]["rect"].x - self.shop_options[key]["buttonShellRect"].width + self.button_shell_rect_offset_x
+            self.shop_options[key]["buttonShellRect"].y = self.shop_options[key]["rect"].centery - self.shop_options[key]["buttonShellRect"].height // 2
+            item_count += 1
+
+
 
     def play_menu_open_sfx(self):
         sfx = pygame.mixer.Sound(f"assets/sfx/hud/menuOpen.mp3")
         sfx.play()
 
     def draw_available_shop_options(self, screen):
-        screen.blit(self.shop_options["overworldGrass"]["image"], (self.shop_menu_rect.x + self.SPACE_BETWEEN_OPTIONS, self.shop_menu_rect.y + 40))
+        for key in self.shop_options.keys():
+            print(key, " ", self.shop_options[key]["count"])
+            screen.blit(self.shop_options[key]["image"], self.shop_options[key]["rect"].topleft)
+            screen.blit(self.shop_options[key]["buttonShell"], self.shop_options[key]["buttonShellRect"].topleft)
 
     def custom_draw(self, player_in_shop_range, screen):
         if not player_in_shop_range:
