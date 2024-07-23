@@ -61,8 +61,8 @@ class GameState():
     def create_new_game_gamestate(self, worldname):
         self.reset_initial_gamestate()
         self.overworld_map_dict = copy.deepcopy(overworld.tiles.default_overworldmapdict)
-        self.overworldplayer_init_grid_x = 16
-        self.overworldplayer_init_grid_y = 16
+        self.overworldplayer_init_grid_x = 30#12
+        self.overworldplayer_init_grid_y = 20#32
         self.initialise_tile_sprite_dict_from_tilemap()
         self.temp_spawn_creation_REFACTOR()
         self.save_name = worldname
@@ -134,7 +134,6 @@ class GameState():
             self.in_overworld_pause_menu = False
         else:
             self.in_overworld_pause_menu = True
-        print("New pause state ", self.in_overworld_pause_menu)
 
     def update_current_music(self, track):
         self.current_music = track
@@ -359,7 +358,6 @@ def main():
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE:
                                 gamestate.toggle_overworld_pause_state()
-                                print("triggered")
                     overworld_pause_menu.custom_draw(screen)
                     if gamestate.in_overworld_pause_menu:
                         gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)

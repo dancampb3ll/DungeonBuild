@@ -397,7 +397,6 @@ class TitleMenu(pygame.sprite.Sprite):
         self.TEXT_ENTRY_TEXT = self.FONT_TEXT_ENTRY.render(str(self.worldname_text_entered), True, self.TEXT_ENTRY_FONT_COLOUR)
         self.newgame_text_underscore_rect.x = self.TEXT_ENTRY_TEXT_POSX + self.TEXT_ENTRY_TEXT.get_width() + 2
         self.newgame_text_underscore_rect.y = self.TEXT_ENTRY_TEXT_POSY + self.TEXT_ENTRY_TEXT.get_height() - 7
-        print(self.newgame_text_underscore_rect.topleft)
         if len(self.worldname_text_entered) < settings.MAX_WORLDNAME_LENGTH:
             screen.blit(self.newgame_text_underscore, self.newgame_text_underscore_rect.topleft)
 
@@ -472,7 +471,6 @@ class TitleMenu(pygame.sprite.Sprite):
                 mouse_pos = event.pos
                 if self.scrollleft_button_rect.collidepoint(mouse_pos) and self.scrollleft_active:
                     self.world_list_index_current -= 1
-                    print("clicked")
                 elif self.scrollright_button_rect.collidepoint(mouse_pos) and self.scrollright_active:
                     self.world_list_index_current += 1
 
@@ -535,7 +533,6 @@ class TitleMenu(pygame.sprite.Sprite):
             for i in range(0, 3 - len(sorted_files)):
                 sorted_files.append("")
         self.world_options_total = sorted_files
-        print(self.world_options_total)
 
     def check_back_button_pressed_set_title_state(self, input_events):
         if self.title_state not in ["loadpage", "newgamemenu"]:
@@ -587,7 +584,6 @@ class TitleMenu(pygame.sprite.Sprite):
             offset = 2
         selected_world = self.world_options_total[base_world + offset]
 
-        print(selected_world)
         return selected_world
     
 class ShopMenu(pygame.sprite.Sprite):
@@ -599,9 +595,39 @@ class ShopMenu(pygame.sprite.Sprite):
         self.shop_menu_rect = self.shop_menu.get_rect()
         self.shop_menu_rect.x = settings.SCREEN_WIDTH // 2 - self.shop_menu_rect.width // 2
         self.shop_menu_rect.y = settings.SCREEN_HEIGHT // 2 - self.shop_menu_rect.height // 2
+
+        self.sound_played = False
         
+        self.ITEMS_PER_ROW = 3
+        self.ITEM_WIDTH = 16
+        self.SPACE_BETWEEN_OPTIONS = (self.shop_menu_rect.width - 3 * self.ITEM_WIDTH) // (1 + self.ITEMS_PER_ROW)
+
+        self.shop_options = {
+            "overworldGrass": {
+                "imageLink": "assets/overworldtiles/overgroundGrass.png",
+                "image": None,
+                "rect": None
+            }
+        }
+
+        for key in self.shop_options.keys():
+            self.shop_options[key]["image"] = pygame.image.load(self.shop_options[key]["imageLink"]).convert_alpha()
+            self.shop_options[key]["rect"] = self.shop_options[key]["image"].get_rect()
+
+    def play_menu_open_sfx(self):
+        sfx = pygame.mixer.Sound(f"assets/sfx/hud/menuOpen.mp3")
+        sfx.play()
+
+    def draw_available_shop_options(self, screen):
+        screen.blit(self.shop_options["overworldGrass"]["image"], (self.shop_menu_rect.x + self.SPACE_BETWEEN_OPTIONS, self.shop_menu_rect.y + 40))
+
     def custom_draw(self, player_in_shop_range, screen):
         if not player_in_shop_range:
+            self.sound_played = False
             return
+        if not self.sound_played:
+            self.play_menu_open_sfx()
+        self.sound_played = True
         screen.blit(self.shop_menu, self.shop_menu_rect.topleft)
+        self.draw_available_shop_options(screen)
 
