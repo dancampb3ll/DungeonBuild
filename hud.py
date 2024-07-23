@@ -8,7 +8,7 @@ class DebugText(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.font_size = 12
-        self.font = pygame.font.SysFont("Arial", self.font_size)
+        self.font = pygame.font.SysFont("Courier New", self.font_size)
         
         self.font_colour = (255, 255, 255)
     
@@ -605,23 +605,21 @@ class ShopMenu(pygame.sprite.Sprite):
         self.shop_options = {
             "overworldGrass": {
                 "imageLink": "assets/overworldtiles/overgroundGrass.png",
-                "cost": 1
+                "cost": 1,
+                "type": "secondary"
             },
-            "overworldGrass1": {
-                "imageLink": "assets/overworldtiles/overgroundGrass.png",
-                "cost": 1
-            },
-            "overworldGrass2": {
-                "imageLink": "assets/overworldtiles/overgroundGrass.png",
-                "cost": 1
-            },
-            "overworldGrass3": {
-                "imageLink": "assets/overworldtiles/overgroundGrass.png",
-                "cost": 1
-            },
+            "tinyPot": {
+                "imageLink": "assets/overworldtiles/tinyPot.png",
+                "cost": 10,
+                "type": "primary"
+            }
         }
 
+
         self.button_shell_rect_offset_x = -5
+        self.button_shell_font_size = 12
+        self.button_shell_font = pygame.font.SysFont("Courier New", self.button_shell_font_size, bold=True)
+        self.button_shell_font_colour = (0, 0, 0)
 
         item_count = 0
         for key in self.shop_options.keys():
@@ -634,10 +632,16 @@ class ShopMenu(pygame.sprite.Sprite):
             self.shop_options[key]["column"] = item_count % self.ITEMS_PER_ROW
             self.shop_options[key]["rect"].x = self.shop_menu_rect.x + self.SPACE_BETWEEN_OPTIONS + self.shop_options[key]["column"] * (self.SPACE_BETWEEN_OPTIONS + self.MAX_ITEM_WIDTHHEIGHT) + self.MAX_ITEM_WIDTHHEIGHT // 2 - self.shop_options[key]["width"] // 2
             self.shop_options[key]["rect"].y = self.shop_menu_rect.y + 10 + self.SPACE_BETWEEN_OPTIONS + self.shop_options[key]["row"] * (self.SPACE_BETWEEN_OPTIONS + self.MAX_ITEM_WIDTHHEIGHT) + self.MAX_ITEM_WIDTHHEIGHT // 2 - self.shop_options[key]["height"] // 2
-            self.shop_options[key]["buttonShell"] = pygame.image.load("assets/hud/purchaseMenu/buttonShell.png").convert_alpha()
-            self.shop_options[key]["buttonShellRect"] = self.shop_options[key]["buttonShell"].get_rect()
-            self.shop_options[key]["buttonShellRect"].x = self.shop_options[key]["rect"].x - self.shop_options[key]["buttonShellRect"].width + self.button_shell_rect_offset_x
-            self.shop_options[key]["buttonShellRect"].y = self.shop_options[key]["rect"].centery - self.shop_options[key]["buttonShellRect"].height // 2
+            
+            self.shop_options[key]["button_shell"] = pygame.image.load("assets/hud/purchaseMenu/buttonShell.png").convert_alpha()
+            self.shop_options[key]["button_shell_rect"] = self.shop_options[key]["button_shell"].get_rect()
+            self.shop_options[key]["button_shell_rect"].x = self.shop_options[key]["rect"].x - self.shop_options[key]["button_shell_rect"].width + self.button_shell_rect_offset_x
+            self.shop_options[key]["button_shell_rect"].y = self.shop_options[key]["rect"].centery - self.shop_options[key]["button_shell_rect"].height // 2
+            
+            self.shop_options[key]["font_image"] = self.button_shell_font.render(str(item_count + 1), True, self.button_shell_font_colour)
+            self.shop_options[key]["font_image_rect"] = self.shop_options[key]["font_image"].get_rect()
+            self.shop_options[key]["font_image_rect"].x = self.shop_options[key]["button_shell_rect"].x + self.shop_options[key]["font_image_rect"].width // 2 - 1
+            self.shop_options[key]["font_image_rect"].y = self.shop_options[key]["button_shell_rect"].centery - self.shop_options[key]["font_image_rect"].height // 2
             item_count += 1
 
 
@@ -650,7 +654,8 @@ class ShopMenu(pygame.sprite.Sprite):
         for key in self.shop_options.keys():
             print(key, " ", self.shop_options[key]["count"])
             screen.blit(self.shop_options[key]["image"], self.shop_options[key]["rect"].topleft)
-            screen.blit(self.shop_options[key]["buttonShell"], self.shop_options[key]["buttonShellRect"].topleft)
+            screen.blit(self.shop_options[key]["button_shell"], self.shop_options[key]["button_shell_rect"].topleft)
+            screen.blit(self.shop_options[key]["font_image"], self.shop_options[key]["font_image_rect"].topleft)
 
     def custom_draw(self, player_in_shop_range, screen):
         if not player_in_shop_range:
