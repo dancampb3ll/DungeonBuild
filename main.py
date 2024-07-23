@@ -318,6 +318,9 @@ def main():
         overworld_hudgroup.add(overworld_cointext)
         overworld_hudgroup.add(buildhud)
 
+        shopmenu_hudgroup = hud.ShopMenu()
+
+
         underworld_hudgroup = pygame.sprite.Group()
 
         debugtext = hud.DebugText()
@@ -372,6 +375,12 @@ def main():
             
             overworld_cointext.update_coin_count(gamestate.overworld_coincount)
 
+            #Test
+            shopkeeper_test_coords = (16 * settings.OVERWORLD_TILE_SIZE, 16 * settings.OVERWORLD_TILE_SIZE)
+            player_in_shop_range = player.get_shop_window_shown_bool(shopkeeper_test_coords)
+
+
+
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
             player.check_build_mode(input_events, buildhud, overworldcamera)
@@ -398,6 +407,8 @@ def main():
 
             building_tooltips.update()
             building_tooltips.draw(screen)
+
+            shopmenu_hudgroup.custom_draw(player_in_shop_range, screen)
 
             pygame.display.update()
             clock.tick(60)

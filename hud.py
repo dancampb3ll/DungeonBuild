@@ -589,3 +589,19 @@ class TitleMenu(pygame.sprite.Sprite):
 
         print(selected_world)
         return selected_world
+    
+class ShopMenu(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.type = "shopMenu"
+
+        self.shop_menu = pygame.image.load('assets/hud/purchaseMenu/shopMenu.png').convert_alpha()
+        self.shop_menu_rect = self.shop_menu.get_rect()
+        self.shop_menu_rect.x = settings.SCREEN_WIDTH // 2 - self.shop_menu_rect.width // 2
+        self.shop_menu_rect.y = settings.SCREEN_HEIGHT // 2 - self.shop_menu_rect.height // 2
+        
+    def custom_draw(self, player_in_shop_range, screen):
+        if not player_in_shop_range:
+            return
+        screen.blit(self.shop_menu, self.shop_menu_rect.topleft)
+

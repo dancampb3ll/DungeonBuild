@@ -96,14 +96,15 @@ for path in ["assets/Unused/fences_raw.png"]:
 #"""
 
 
-""" Replace chroma with other image
-replace_image_path = "assets/Unused/fences_raw.png"
-replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
+#""" Replace chroma with other image
+replace_image_path = "assets/hud/buildhudbar.png"
+replacement_texture_path = "assets/Unused/paper background.png"
 new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 255, 255), replacement_texture_path, new_path)
+replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 #"""
 
-split_image("assets/Unused/fences_raw.png", "assets/Unused/fences/")
+#split_image("assets/Unused/fences_raw.png", "assets/Unused/fences/")
+
 """
 files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
 for filename in files:
@@ -119,7 +120,7 @@ new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 255, 255), stone_texture_path, new_path)
 """
 
-#"""
+"""
 replace_image_path = "assets/overworldtiles/skullGrass.png"
 grass_texture_path = "assets/overworldtiles/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"

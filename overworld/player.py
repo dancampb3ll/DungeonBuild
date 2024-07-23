@@ -9,6 +9,11 @@ PLAYERSPEED = 2
 BUILDING_TYPES = overworld.buildings.BUILDING_TYPES
 LIGHT_BLUE = (173, 216, 230)
 
+def calculate_distance_pythagoras(point1: tuple, point2: tuple):
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy):
         super().__init__(pygame_group)
@@ -287,6 +292,13 @@ class Player(pygame.sprite.Sprite):
         self.adjust_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
+
+    def get_shop_window_shown_bool(self, shopkeeper_coords):
+        result = False
+        if calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < 40:
+            result = True
+        print(result)
+        return result
 
     def update(self):
         None
