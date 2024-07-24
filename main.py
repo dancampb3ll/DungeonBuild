@@ -31,7 +31,7 @@ class GameState():
         self.save_name = "NaN"
 
         self.build_inventory = {
-            "overworldGrass": 0,
+            "overgroundGrass": 0,
             "tinyPot": 0
             }
 
@@ -343,9 +343,8 @@ def main():
         buildhud = hud.BuildHud()
         overworld_hudgroup.add(overworld_hudbar)
         overworld_hudgroup.add(overworld_cointext)
-        overworld_hudgroup.add(buildhud)
 
-        shopmenu_hudgroup = hud.ShopMenu()
+        shopmenu_hud = hud.ShopMenu()
 
 
         underworld_hudgroup = pygame.sprite.Group()
@@ -419,7 +418,6 @@ def main():
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
             build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
 
-            overworldcamera.update()
             overworldcamera.custom_draw(player)
 
             debugtext.update(player.gridx, player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
@@ -428,13 +426,14 @@ def main():
             tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
 
             overworld_hudgroup.draw(screen)
+            buildhud.custom_update_and_draw(screen)
 
             building_tooltips.update()
             building_tooltips.draw(screen)
 
-            shopmenu_hudgroup.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
-            gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hudgroup)
-            print(gamestate.build_inventory)
+            shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
+            gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
+            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory)
 
             pygame.display.update()
             clock.tick(60)

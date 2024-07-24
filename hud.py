@@ -35,18 +35,55 @@ class OverworldHud(pygame.sprite.Sprite):
 class BuildHud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("assets/hud/buildhudbar.png").convert()
-        self.image.set_colorkey((255,255,255))
-        self.rect = self.image.get_rect()
-        self.rect.x = 2*settings.SCREEN_WIDTH
-        self.rect.y = 100
-        
-    def show(self):
-        self.rect.x = settings.SCREEN_WIDTH - self.rect.w
+        self.bar_image = pygame.image.load("assets/hud/buildhudbar.png").convert_alpha()
+        self.bar_rect = self.bar_image.get_rect()
+        self.bar_rect.x = settings.SCREEN_WIDTH - self.bar_rect.w
+        self.bar_rect.y = 100
+        self.player_in_buildmode = False
 
-    def hide(self):
-        #There must be a better way to do this
-        self.rect.x = 2*settings.SCREEN_WIDTH
+        self.player_inventory = {}
+        
+        self.MAX_THUMBNAIL_SIZE = 50
+        self.MAX_BUILDINGS_PER_BAR = 6
+        self.SPACE_BETWEEN_BUILDING_THUMBNAILS = (self.bar_rect.height - self.MAX_BUILDINGS_PER_BAR * self.MAX_THUMBNAIL_SIZE) // (self.MAX_BUILDINGS_PER_BAR + 1)
+
+        self.buildings = {
+            "tinyPot": {
+                "item": "tinyPot",
+                "imageLink": "assets/hud/buildThumbnails/tinyPot.png",
+                "drawOrder": None
+            }
+        }
+
+        for key in self.buildings.keys():
+            count = 0
+            self.buildings[key]["image"] = pygame.image.load(self.buildings[key]["imageLink"]).convert_alpha()
+            self.buildings[key]["rect"] = self.buildings[key]["image"].get_rect()
+            self.buildings[key]["count"] = count
+            self.buildings[key]["rect"].x = self.bar_rect.centerx - self.buildings[key]["rect"].width // 2
+            self.buildings[key]["rect"].y = (self.bar_rect.y + #Start
+                                            self.SPACE_BETWEEN_BUILDING_THUMBNAILS + (self.MAX_THUMBNAIL_SIZE + self.SPACE_BETWEEN_BUILDING_THUMBNAILS) * count + #Row number offset
+                                            self.MAX_THUMBNAIL_SIZE // 2 - self.buildings[key]["rect"].height // 2) #Centering
+
+            count += 1
+
+    def draw_all_buildings_held_in_inventory(self, screen):
+        for key in self.buildings.keys():
+            if self.buildings[key]["drawOrder"] is not None:
+                screen.blit(self.buildings[key]["image"], self.buildings[key]["rect"].topleft)
+
+    def set_items_from_gamestate_inventory(self, gamestate_inv):
+        self.player_inventory = gamestate_inv
+        for key, value in gamestate_inv.items():
+            if key != "overgroundGrass": #overgroundGrass is a secondary and not shown in the buildings tab as it is on the main GUI
+                if value > 0:
+                    self.buildings[key]["drawOrder"] = value
+
+    def custom_update_and_draw(self, screen):
+        if not self.player_in_buildmode:
+            return
+        screen.blit(self.bar_image, self.bar_rect.topleft)
+        self.draw_all_buildings_held_in_inventory(screen)
 
 class OverworldCoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy, coincount):
@@ -604,7 +641,7 @@ class ShopMenu(pygame.sprite.Sprite):
 
         self.shop_options = {
             1: {
-                "item": "overworldGrass",
+                "item": "overgroundGrass",
                 "imageLink": "assets/overworldtiles/overgroundGrass.png",
                 "cost": 1,
                 "type": "secondary",
@@ -724,14 +761,13 @@ class ShopMenu(pygame.sprite.Sprite):
 
     def get_purchased_items_and_cost(self):
         if not self.purchase_delivery_pending:
-            return ["overworldGrass", 0, 0]
+            return ["overgroundGrass", 0, 0]
 
         result = [self.purchased_item, self.purchased_amount, self.purchased_cost]
 
         self.reset_purchase_state()
 
         return result
-
 
     def custom_update_and_draw(self, player_in_shop_range, screen, input_events, player_coins):
         if not player_in_shop_range:
