@@ -603,18 +603,25 @@ class ShopMenu(pygame.sprite.Sprite):
         self.SPACE_BETWEEN_OPTIONS = (self.shop_menu_rect.width - 3 * self.MAX_ITEM_WIDTHHEIGHT) // (1 + self.ITEMS_PER_ROW)
 
         self.shop_options = {
-            "overworldGrass": {
+            1: {
+                "item": "overworldGrass",
                 "imageLink": "assets/overworldtiles/overgroundGrass.png",
                 "cost": 1,
-                "type": "secondary"
+                "type": "secondary",
             },
-            "tinyPot": {
+            2: {
+                "item": "tinyPot",
                 "imageLink": "assets/overworldtiles/tinyPot.png",
-                "cost": 10,
-                "type": "primary"
+                "cost": 4,
+                "type": "primary",
             }
         }
+        self.shop_item_count = len(self.shop_options.keys())
 
+        self.purchase_delivery_pending = False
+        self.purchased_item = None
+        self.purchased_amount = 0
+        self.purchased_cost = 0
 
         self.button_shell_rect_offset_x = -5
         self.button_shell_font_size = 12
@@ -655,21 +662,78 @@ class ShopMenu(pygame.sprite.Sprite):
             
             item_count += 1
 
-
-
     def play_menu_open_sfx(self):
         sfx = pygame.mixer.Sound(f"assets/sfx/hud/menuOpen.mp3")
+        sfx.play()
+    def play_insufficient_coins_sfx(self):
+        sfx = pygame.mixer.Sound(f"assets/sfx/hud/menuError.mp3")
+        sfx.play()
+    def play_transaction_sfx(self):
+        sfx = pygame.mixer.Sound(f"assets/sfx/hud/transaction.mp3")
         sfx.play()
 
     def draw_available_shop_options(self, screen):
         for key in self.shop_options.keys():
-            print(key, " ", self.shop_options[key]["count"])
             screen.blit(self.shop_options[key]["image"], self.shop_options[key]["rect"].topleft)
             screen.blit(self.shop_options[key]["button_shell"], self.shop_options[key]["button_shell_rect"].topleft)
             screen.blit(self.shop_options[key]["button_shell_font_image"], self.shop_options[key]["button_shell_font_image_rect"].topleft)
             screen.blit(self.shop_options[key]["coin_cost_font_image"], self.shop_options[key]["coin_cost_font_image_rect"].topleft)
 
-    def custom_draw(self, player_in_shop_range, screen):
+    def detect_player_shop_keydown(self, input_events, player_coins):
+        key = None
+        for event in input_events:    
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    key = 1
+                elif event.key == pygame.K_2:
+                    key = 2
+                elif event.key == pygame.K_3:
+                    key = 3
+                elif event.key == pygame.K_4:
+                    key = 4
+                elif event.key == pygame.K_5:
+                    key = 5
+                elif event.key == pygame.K_6:
+                    key = 6
+                elif event.key == pygame.K_7:
+                    key = 7
+                elif event.key == pygame.K_8:
+                    key = 8
+                elif event.key == pygame.K_9:
+                    key = 9
+        if key is not None and key <= self.shop_item_count:
+            self.save_player_purchase_in_state(key, player_coins)
+
+    def save_player_purchase_in_state(self, purchase_key, player_coins):
+        purchase_amount = 1
+        cost = self.shop_options[purchase_key]["cost"] * purchase_amount
+        if cost <= player_coins:
+            self.purchased_amount = purchase_amount
+            self.purchased_item = self.shop_options[purchase_key]["item"]
+            self.purchased_cost = cost
+            self.purchase_delivery_pending = True
+            self.play_transaction_sfx()
+        else:
+            self.play_insufficient_coins_sfx()
+        
+    def reset_purchase_state(self):
+        self.purchased_amount = 0
+        self.purchased_item = None
+        self.purchased_cost = 0
+        self.purchase_delivery_pending = False
+
+    def get_purchased_items_and_cost(self):
+        if not self.purchase_delivery_pending:
+            return ["overworldGrass", 0, 0]
+
+        result = [self.purchased_item, self.purchased_amount, self.purchased_cost]
+
+        self.reset_purchase_state()
+
+        return result
+
+
+    def custom_update_and_draw(self, player_in_shop_range, screen, input_events, player_coins):
         if not player_in_shop_range:
             self.sound_played = False
             return
@@ -678,4 +742,4 @@ class ShopMenu(pygame.sprite.Sprite):
         self.sound_played = True
         screen.blit(self.shop_menu, self.shop_menu_rect.topleft)
         self.draw_available_shop_options(screen)
-
+        self.detect_player_shop_keydown(input_events, player_coins)

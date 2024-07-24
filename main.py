@@ -26,15 +26,34 @@ class GameState():
         self.overworldcamera = CameraGroup()
         self.overworldplayer_init_grid_x = 0
         self.overworldplayer_init_grid_y = 0
-        self.overworld_coincount = 0
+        self.overworld_coincount = 5
         self.in_overworld_pause_menu = False
         self.save_name = "NaN"
+
+        self.build_inventory = {
+            "overworldGrass": 0,
+            "tinyPot": 0
+            }
 
         self.underworldcamera = CameraGroup()
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
+
+    def add_inventory_minus_coincount_from_shop_purchases(self, shop_obj):
+        result = shop_obj.get_purchased_items_and_cost()
+        item = result[0]
+        purchased_amount = result[1]
+        purchased_cost = result[2]
+
+        self.build_inventory[item] += purchased_amount
+        #print("purchased_cost pre ", purchased_cost)
+        #print("coins pre ", self.overworld_coincount)
+        self.overworld_coincount -= purchased_cost
+        #print("purchased_cost post ", purchased_cost)
+        #print("coins post ", self.overworld_coincount)
+        return
 
     def temp_spawn_creation_REFACTOR(self):
         #Temporary test for making portal work - makes a dungeon at 20,20
@@ -92,7 +111,8 @@ class GameState():
             "playergridy": playergridy,
             "overworld_coincount": self.overworld_coincount,
             "overworld_map_dict": convert_dict_keys_to_str(self.overworld_map_dict),
-            "overworld_tile_sprite_dict": convert_dict_keys_to_str(self.overworld_tile_sprite_dict)
+            "overworld_tile_sprite_dict": convert_dict_keys_to_str(self.overworld_tile_sprite_dict),
+            "build_inventory": convert_dict_keys_to_str(self.build_inventory)
         }
         
         file_path = f"saves/{self.save_name}.json"
@@ -109,6 +129,10 @@ class GameState():
         self.overworldplayer_init_grid_x = save["playergridx"]
         self.overworldplayer_init_grid_y = save["playergridy"]
         self.overworld_coincount = save["overworld_coincount"]
+        try:
+            self.build_inventory = save["build_inventory"]
+        except:
+            pass # Use default empty build inventory if cannot load (old save file, etc)
 
         #Manipulating tiles in JSON string format back to tuple key format
         raw_save_overworld_map_dict = save["overworld_map_dict"]
@@ -381,8 +405,6 @@ def main():
             shopkeeper_test_coords = settings.OVERWORLD_SHOPKEEPER_COORDS
             player_in_shop_range = player.get_shop_window_shown_bool(shopkeeper_test_coords)
 
-
-
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
             player.check_build_mode(input_events, buildhud, overworldcamera)
@@ -410,7 +432,9 @@ def main():
             building_tooltips.update()
             building_tooltips.draw(screen)
 
-            shopmenu_hudgroup.custom_draw(player_in_shop_range, screen)
+            shopmenu_hudgroup.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
+            gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hudgroup)
+            print(gamestate.build_inventory)
 
             pygame.display.update()
             clock.tick(60)
@@ -424,7 +448,7 @@ def main():
         underworldcamera = gamestate.underworldcamera
 
         gamestate.generate_underworld_dungeon_and_update_map()
-        
+
         underworld.npc.reset_groups()
         enemy_group = underworld.npc.enemy_group
         coin_group = underworld.npc.coin_group
