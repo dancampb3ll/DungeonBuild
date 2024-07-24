@@ -621,6 +621,9 @@ class ShopMenu(pygame.sprite.Sprite):
         self.button_shell_font = pygame.font.SysFont("Courier New", self.button_shell_font_size, bold=True)
         self.button_shell_font_colour = (0, 0, 0)
 
+        self.coin_cost_font_size = 11
+        self.coin_cost_font = pygame.font.SysFont("Courier New", self.coin_cost_font_size, bold=True)
+
         item_count = 0
         for key in self.shop_options.keys():
             self.shop_options[key]["image"] = pygame.image.load(self.shop_options[key]["imageLink"]).convert_alpha()
@@ -638,10 +641,18 @@ class ShopMenu(pygame.sprite.Sprite):
             self.shop_options[key]["button_shell_rect"].x = self.shop_options[key]["rect"].x - self.shop_options[key]["button_shell_rect"].width + self.button_shell_rect_offset_x
             self.shop_options[key]["button_shell_rect"].y = self.shop_options[key]["rect"].centery - self.shop_options[key]["button_shell_rect"].height // 2
             
-            self.shop_options[key]["font_image"] = self.button_shell_font.render(str(item_count + 1), True, self.button_shell_font_colour)
-            self.shop_options[key]["font_image_rect"] = self.shop_options[key]["font_image"].get_rect()
-            self.shop_options[key]["font_image_rect"].x = self.shop_options[key]["button_shell_rect"].x + self.shop_options[key]["font_image_rect"].width // 2 - 1
-            self.shop_options[key]["font_image_rect"].y = self.shop_options[key]["button_shell_rect"].centery - self.shop_options[key]["font_image_rect"].height // 2
+            self.shop_options[key]["button_shell_font_image"] = self.button_shell_font.render(str(item_count + 1), True, self.button_shell_font_colour)
+            self.shop_options[key]["button_shell_font_image_rect"] = self.shop_options[key]["button_shell_font_image"].get_rect()
+            self.shop_options[key]["button_shell_font_image_rect"].x = self.shop_options[key]["button_shell_rect"].x + self.shop_options[key]["button_shell_font_image_rect"].width // 2
+            self.shop_options[key]["button_shell_font_image_rect"].y = self.shop_options[key]["button_shell_rect"].centery - self.shop_options[key]["button_shell_font_image_rect"].height // 2 + 1
+
+            coins = self.shop_options[key]["cost"]
+            cointext = "coin" if coins == 1 else "coins"
+            self.shop_options[key]["coin_cost_font_image"] = self.coin_cost_font.render(str(f"{coins} {cointext}"), True, self.button_shell_font_colour)
+            self.shop_options[key]["coin_cost_font_image_rect"] = self.shop_options[key]["coin_cost_font_image"].get_rect()
+            self.shop_options[key]["coin_cost_font_image_rect"].x = self.shop_options[key]["rect"].centerx - self.shop_options[key]["coin_cost_font_image_rect"].width // 2
+            self.shop_options[key]["coin_cost_font_image_rect"].y = self.shop_options[key]["rect"].bottom + 6
+            
             item_count += 1
 
 
@@ -655,7 +666,8 @@ class ShopMenu(pygame.sprite.Sprite):
             print(key, " ", self.shop_options[key]["count"])
             screen.blit(self.shop_options[key]["image"], self.shop_options[key]["rect"].topleft)
             screen.blit(self.shop_options[key]["button_shell"], self.shop_options[key]["button_shell_rect"].topleft)
-            screen.blit(self.shop_options[key]["font_image"], self.shop_options[key]["font_image_rect"].topleft)
+            screen.blit(self.shop_options[key]["button_shell_font_image"], self.shop_options[key]["button_shell_font_image_rect"].topleft)
+            screen.blit(self.shop_options[key]["coin_cost_font_image"], self.shop_options[key]["coin_cost_font_image_rect"].topleft)
 
     def custom_draw(self, player_in_shop_range, screen):
         if not player_in_shop_range:
