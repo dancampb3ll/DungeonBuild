@@ -338,10 +338,9 @@ def main():
 
         #HUD is separate from the camera
         overworld_hudgroup = pygame.sprite.Group()
-        overworld_hudbar = hud.OverworldHud()
-        overworld_cointext = hud.OverworldCoinText(overworld_hudbar.rect.topleft[0], overworld_hudbar.rect.topleft[1], gamestate.overworld_coincount)
+        overworld_bottomhud = hud.OverworldBottomHud()
+        overworld_cointext = hud.OverworldCoinText(overworld_bottomhud.rect.topleft[0], overworld_bottomhud.rect.topleft[1], gamestate.overworld_coincount)
         buildhud = hud.BuildHud()
-        overworld_hudgroup.add(overworld_hudbar)
         overworld_hudgroup.add(overworld_cointext)
 
         shopmenu_hud = hud.ShopMenu()
@@ -420,20 +419,23 @@ def main():
 
             overworldcamera.custom_draw(player)
 
+            ################################################################################################
+            # Overworld HUD
+            ################################################################################################
             debugtext.update(player.gridx, player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
 
             tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
 
-            overworld_hudgroup.draw(screen)
             buildhud.custom_update_and_draw(screen)
-
             building_tooltips.update()
             building_tooltips.draw(screen)
-
+            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory)
+            overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
             shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
             gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
-            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory)
+            overworld_bottomhud.custom_draw(screen)
+            overworld_hudgroup.draw(screen)
 
             pygame.display.update()
             clock.tick(60)
@@ -441,7 +443,7 @@ def main():
 
 
         ################################################################################################
-        # Pre-underworld initialisation                                                                 #
+        # Pre-underworld initialisation                                                                 
         ################################################################################################
         gamestate.underworldcamera = CameraGroup()
         underworldcamera = gamestate.underworldcamera

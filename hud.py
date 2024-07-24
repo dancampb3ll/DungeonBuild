@@ -22,7 +22,7 @@ class DebugText(pygame.sprite.Sprite):
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (5, 5))
 
-class OverworldHud(pygame.sprite.Sprite):
+class OverworldBottomHud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.type = "hud"
@@ -31,6 +31,24 @@ class OverworldHud(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = settings.SCREEN_WIDTH - self.rect.w
         self.rect.y = settings.SCREEN_HEIGHT - self.rect.h
+        
+        self.grass_count = 0
+        self.grass_count_font_size = 16
+        self.grass_count_font = pygame.font.SysFont("Courier New", self.grass_count_font_size, bold=True)
+        self.grass_count_font_colour = (0, 0, 0)
+        self.grass_count_text_image = self.grass_count_font.render(str(self.grass_count), True, self.grass_count_font_colour)
+        self.grass_count_text_x = self.rect.x + 75
+        self.grass_count_text_y = self.rect.y + 7
+
+    def set_current_grass_count(self, player_inv):
+        self.grass_count = player_inv["overgroundGrass"]
+        self.grass_count_text_image = self.grass_count_font.render(str(self.grass_count), True, self.grass_count_font_colour)
+
+    def custom_draw(self, screen):
+        screen.blit(self.image, self.rect.topleft)
+        screen.blit(self.grass_count_text_image, (self.grass_count_text_x, self.grass_count_text_y))
+        
+
 
 class BuildHud(pygame.sprite.Sprite):
     def __init__(self):
@@ -88,13 +106,13 @@ class BuildHud(pygame.sprite.Sprite):
 class OverworldCoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy, coincount):
         super().__init__()
-        self.font_size = 12
-        self.font = pygame.font.SysFont("Calibri", self.font_size)
+        self.font_size = 16
+        self.font = pygame.font.SysFont("Courier New", self.font_size, bold="True")
         self.font_colour = (0, 0, 0)
         self.hudx = hudx
         self.hudy = hudy
         self.hud_xoffset = 150
-        self.hud_yoffset = 15
+        self.hud_yoffset = 7
         self.coincount = coincount
         self.update_coin_display()
 
@@ -112,6 +130,8 @@ class OverworldCoinText(pygame.sprite.Sprite):
         self.text = self.format_cointext((self.coincount))
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (self.hudx + self.hud_xoffset, self.hudy + self.hud_yoffset))
+        print(self.rect.center)
+        print(self.rect.width)
 
     def update_coin_count(self, newcoincount):
         self.coincount = newcoincount
