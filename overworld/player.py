@@ -221,9 +221,13 @@ class Player(pygame.sprite.Sprite):
         topleft_placement_coords = (gridx, gridy)
         return topleft_placement_coords
 
-    def place_grass_block_get_coords(self, input_events, camera_group):
+    def place_grass_block_get_coords(self, input_events, camera_group, player_inv):
         if not self.buildmode:
             return None
+        
+        if player_inv["overgroundGrass"] <= 0:
+            return None
+
         placement_coords = None
 
         for event in input_events:

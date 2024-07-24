@@ -48,11 +48,7 @@ class GameState():
         purchased_cost = result[2]
 
         self.build_inventory[item] += purchased_amount
-        #print("purchased_cost pre ", purchased_cost)
-        #print("coins pre ", self.overworld_coincount)
         self.overworld_coincount -= purchased_cost
-        #print("purchased_cost post ", purchased_cost)
-        #print("coins post ", self.overworld_coincount)
         return
 
     def temp_spawn_creation_REFACTOR(self):
@@ -195,8 +191,6 @@ class GameState():
             material = map[coord][0]
             portal = map[coord][1]
             #Handling tiles to draw not in current sprite dict
-            #print(self.underworld_todraw_tile_dict.get((0, 0), "Not in to draw"))
-            #print(self.underworld_tile_sprite_dict.get((0, 0), "Undrawn"))
             if self.underworld_todraw_tile_dict.get(coord, False) == True:
                 if self.underworld_tile_sprite_dict.get(coord, False) == False:
                     self.underworld_tile_sprite_dict[(gridx, gridy)] = underworld.tiles.UnderworldTile(gridx, gridy, material, camera_group, portal, player_center)
@@ -250,21 +244,21 @@ def draw_new_border_tiles_from_grass_placement(gamestate, placementx, placementy
 
 def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord, play_sfx = None):
     if placementcoord is None:
-        return
+        return 0
     x = placementcoord[0]
     y = placementcoord[1]
     tile_sprite = gamestate.overworld_tile_sprite_dict.get((x,y), None)
     if tile_sprite is None:
-        return
+        return 0
     if tile_sprite.tile != "overgroundBorder":
-        return
+        return 0
     gamestate.overworld_tile_sprite_dict[(x, y)].kill()
     gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, "overgroundGrass", gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
     draw_new_border_tiles_from_grass_placement(gamestate, x, y)
     gamestate.overworld_map_dict[(int(x), int(y))] = 2
     if play_sfx:
         play_sfx.play()
-    return
+    return 1
 
 def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events, building_tooltips_group):
     if not player_buildmode:
@@ -359,8 +353,6 @@ def main():
         player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
         gamestate.reset_underworld_gamestate()
         while gamestate.selected_world == "overworld":
-            #print("len of camera group: ", len(overworldcamera))
-            #print(gamestate.overworld_map_dict)
             gamestate.selected_world = player.gameworld
             input_events = pygame.event.get()
             for event in input_events:
@@ -414,8 +406,10 @@ def main():
             build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, BUILDING_SFX)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
-            player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera)
-            build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
+            player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera, gamestate.build_inventory)
+            valid_grass_build = build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
+            if valid_grass_build == 1:
+                gamestate.build_inventory["overgroundGrass"] -= 1
 
             overworldcamera.custom_draw(player)
 
@@ -507,7 +501,6 @@ def main():
 
             #TEMP *******************************************************************
             underworldcamera.add(enemy_group)
-            #print(len(projectile_group))
             underworldcamera.add(coin_group)
             underworldcamera.add(projectile_group)
             underworldcamera.add(coin_drop_text_group)
@@ -518,7 +511,6 @@ def main():
 
             underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
             #************************************************************************
-            #print(f"Enemies remaining: {len(enemy_group)}")
 
             if not settings.DARKNESS_DEBUG:
                 for key in gamestate.underworld_tile_sprite_dict.keys():

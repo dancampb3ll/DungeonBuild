@@ -130,8 +130,6 @@ class OverworldCoinText(pygame.sprite.Sprite):
         self.text = self.format_cointext((self.coincount))
         self.image = self.font.render(self.text, True, self.font_colour)
         self.rect = self.image.get_rect(topleft = (self.hudx + self.hud_xoffset, self.hudy + self.hud_yoffset))
-        print(self.rect.center)
-        print(self.rect.width)
 
     def update_coin_count(self, newcoincount):
         self.coincount = newcoincount
