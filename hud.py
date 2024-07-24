@@ -96,6 +96,8 @@ class BuildHud(pygame.sprite.Sprite):
             if key != "overgroundGrass": #overgroundGrass is a secondary and not shown in the buildings tab as it is on the main GUI
                 if value > 0:
                     self.buildings[key]["drawOrder"] = value
+                else:
+                    self.buildings[key]["drawOrder"] = None
 
     def custom_update_and_draw(self, screen):
         if not self.player_in_buildmode:

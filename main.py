@@ -53,14 +53,14 @@ class GameState():
 
     def temp_spawn_creation_REFACTOR(self):
         #Temporary test for making portal work - makes a dungeon at 20,20
-        build_and_perform_tiledict_spritedict_updates(self, "smallDungeon", (20, 20))
+        build_and_perform_tiledict_spritedict_updates(self, "smallDungeon", (20, 20), {"smallDungeon":1})
         self.overworld_tile_sprite_dict.get((20, 20)).portal_type = "underworld"
         self.overworld_tile_sprite_dict.get((20, 20)).portal_destination = (27, 27)
         self.overworld_tile_sprite_dict.get((20, 20)).portal_collision_side = "bottom"
         self.overworld_tile_sprite_dict.get((21, 20)).portal_type = "underworld"
         self.overworld_tile_sprite_dict.get((21, 20)).portal_destination = (27, 27)
         self.overworld_tile_sprite_dict.get((21, 20)).portal_collision_side = "bottom"
-        build_and_perform_tiledict_spritedict_updates(self, "shopHut", (28, 12))
+        build_and_perform_tiledict_spritedict_updates(self, "shopHut", (28, 12), {"shopHut":1})
 
     def initialise_tile_sprite_dict_from_tilemap(self):
         self.overworld_tile_sprite_dict.clear()
@@ -208,11 +208,17 @@ class GameState():
         self.underworld_tile_sprite_dict.clear()
         self.underworld_todraw_tile_dict.clear()
 
-def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
+def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topleftplacementcoord: tuple, build_inventory, player_coords_list_to_avoid_building_on=[None], play_sfx = False):
         """Gets the world map, looks where the structure is to be built, and if possible deletes sprites from the spritedict.
         Returns the new world map dict with new buildings as replacements for old.
         """
-        if topleftplacementcoord == None:
+        if topleftplacementcoord is None:
+            return
+
+        if build_inventory.get(structuretype, None) is None:
+            return
+        
+        if build_inventory[structuretype] <= 0:
             return
 
         changes = overworld.tiles.detect_building_worldmap_collision_place_and_changes(gamestate.overworld_map_dict, structuretype, topleftplacementcoord, player_coords_list_to_avoid_building_on)
@@ -228,6 +234,8 @@ def build_and_perform_tiledict_spritedict_updates(gamestate, structuretype, topl
             gamestate.overworld_tile_sprite_dict[(x, y)].kill()
             #Creates an instance of the new tile
             gamestate.overworld_tile_sprite_dict[(x, y)] = overworld.tiles.OutdoorTile(x, y, tilename, gamestate.overworldcamera, DEFAULT_NO_TILE_PORTAL)
+        
+        build_inventory[structuretype] -= 1
         if play_sfx:
             play_sfx.play()
         return
@@ -403,7 +411,7 @@ def main():
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_building_placement_coords_topleft = player.place_building_get_coords(input_events, overworldcamera)
             player_corner_coords_list = player.get_player_corner_grid_locations()
-            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, player_corner_coords_list, BUILDING_SFX)
+            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, gamestate.build_inventory, player_corner_coords_list, BUILDING_SFX)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera, gamestate.build_inventory)
@@ -430,6 +438,8 @@ def main():
             gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
             overworld_bottomhud.custom_draw(screen)
             overworld_hudgroup.draw(screen)
+
+            print(gamestate.build_inventory)
 
             pygame.display.update()
             clock.tick(60)
