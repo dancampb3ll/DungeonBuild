@@ -48,8 +48,6 @@ class OverworldBottomHud(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect.topleft)
         screen.blit(self.grass_count_text_image, (self.grass_count_text_x, self.grass_count_text_y))
         
-
-
 class BuildHud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -69,7 +67,7 @@ class BuildHud(pygame.sprite.Sprite):
             "tinyPot": {
                 "item": "tinyPot",
                 "imageLink": "assets/hud/buildThumbnails/tinyPot.png",
-                "drawOrder": None
+                "inventory_quantity": None
             }
         }
 
@@ -85,25 +83,74 @@ class BuildHud(pygame.sprite.Sprite):
 
             count += 1
 
+        self.grass_tooltip = pygame.image.load("assets/tooltips/overgroundGrass.png").convert_alpha()
+        self.grass_tooltip_rect = self.grass_tooltip.get_rect()
+        self.TOOLTIPS_X_OFFSET_FROM_MOUSE = 16
+        self.TOOLTIPS_Y_OFFSET_FROM_MOUSE = 16
+
+        self.selected_build_item_index = 0
+        self.selected_build_item = None
+        self.build_tooltip = pygame.image.load("assets/tooltips/tinyPot.png").convert_alpha()
+        self.build_tooltip_rect = self.build_tooltip.get_rect()
+
+    def draw_right_tooltip(self, screen, mouse_pos):
+        if mouse_pos[0] < 0 or mouse_pos[0] >= settings.SCREEN_WIDTH:
+            return
+        if mouse_pos[1] < 0 or mouse_pos[1] >= settings.SCREEN_HEIGHT:
+            return
+        self.grass_tooltip_rect.x = mouse_pos[0] + self.TOOLTIPS_X_OFFSET_FROM_MOUSE
+        self.grass_tooltip_rect.y = mouse_pos[1] + self.TOOLTIPS_Y_OFFSET_FROM_MOUSE
+        screen.blit(self.grass_tooltip, self.grass_tooltip_rect.topleft)
+
+    def draw_left_tooltip(self, screen, mouse_pos):
+        if mouse_pos[0] < 0 or mouse_pos[0] >= settings.SCREEN_WIDTH:
+            return
+        if mouse_pos[1] < 0 or mouse_pos[1] >= settings.SCREEN_HEIGHT:
+            return
+        if self.selected_build_item is None:
+            return
+        if self.buildings[self.selected_build_item]["inventory_quantity"] is None:
+            return
+        self.build_tooltip = pygame.image.load(f"assets/tooltips/{self.selected_build_item}.png").convert_alpha()
+        self.build_tooltip_rect = self.build_tooltip.get_rect()
+        self.build_tooltip_rect.x = mouse_pos[0] - self.TOOLTIPS_X_OFFSET_FROM_MOUSE
+        self.build_tooltip_rect.y = mouse_pos[1] + self.TOOLTIPS_Y_OFFSET_FROM_MOUSE
+        screen.blit(self.build_tooltip, self.build_tooltip_rect.topleft)
+
+    def determine_left_item_held(self, items):
+        if len(items) == 0:
+            return
+        self.selected_build_item = items[self.selected_build_item_index][0]
+
+    def draw_build_tooltips(self, screen):
+        pos = pygame.mouse.get_pos()
+        self.draw_right_tooltip(screen, pos)
+        self.draw_left_tooltip(screen, pos)
+        
+
     def draw_all_buildings_held_in_inventory(self, screen):
         for key in self.buildings.keys():
-            if self.buildings[key]["drawOrder"] is not None:
+            if self.buildings[key]["inventory_quantity"] is not None:
                 screen.blit(self.buildings[key]["image"], self.buildings[key]["rect"].topleft)
 
     def set_items_from_gamestate_inventory(self, gamestate_inv):
+        items = []
         self.player_inventory = gamestate_inv
         for key, value in gamestate_inv.items():
             if key != "overgroundGrass": #overgroundGrass is a secondary and not shown in the buildings tab as it is on the main GUI
                 if value > 0:
-                    self.buildings[key]["drawOrder"] = value
+                    self.buildings[key]["inventory_quantity"] = value
+                    items.append([key, value])
                 else:
-                    self.buildings[key]["drawOrder"] = None
+                    self.buildings[key]["inventory_quantity"] = None
+        self.determine_left_item_held(items)
 
     def custom_update_and_draw(self, screen):
         if not self.player_in_buildmode:
             return
         screen.blit(self.bar_image, self.bar_rect.topleft)
         self.draw_all_buildings_held_in_inventory(screen)
+        self.draw_build_tooltips(screen)
 
 class OverworldCoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy, coincount):
@@ -238,48 +285,6 @@ class DungeonCompleteText(pygame.sprite.Sprite):
         def custom_draw(self, screen):
             screen.blit(self.coin_text, (self.COIN_POSX, self.COIN_POSY))
             screen.blit(self.monster_text, (self.MONSTER_POSX, self.MONSTER_POSY))
-
-class ToolTip(pygame.sprite.Sprite):
-    def __init__(self, initx, inity, building_type):
-        super().__init__()
-        self.type = "tooltip"
-        self.building_type = building_type
-        self.image = pygame.image.load(f"assets/tooltips/{self.building_type}Tooltip.png").convert()
-        self.image.set_colorkey((255,0,255))
-        self.rect = self.image.get_rect()
-        self.rect.x = initx
-        self.rect.y = inity
-        self.YOFFSET = 20
-        self.ABSXOFFSET = 7
-        self.tooltipsize = self.rect.width
-        self.pos = None
-
-    def update_tooltip_location_from_mouse(self, input_events):
-        if self.building_type == "overgroundGrass":
-            self.draw_grass_right(input_events)
-        else:
-            self.draw_building_left(input_events)
-
-    def draw_building_left(self, input_events):
-        pos = pygame.mouse.get_pos()
-        mousex = pos[0]
-        mousey = pos[1]
-        self.rect.x = mousex - self.ABSXOFFSET - self.tooltipsize
-        self.rect.y = mousey + self.YOFFSET
-
-    def draw_grass_right(self, input_events):
-        pos = pygame.mouse.get_pos()
-        mousex = pos[0]
-        mousey = pos[1]
-        self.rect.x = mousex + self.ABSXOFFSET
-        self.rect.y = mousey + self.YOFFSET
-
-    def redraw_building_left(self):
-        self.image = pygame.image.load(f"assets/tooltips/{self.building_type}Tooltip.png").convert()
-        self.image.set_colorkey((255,0,255))
-
-    def update(self):
-        self.redraw_building_left()
 
 class OverworldPauseMenu(pygame.sprite.Sprite):
         def __init__(self):

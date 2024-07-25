@@ -26,7 +26,7 @@ class GameState():
         self.overworldcamera = CameraGroup()
         self.overworldplayer_init_grid_x = 0
         self.overworldplayer_init_grid_y = 0
-        self.overworld_coincount = 5
+        self.overworld_coincount = 123
         self.in_overworld_pause_menu = False
         self.save_name = "NaN"
 
@@ -268,23 +268,6 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
         play_sfx.play()
     return 1
 
-def check_buildmode_and_update_tooltips(player_buildmode, player_selected_building, leftTT, rightTT, input_events, building_tooltips_group):
-    if not player_buildmode:
-        for tooltip in building_tooltips_group:
-            tooltip.kill()
-        return None, None
-    if len(building_tooltips_group) == 2:
-        leftTT.update_tooltip_location_from_mouse(input_events)
-        rightTT.update_tooltip_location_from_mouse(input_events)
-        return leftTT, rightTT
-    else:
-        #Making new tooltips:
-        leftTT = hud.ToolTip(-999, -999, player_selected_building)
-        rightTT = hud.ToolTip(-999, -999, "overgroundGrass")
-        building_tooltips_group.add(leftTT)
-        building_tooltips_group.add(rightTT)
-        return leftTT, rightTT
-
 def refresh_underworld_draw_order(camera_group, player):
     #Drawn from lowest priority to max
     if player.facing_direction == "down":
@@ -354,9 +337,6 @@ def main():
         screentext = pygame.sprite.Group()
         screentext.add(debugtext)
 
-        building_tooltips = pygame.sprite.Group()
-        tooltip_left = None
-        tooltip_right = None
         pygame.mixer.music.play(-1) #Repeat unlimited
         player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
         gamestate.reset_underworld_gamestate()
@@ -406,12 +386,12 @@ def main():
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
             player.check_build_mode(input_events, buildhud, overworldcamera)
-            player.custom_update(input_events, tooltip_left)
+            player.custom_update(input_events, "DELETE THIS")
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_building_placement_coords_topleft = player.place_building_get_coords(input_events, overworldcamera)
             player_corner_coords_list = player.get_player_corner_grid_locations()
-            build_and_perform_tiledict_spritedict_updates(gamestate, player.selected_building, player_building_placement_coords_topleft, gamestate.build_inventory, player_corner_coords_list, BUILDING_SFX)
+            build_and_perform_tiledict_spritedict_updates(gamestate, buildhud.selected_build_item, player_building_placement_coords_topleft, gamestate.build_inventory, player_corner_coords_list, BUILDING_SFX)
 
             #If none returned from get coords, nothing is changed on overworldmap dict
             player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera, gamestate.build_inventory)
@@ -427,11 +407,7 @@ def main():
             debugtext.update(player.gridx, player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
             screentext.draw(screen)
 
-            tooltip_left, tooltip_right = check_buildmode_and_update_tooltips(player.buildmode, player.selected_building, tooltip_left, tooltip_right, input_events, building_tooltips)
-
             buildhud.custom_update_and_draw(screen)
-            building_tooltips.update()
-            building_tooltips.draw(screen)
             buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory)
             overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
             shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)

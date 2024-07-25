@@ -5826,7 +5826,7 @@
         }
     },
     "build_inventory": {
-        "overworldGrass": 1,
+        "overgroundGrass": 1,
         "tinyPot": 1
     }
 }

@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
         self.gameworld = "overworld"
 
-    def adjust_selected_building(self, input_events, left_tooltip_instance):
+    def scroll_change_selected_building(self, input_events, left_tooltip_instance):
         #Left tooltip is needed as an object to a
         if not self.buildmode:
             return
@@ -292,7 +292,7 @@ class Player(pygame.sprite.Sprite):
         self.gameworld = sprite.portal_type
 
     def custom_update(self, input_events, left_tooltip_instance):
-        self.adjust_selected_building(input_events, left_tooltip_instance)
+        #self.scroll_change_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
 
