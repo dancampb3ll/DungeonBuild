@@ -12,6 +12,7 @@ import json
 import copy
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
+import utils
 
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
@@ -273,9 +274,9 @@ def build_grass_block_and_perform_tile_sprite_updates(gamestate, placementcoord,
 def refresh_underworld_draw_order(camera_group, player):
     #Drawn from lowest priority to max
     if player.facing_direction == "down":
-        draw_order = ["tile", "npc", "player", "weapon", "coin", "projectile", "coinDropText"]
+        draw_order = ["tile", "npc", "player", "weapon", "coin", "projectile", "floatingText"]
     else:
-        draw_order = ["tile", "npc", "weapon", "player", "coin", "projectile", "coinDropText"]
+        draw_order = ["tile", "npc", "weapon", "player", "coin", "projectile", "floatingText"]
 
     for sprite_type in draw_order:
         for sprite in camera_group.sprites():
@@ -298,6 +299,7 @@ def main():
     gamestate = GameState()
     gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
 
+    floating_text_group = utils.floating_text_group
 
     mainloop = True
     while mainloop:
@@ -401,7 +403,9 @@ def main():
             if valid_grass_build == 1:
                 gamestate.build_inventory["overgroundGrass"] -= 1
 
+            overworldcamera.update()
             overworldcamera.custom_draw(player)
+            
 
             ################################################################################################
             # Overworld HUD
@@ -416,6 +420,7 @@ def main():
             gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
             overworld_bottomhud.custom_draw(screen)
             overworld_hudgroup.draw(screen)
+            overworldcamera.add(floating_text_group)
 
             pygame.display.update()
             clock.tick(60)
@@ -434,7 +439,6 @@ def main():
         enemy_group = underworld.npc.enemy_group
         coin_group = underworld.npc.coin_group
         projectile_group = underworld.npc.projectile_group
-        coin_drop_text_group = underworld.npc.coin_drop_text_group
 
         gamestate.spawn_enemies_from_spawn_dict(enemy_group)
         dagger = underworld.player.Weapon(underworldcamera, "dagger")
@@ -489,7 +493,7 @@ def main():
             underworldcamera.add(enemy_group)
             underworldcamera.add(coin_group)
             underworldcamera.add(projectile_group)
-            underworldcamera.add(coin_drop_text_group)
+            underworldcamera.add(floating_text_group)
             for coin in coin_group:
                 coin.detect_coin_collision(underworldplayer)
             for projectile in projectile_group:

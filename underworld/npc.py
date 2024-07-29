@@ -4,11 +4,11 @@ import math
 import settings
 import underworld
 import lighting
+import utils
 
 enemy_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
 coin_group = pygame.sprite.Group()
-coin_drop_text_group = pygame.sprite.Group()
 
 def reset_groups():
     global enemy_group, projectile_group, coin_group, coin_drop_text_group
@@ -467,36 +467,5 @@ class Coin(pygame.sprite.Sprite):
         if self.rect.colliderect(player.rect):
             player.coins_collected += self.value
             self.play_random_sfx_from_list()
-            CoinDropText(coin_drop_text_group, self.rect.x, self.rect.y, self.value)
+            utils.FloatingText(utils.floating_text_group, self.rect.x, self.rect.y, f"+ {self.value}")
             self.kill()
-            
-
-class CoinDropText(pygame.sprite.Sprite):
-        def __init__(self, pygame_group, startx, starty, value):
-            super().__init__(pygame_group)
-            self.type = "coinDropText"
-            self.value = value
-            self.text = f"+ {self.value}"
-            self.FONT_SIZE = 22
-            self.FONT_COLOUR = (255,255,255)
-            self.font = pygame.font.SysFont("OpenSans-Bold.ttf", self.FONT_SIZE, bold=False)
-            self.image = self.font.render(self.text, True, self.FONT_COLOUR)
-            self.rect = self.image.get_rect()
-            self.rect.x = startx
-            self.rect.y = starty
-
-
-            self.COIN_DROP_TEXT_TIME_LIMIT = 80
-            self.alive_timer = 0
-
-        def move_position_upwards(self):
-            self.rect.y -= 1
-
-        def maintain_life(self):
-            self.alive_timer += 1
-            if self.alive_timer >= self.COIN_DROP_TEXT_TIME_LIMIT:
-                self.kill()
-
-        def update(self):
-            self.move_position_upwards()
-            self.maintain_life()
