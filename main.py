@@ -409,7 +409,7 @@ def main():
             screentext.draw(screen)
 
             buildhud.custom_update_and_draw(screen)
-            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory)
+            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory, input_events)
             overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
             shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
             gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)

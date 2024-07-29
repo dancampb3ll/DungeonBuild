@@ -147,7 +147,7 @@ class BuildHud(pygame.sprite.Sprite):
             if self.buildings[key]["inventory_quantity"] is not None:
                 screen.blit(self.buildings[key]["image"], self.buildings[key]["rect"].topleft)
 
-    def set_items_from_gamestate_inventory(self, gamestate_inv):
+    def set_items_from_gamestate_inventory(self, gamestate_inv, input_events):
         items = []
         self.player_inventory = gamestate_inv
         for key, value in gamestate_inv.items():
@@ -157,7 +157,9 @@ class BuildHud(pygame.sprite.Sprite):
                     items.append([key, value])
                 else:
                     self.buildings[key]["inventory_quantity"] = None
+        self._scroll_change_build_index(input_events, items)
         self._determine_left_item_held(items)
+
 
     def _refresh_quantity_counts(self):
         count = 0
@@ -169,6 +171,26 @@ class BuildHud(pygame.sprite.Sprite):
                                 self.MAX_THUMBNAIL_SIZE // 2 - self.buildings[key]["rect"].height // 2) #Centering
                 count += 1
 
+    def _scroll_change_build_index(self, input_events, items):
+        UPWARD_SCROLL = 1
+        DOWNWARD_SCROLL = -1
+        for event in input_events:
+             if event.type == pygame.MOUSEWHEEL:
+                if event.y == DOWNWARD_SCROLL:
+                    #Wraparound
+                    if self.selected_build_item_index == len(items) - 1 or len(items) == 0:
+                        self.selected_build_item_index = 0
+                    else:
+                        self.selected_build_item_index += 1
+                    return
+                elif event.y == UPWARD_SCROLL:
+                    #Wraparound
+                    if self.selected_build_item_index == 0:
+                        self.selected_build_item_index = max(len(items) - 1, 0)
+                    else:
+                        self.selected_build_item_index -= 1
+                    return
+
     def custom_update_and_draw(self, screen):
         if not self.player_in_buildmode:
             return
@@ -177,7 +199,7 @@ class BuildHud(pygame.sprite.Sprite):
         self._draw_build_tooltips(screen)
         self._refresh_quantity_counts()
         self._draw_quantity_text_next_to_items(screen)
-        
+        print(self.selected_build_item_index)
 
 
 class OverworldCoinText(pygame.sprite.Sprite):
