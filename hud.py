@@ -73,7 +73,12 @@ class BuildHud(pygame.sprite.Sprite):
                 "item": "tinyFlower",
                 "imageLink": "assets/hud/buildThumbnails/tinyFlower.png",
                 "inventory_quantity": None
-            }
+            },
+            "cobblestone": {
+                "item": "cobblestone",
+                "imageLink": "assets/hud/buildThumbnails/cobblestone.png",
+                "inventory_quantity": None
+            },
         }
 
         for key in self.buildings.keys():
@@ -93,7 +98,11 @@ class BuildHud(pygame.sprite.Sprite):
 
         self.quantity_font_size = 11
         self.quantity_font = pygame.font.SysFont("Courier New", self.quantity_font_size, bold=True)
+        self.quantity_font_yoffset = 8
         self.quantity_font_colour = (0, 0, 0)
+
+        self.item_background_highlight = pygame.image.load("assets/hud/buildThumbnails/SELECTED.png").convert_alpha()
+        self.item_background_highlight_rect = self.item_background_highlight.get_rect()
 
     def _draw_right_tooltip(self, screen, mouse_pos):
         if mouse_pos[0] < 0 or mouse_pos[0] >= settings.SCREEN_WIDTH:
@@ -129,11 +138,15 @@ class BuildHud(pygame.sprite.Sprite):
                 font_image = self.quantity_font.render(str(text), True, self.quantity_font_colour)
                 font_image_rect = font_image.get_rect()
                 font_image_rect.x = item_rect.centerx - font_image_rect.width // 2
-                font_image_rect.y = item_rect.bottom + 4
+                font_image_rect.y = item_rect.bottom + self.quantity_font_yoffset
                 screen.blit(font_image, font_image_rect.topleft)
 
-    def _determine_left_item_held(self, items):
-        if len(items) == 0:
+    def _determine_left_item_held(self):
+        items = self._convert_gamestate_inv_to_buildingcount_list_and_set_quantities()
+        
+        #Below condition ensures the index isn't out of range if an item runs out
+        if len(items) == 0 or self.selected_build_item_index > len(items) - 1:
+            self.selected_build_item_index = 0
             return
         self.selected_build_item = items[self.selected_build_item_index][0]
 
@@ -147,19 +160,33 @@ class BuildHud(pygame.sprite.Sprite):
             if self.buildings[key]["inventory_quantity"] is not None:
                 screen.blit(self.buildings[key]["image"], self.buildings[key]["rect"].topleft)
 
-    def set_items_from_gamestate_inventory(self, gamestate_inv, input_events):
+    def _convert_gamestate_inv_to_buildingcount_list_and_set_quantities(self):
         items = []
-        self.player_inventory = gamestate_inv
-        for key, value in gamestate_inv.items():
+        for key, value in self.player_inventory.items():
             if key != "overgroundGrass": #overgroundGrass is a secondary and not shown in the buildings tab as it is on the main GUI
                 if value > 0:
                     self.buildings[key]["inventory_quantity"] = value
                     items.append([key, value])
                 else:
                     self.buildings[key]["inventory_quantity"] = None
-        self._scroll_change_build_index(input_events, items)
-        self._determine_left_item_held(items)
+        return items
 
+    def _draw_selected_item_highlight(self, screen):
+        if self.selected_build_item is None:
+            return
+        if self.buildings[self.selected_build_item]["inventory_quantity"] is None:
+            return
+        self.item_background_highlight_rect.x = self.bar_rect.centerx - self.item_background_highlight_rect.width // 2
+        self.item_background_highlight_rect.y = (self.bar_rect.y + #Start
+            self.SPACE_BETWEEN_BUILDING_THUMBNAILS + (self.MAX_THUMBNAIL_SIZE + self.SPACE_BETWEEN_BUILDING_THUMBNAILS) * self.selected_build_item_index + #Row number offset
+            self.MAX_THUMBNAIL_SIZE // 2 - self.item_background_highlight_rect.height // 2) #Centering
+        screen.blit(self.item_background_highlight, self.item_background_highlight_rect.topleft)
+
+    def set_items_from_gamestate_inventory(self, gamestate_inv, input_events):
+        self.player_inventory = gamestate_inv
+        items = self._convert_gamestate_inv_to_buildingcount_list_and_set_quantities()
+        self._scroll_change_build_index(input_events, items)
+        self._determine_left_item_held()
 
     def _refresh_quantity_counts(self):
         count = 0
@@ -195,12 +222,11 @@ class BuildHud(pygame.sprite.Sprite):
         if not self.player_in_buildmode:
             return
         screen.blit(self.bar_image, self.bar_rect.topleft)
-        self._draw_all_buildings_held_in_inventory(screen)
         self._draw_build_tooltips(screen)
         self._refresh_quantity_counts()
+        self._draw_selected_item_highlight(screen)
         self._draw_quantity_text_next_to_items(screen)
-        print(self.selected_build_item_index)
-
+        self._draw_all_buildings_held_in_inventory(screen)
 
 class OverworldCoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy, coincount):
@@ -731,6 +757,12 @@ class ShopMenu(pygame.sprite.Sprite):
                 "item": "tinyFlower",
                 "imageLink": "assets/overworldtiles/tinyFlower.png",
                 "cost": 10,
+                "type": "primary",
+            },
+            4: {
+                "item": "cobblestone",
+                "imageLink": "assets/overworldtiles/cobblestone.png",
+                "cost": 2,
                 "type": "primary",
             }
         }

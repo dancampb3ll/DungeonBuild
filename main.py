@@ -33,7 +33,8 @@ class GameState():
         self.build_inventory = {
             "overgroundGrass": 0,
             "tinyPot": 0,
-            "tinyFlower": 0
+            "tinyFlower": 0,
+            "cobblestone": 0
             }
 
         self.underworldcamera = CameraGroup()

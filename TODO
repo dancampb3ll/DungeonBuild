@@ -1,8 +1,9 @@
 Short term
 Make shop only viewable when in buildmode (show B button hint)
-Make build items scrollable
+Give text error near player when out of inventory, out of grass, obstruction
 Make grass greyed/crossed out when none held
 Fix blue tile selected when not hovered
+Add quantity button to shop.
 
 Make item initialiser in new utils module to stop having to manually type new blocks in mutiple locations
 
