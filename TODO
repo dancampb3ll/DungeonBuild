@@ -1,8 +1,12 @@
 Short term
 Make shop only viewable when in buildmode (show B button hint)
 Make grass greyed/crossed out when none held
-Fix blue tile selected when not hovered
 Add quantity button to shop.
+Add remove building button
+
+place_building_get_coords
+    - Hover should hover the whole building size
+    - Should be colour coded where you cant place
 
 Make item initialiser in new utils module to stop having to manually type new blocks in mutiple locations
 
@@ -16,7 +20,6 @@ Put player coords into gamestate?
 
 Add random structures to underworld, including chests + rooms
 Make min to max border adding structure its own function (currently within wood structure)
-
 
 Don't allow buildings near dungeons (to stop player flying out the map)
 
@@ -55,17 +58,15 @@ add knockback resistance to npcs
 List before completion
 ********************************************************************************
 1. Random dungeon generation (semi complete)
-2. Inventory System
+    2. Inventory System
 3. Chest generation
     4. Coin drops/Coin pickup/Coin counter
-5. Overworld tile/building selling npc
+    5. Overworld tile/building selling npc
     6. Save game
 7. Dungeon entry generation system (in overworld)
 ********************************************************************************
 
-place_building_get_coords
-    - Hover should hover the whole building size
-    - Should be colour coded where you cant place
+
 
 Make player-built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 

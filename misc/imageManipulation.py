@@ -91,16 +91,16 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
-#"""Replace chroma with transparency
+"""Replace chroma with transparency
 for path in ["assets/tooltips/tinyPot.png"]:
     replace_image_path = path
     output_path = path
     make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
 #"""
 
-""" Replace chroma with other image
-replace_image_path = "assets/hud/buildhudbar.png"
-replacement_texture_path = "assets/Unused/paper background.png"
+#""" Replace chroma with other image
+replace_image_path = "assets/overworldtiles/tinyFlower.png"
+replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 #"""
