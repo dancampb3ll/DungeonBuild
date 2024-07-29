@@ -1,7 +1,13 @@
 Short term
 Show numbers by buildings in buildhud
+Make shop only viewable when in buildmode (show B button hint)
 Make build items scrollable
+Make grass greyed/crossed out when none held
 Fix blue tile selected when not hovered
+
+Make item initialiser in new utils module to stop having to manually type new blocks in mutiple locations
+
+Add grass farms?
 
 Work on overworld pause menu
 

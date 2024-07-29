@@ -45,7 +45,7 @@ class OutdoorTile(pygame.sprite.Sprite):
         #self.image.set_colorkey(self.ignorecolour)
 
 
-WALKABLE = ["overgroundGrass"]
+WALKABLE = ["overgroundGrass", "tinyFlower"]
 BUILDABLE = ["overgroundGrass"]
 TILE_MAPPINGS = {
     0: None,
@@ -63,7 +63,8 @@ TILE_MAPPINGS = {
     12: "fenceRight",
     13: "fenceBottomLeft",
     14: "fenceBottom",
-    15: "fenceBottomRight"
+    15: "fenceBottomRight",
+    16: "tinyFlower"
 }
 
 def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworldbuilding, topleftTile: tuple, player_coords_list_to_avoid_building_on):

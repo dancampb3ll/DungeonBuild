@@ -32,7 +32,8 @@ class GameState():
 
         self.build_inventory = {
             "overgroundGrass": 0,
-            "tinyPot": 0
+            "tinyPot": 0,
+            "tinyFlower": 0
             }
 
         self.underworldcamera = CameraGroup()
@@ -414,8 +415,6 @@ def main():
             gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
             overworld_bottomhud.custom_draw(screen)
             overworld_hudgroup.draw(screen)
-
-            print(gamestate.build_inventory)
 
             pygame.display.update()
             clock.tick(60)

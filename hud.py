@@ -67,21 +67,19 @@ class BuildHud(pygame.sprite.Sprite):
             "tinyPot": {
                 "item": "tinyPot",
                 "imageLink": "assets/hud/buildThumbnails/tinyPot.png",
+                "inventory_quantity": None,
+            },
+            "tinyFlower": {
+                "item": "tinyFlower",
+                "imageLink": "assets/hud/buildThumbnails/tinyFlower.png",
                 "inventory_quantity": None
             }
         }
 
         for key in self.buildings.keys():
-            count = 0
             self.buildings[key]["image"] = pygame.image.load(self.buildings[key]["imageLink"]).convert_alpha()
             self.buildings[key]["rect"] = self.buildings[key]["image"].get_rect()
-            self.buildings[key]["count"] = count
             self.buildings[key]["rect"].x = self.bar_rect.centerx - self.buildings[key]["rect"].width // 2
-            self.buildings[key]["rect"].y = (self.bar_rect.y + #Start
-                                            self.SPACE_BETWEEN_BUILDING_THUMBNAILS + (self.MAX_THUMBNAIL_SIZE + self.SPACE_BETWEEN_BUILDING_THUMBNAILS) * count + #Row number offset
-                                            self.MAX_THUMBNAIL_SIZE // 2 - self.buildings[key]["rect"].height // 2) #Centering
-
-            count += 1
 
         self.grass_tooltip = pygame.image.load("assets/tooltips/overgroundGrass.png").convert_alpha()
         self.grass_tooltip_rect = self.grass_tooltip.get_rect()
@@ -93,7 +91,11 @@ class BuildHud(pygame.sprite.Sprite):
         self.build_tooltip = pygame.image.load("assets/tooltips/tinyPot.png").convert_alpha()
         self.build_tooltip_rect = self.build_tooltip.get_rect()
 
-    def draw_right_tooltip(self, screen, mouse_pos):
+        self.quantity_font_size = 11
+        self.quantity_font = pygame.font.SysFont("Courier New", self.quantity_font_size, bold=True)
+        self.quantity_font_colour = (0, 0, 0)
+
+    def _draw_right_tooltip(self, screen, mouse_pos):
         if mouse_pos[0] < 0 or mouse_pos[0] >= settings.SCREEN_WIDTH:
             return
         if mouse_pos[1] < 0 or mouse_pos[1] >= settings.SCREEN_HEIGHT:
@@ -102,7 +104,7 @@ class BuildHud(pygame.sprite.Sprite):
         self.grass_tooltip_rect.y = mouse_pos[1] + self.TOOLTIPS_Y_OFFSET_FROM_MOUSE
         screen.blit(self.grass_tooltip, self.grass_tooltip_rect.topleft)
 
-    def draw_left_tooltip(self, screen, mouse_pos):
+    def _draw_left_tooltip(self, screen, mouse_pos):
         if mouse_pos[0] < 0 or mouse_pos[0] >= settings.SCREEN_WIDTH:
             return
         if mouse_pos[1] < 0 or mouse_pos[1] >= settings.SCREEN_HEIGHT:
@@ -117,18 +119,30 @@ class BuildHud(pygame.sprite.Sprite):
         self.build_tooltip_rect.y = mouse_pos[1] + self.TOOLTIPS_Y_OFFSET_FROM_MOUSE
         screen.blit(self.build_tooltip, self.build_tooltip_rect.topleft)
 
-    def determine_left_item_held(self, items):
+    def _draw_quantity_text_next_to_items(self, screen):
+        if len(self.buildings.keys()) == 0:
+            return
+        for key in self.buildings.keys():
+            if self.buildings[key]["inventory_quantity"] is not None:
+                text = self.buildings[key]["inventory_quantity"]
+                item_rect = self.buildings[key]["rect"]
+                font_image = self.quantity_font.render(str(text), True, self.quantity_font_colour)
+                font_image_rect = font_image.get_rect()
+                font_image_rect.x = item_rect.centerx - font_image_rect.width // 2
+                font_image_rect.y = item_rect.bottom + 4
+                screen.blit(font_image, font_image_rect.topleft)
+
+    def _determine_left_item_held(self, items):
         if len(items) == 0:
             return
         self.selected_build_item = items[self.selected_build_item_index][0]
 
-    def draw_build_tooltips(self, screen):
+    def _draw_build_tooltips(self, screen):
         pos = pygame.mouse.get_pos()
-        self.draw_right_tooltip(screen, pos)
-        self.draw_left_tooltip(screen, pos)
-        
+        self._draw_right_tooltip(screen, pos)
+        self._draw_left_tooltip(screen, pos)
 
-    def draw_all_buildings_held_in_inventory(self, screen):
+    def _draw_all_buildings_held_in_inventory(self, screen):
         for key in self.buildings.keys():
             if self.buildings[key]["inventory_quantity"] is not None:
                 screen.blit(self.buildings[key]["image"], self.buildings[key]["rect"].topleft)
@@ -143,14 +157,28 @@ class BuildHud(pygame.sprite.Sprite):
                     items.append([key, value])
                 else:
                     self.buildings[key]["inventory_quantity"] = None
-        self.determine_left_item_held(items)
+        self._determine_left_item_held(items)
+
+    def _refresh_quantity_counts(self):
+        count = 0
+        for key in self.buildings.keys():
+            if self.buildings[key]["inventory_quantity"] is not None:
+                self.buildings[key]["count"] = count
+                self.buildings[key]["rect"].y = (self.bar_rect.y + #Start
+                                self.SPACE_BETWEEN_BUILDING_THUMBNAILS + (self.MAX_THUMBNAIL_SIZE + self.SPACE_BETWEEN_BUILDING_THUMBNAILS) * count + #Row number offset
+                                self.MAX_THUMBNAIL_SIZE // 2 - self.buildings[key]["rect"].height // 2) #Centering
+                count += 1
 
     def custom_update_and_draw(self, screen):
         if not self.player_in_buildmode:
             return
         screen.blit(self.bar_image, self.bar_rect.topleft)
-        self.draw_all_buildings_held_in_inventory(screen)
-        self.draw_build_tooltips(screen)
+        self._draw_all_buildings_held_in_inventory(screen)
+        self._draw_build_tooltips(screen)
+        self._refresh_quantity_counts()
+        self._draw_quantity_text_next_to_items(screen)
+        
+
 
 class OverworldCoinText(pygame.sprite.Sprite):
     def __init__(self, hudx, hudy, coincount):
@@ -675,6 +703,12 @@ class ShopMenu(pygame.sprite.Sprite):
                 "item": "tinyPot",
                 "imageLink": "assets/overworldtiles/tinyPot.png",
                 "cost": 4,
+                "type": "primary",
+            },
+            3: {
+                "item": "tinyFlower",
+                "imageLink": "assets/overworldtiles/tinyFlower.png",
+                "cost": 10,
                 "type": "primary",
             }
         }

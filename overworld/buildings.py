@@ -46,6 +46,13 @@ def get_tinyPot_tiles(topleftTile: tuple):
     coordDict[(topleftx, toplefty)] = 7
     return coordDict
 
+def get_tinyFlower_tiles(topleftTile: tuple):
+    topleftx = topleftTile[0]
+    toplefty = topleftTile[1]
+    coordDict = {}
+    coordDict[(topleftx, toplefty)] = 16
+    return coordDict
+
 def get_shopHut_tiles(topleftTile: tuple):
     topleftx = topleftTile[0]
     toplefty = topleftTile[1]
@@ -66,6 +73,7 @@ building_functions = {
         "smallDungeon": get_smallDungeon_tiles,
         "largeHut": get_largeHut_tiles,
         "tinyPot": get_tinyPot_tiles,
+        "tinyFlower": get_tinyFlower_tiles,
         "shopHut": get_shopHut_tiles
     }
 
