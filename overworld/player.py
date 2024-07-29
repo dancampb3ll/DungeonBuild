@@ -39,28 +39,6 @@ class Player(pygame.sprite.Sprite):
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
         self.gameworld = "overworld"
 
-    def scroll_change_selected_building(self, input_events, left_tooltip_instance):
-        #Left tooltip is needed as an object to a
-        if not self.buildmode:
-            return
-        UPWARD_SCROLL = 1
-        DOWNWARD_SCROLL = -1
-        for event in input_events:
-             if event.type == pygame.MOUSEWHEEL:
-                if event.y == UPWARD_SCROLL:
-                    if self.selected_building_index == len(BUILDING_TYPES) - 1:
-                        self.selected_building_index = 0
-                    else:
-                        self.selected_building_index += 1
-                elif event.y == DOWNWARD_SCROLL:
-                    if self.selected_building_index == 0:
-                        self.selected_building_index = len(BUILDING_TYPES) - 1
-                    else:
-                        self.selected_building_index -= 1
-        self.selected_building = BUILDING_TYPES[self.selected_building_index]
-        if left_tooltip_instance:
-            left_tooltip_instance.building_type = self.selected_building
-
     def detect_tile_collisions(self, camera_group, xspeed, yspeed):
         for sprite in camera_group:
             if sprite.type == "tile":
@@ -140,7 +118,7 @@ class Player(pygame.sprite.Sprite):
                 self.aniframe += 1
                 self.aniframe_time_count = 0
 
-    def check_build_mode(self, input_events, buildhud, camera_group):
+    def set_build_mode_from_input(self, input_events, buildhud, camera_group):
         for event in input_events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b and not self.B_key_down:
@@ -156,11 +134,11 @@ class Player(pygame.sprite.Sprite):
             if sprite.type == "tile":
                 if sprite.tile == "overgroundBorder":
                     if buildmode:
-                        sprite.image = sprite.raw_image
+                        sprite.image = sprite.raw_image.copy()
                         sprite.ignorecolour = (123, 123, 123) #This is a random colour
                         sprite.image.set_colorkey(sprite.ignorecolour)
                     else:
-                        sprite.image = sprite.raw_image
+                        sprite.image = sprite.raw_image.copy()
                         sprite.ignorecolour = (0, 0, 0)
                         sprite.image.set_colorkey(sprite.ignorecolour)
 
@@ -273,7 +251,6 @@ class Player(pygame.sprite.Sprite):
 
     def update_player_image_from_direction_and_aniframe(self):
         self.image = pygame.image.load(f"assets/player/overworld/{self.facing_direction}{self.aniframe}.png").convert_alpha()
-        #self.image.set_colorkey((255,255,251))
 
     def check_portal_collisions(self, player_collision_side, sprite):
         if sprite.portal_type == None:
@@ -292,7 +269,6 @@ class Player(pygame.sprite.Sprite):
         self.gameworld = sprite.portal_type
 
     def custom_update(self, input_events, left_tooltip_instance):
-        #self.scroll_change_selected_building(input_events, left_tooltip_instance)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
 
@@ -301,11 +277,3 @@ class Player(pygame.sprite.Sprite):
         if calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < settings.OVERWORLD_SHOPKEEPER_WORKING_DISTANCE:
             result = True
         return result
-
-    def update(self):
-        None
-        #print((self.rect.x // OVERWORLD_TILE_SIZE, self.rect.y // OVERWORLD_TILE_SIZE))
-        #debug = f"self.rect.center {self.rect.center} | self.rect.bottomleft {self.rect.bottomleft} | self.rect.topright {self.rect.topright} | self.rect.center tile {self.rect.center[0] // (OVERWORLD_TILE_SIZE)} | self.rect.bottomleft tile {self.rect.bottomleft[0] // OVERWORLD_TILE_SIZE} | self.rect.topright tile {self.rect.topright[0] // OVERWORLD_TILE_SIZE}"
-        #if debug != self.debug:
-        #    self.debug = debug
-        #    print(self.debug)

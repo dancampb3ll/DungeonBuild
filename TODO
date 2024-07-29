@@ -1,6 +1,5 @@
 Short term
 Make shop only viewable when in buildmode (show B button hint)
-Give text error near player when out of inventory, out of grass, obstruction
 Make grass greyed/crossed out when none held
 Fix blue tile selected when not hovered
 Add quantity button to shop.

@@ -43,7 +43,6 @@ class OutdoorTile(pygame.sprite.Sprite):
 
     def update(self):
         None
-        #self.image.set_colorkey(self.ignorecolour)
 
 
 WALKABLE = ["overgroundGrass", "tinyFlower", "cobblestone"]

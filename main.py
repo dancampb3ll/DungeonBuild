@@ -389,7 +389,7 @@ def main():
 
             #overworldcamera contains tile sprites, which are used to detect collisions.
             player.move_player(overworldcamera)
-            player.check_build_mode(input_events, buildhud, overworldcamera)
+            player.set_build_mode_from_input(input_events, buildhud, overworldcamera)
             player.custom_update(input_events, "DELETE THIS")
 
             #If none returned from get coords, nothing is changed on overworldmap dict
