@@ -26,6 +26,7 @@ def calculate_distance_pythagoras(point1: tuple, point2: tuple):
 
 
 class Npc(pygame.sprite.Sprite):
+
     def __init__(self, pygame_group, gridx, gridy, npctype):
         super().__init__(pygame_group)
         self.type = "npc"
@@ -354,12 +355,14 @@ class Projectile(pygame.sprite.Sprite):
         self.initial_throw_position = None
         self.in_thrown_state = False
         self.honing_coordinates = None
+        self.honingx_speedmod = None
+        self.honingy_speedmod = None
         self.update_weapon_position_when_held_by_npc()
         
-        self.MAX_LIFE_TIMER = 40
+        self.MAX_LIFE_TIMER = 140
         self.life_timer = 0
 
-        self.honing_speed = 1/24
+        self.honing_speed = 5.8
         
         self.sfx = pygame.mixer.Sound(f"assets/sfx/underworld/{self.parent.npc}/throw_projectile.mp3")
 
@@ -386,10 +389,18 @@ class Projectile(pygame.sprite.Sprite):
             return
         self.in_thrown_state = True
         self.initial_throw_position = self.rect.center
-        self.honing_coordinates = (player.rect.center[0], player.rect.center[1])
-        self.abs_x_diff = int(self.honing_speed * abs(self.rect.x - self.honing_coordinates[0]))
-        self.abs_y_diff = int(self.honing_speed * abs(self.rect.y - self.honing_coordinates[1]))
+        self.honing_coordinates = utils.find_point_on_diagonal_line_between_two_points(self.initial_throw_position[0], self.initial_throw_position[1], player.rect.center[0], player.rect.center[1])
+        x3, y3 = self.honing_coordinates
+        dx = x3 - self.initial_throw_position[0]
+        dy = y3 - self.initial_throw_position[1]
+        ventor_length = math.sqrt(dx**2 + dy**2)
+        self.honingx_speedmod = dx/ventor_length
+        self.honingy_speedmod = dy/ventor_length
         self.play_projectile_thrown_sfx()
+
+    def accelerate_honing_spear(self):
+        ACCELERATE_PARAMETER = 0.05
+        self.honing_speed += ACCELERATE_PARAMETER
 
     def rotate_spear(self):
         if self.honing_coordinates:
@@ -415,20 +426,16 @@ class Projectile(pygame.sprite.Sprite):
             return
         PRECISENESS_DAMPNER = 2 #Stops shaky affect when at end of throw
         if self.rect.centerx + PRECISENESS_DAMPNER < self.honing_coordinates[0]:
-            self.rect.x += self.abs_x_diff
+            self.rect.x += self.honing_speed * self.honingx_speedmod
         elif self.rect.centerx - PRECISENESS_DAMPNER > self.honing_coordinates[0]:
-            self.rect.x -= self.abs_x_diff
+            self.rect.x += self.honing_speed * self.honingx_speedmod
         if self.rect.centery + PRECISENESS_DAMPNER < self.honing_coordinates[1]:
-            self.rect.y += self.abs_y_diff
+            self.rect.y += self.honing_speed * self.honingy_speedmod
         elif self.rect.centery - PRECISENESS_DAMPNER > self.honing_coordinates[1]:
-            self.rect.y -= self.abs_y_diff
+            self.rect.y += self.honing_speed * self.honingy_speedmod
         
         self.rotate_spear()
-        
-        #print(f"Distance: {calculate_distance_pythagoras(self.rect.center, self.honing_coordinates)}")
-        if calculate_distance_pythagoras(self.rect.center, self.honing_coordinates) < 14:
-            self.kill_custom()
-            self.honing_coordinates = None
+        self.accelerate_honing_spear()
 
     def kill_custom(self):
         #Needed to re-initialise spear in parent npc

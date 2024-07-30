@@ -2,6 +2,31 @@ import pygame
 
 floating_text_group = pygame.sprite.Group()
 
+def find_point_on_diagonal_line_between_two_points(x1, y1, x2, y2, xdistance=20000):
+    """
+    Gets a point at a diagonal line between 2 points, where an x distance is given away from the original x point.
+    """
+    
+    #Prevents errors with both points being the same
+    if x2 == x1:
+        x2 += 1
+        print("run1")
+    if y2 == y1:
+        y2 += 1
+        print("run2")
+    
+    m = (y2 - y1) / (x2 - x1)
+
+    if x2 < x1:
+        xdistance *= -1
+
+    x3 = x1 + xdistance
+    
+    y3 = y1 + xdistance * m
+
+    return (x3, y3)
+
+
 class FloatingText(pygame.sprite.Sprite):
         def __init__(self, pygame_group, startx, starty, value, time_limit=80, bold_choice=True, font_size=14, colour=(255,255,255)):
             super().__init__(pygame_group)
