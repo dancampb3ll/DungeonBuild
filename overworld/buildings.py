@@ -60,6 +60,14 @@ def get_cobblestone_tiles(topleftTile: tuple):
     coordDict[(topleftx, toplefty)] = 17
     return coordDict
 
+def get_bench_tiles(topleftTile: tuple):
+    topleftx = topleftTile[0]
+    toplefty = topleftTile[1]
+    coordDict = {}
+    coordDict[(topleftx, toplefty)] = 18
+    coordDict[(topleftx + 1, toplefty)] = 19
+    return coordDict
+
 def get_shopHut_tiles(topleftTile: tuple):
     topleftx = topleftTile[0]
     toplefty = topleftTile[1]
@@ -82,7 +90,8 @@ building_functions = {
         "tinyPot": get_tinyPot_tiles,
         "tinyFlower": get_tinyFlower_tiles,
         "shopHut": get_shopHut_tiles,
-        "cobblestone": get_cobblestone_tiles
+        "cobblestone": get_cobblestone_tiles,
+        "bench": get_bench_tiles
     }
 
 BUILDING_TYPES = [key for key in building_functions.keys()]

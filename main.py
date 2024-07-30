@@ -35,7 +35,8 @@ class GameState():
             "overgroundGrass": 0,
             "tinyPot": 0,
             "tinyFlower": 0,
-            "cobblestone": 0
+            "cobblestone": 0,
+            "bench": 0
             }
 
         self.underworldcamera = CameraGroup()
@@ -79,8 +80,8 @@ class GameState():
     def create_new_game_gamestate(self, worldname):
         self.reset_initial_gamestate()
         self.overworld_map_dict = copy.deepcopy(overworld.tiles.default_overworldmapdict)
-        self.overworldplayer_init_grid_x = 30#12
-        self.overworldplayer_init_grid_y = 20#32
+        self.overworldplayer_init_grid_x = 20
+        self.overworldplayer_init_grid_y = 27
         self.initialise_tile_sprite_dict_from_tilemap()
         self.temp_spawn_creation_REFACTOR()
         self.save_name = worldname

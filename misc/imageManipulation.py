@@ -99,7 +99,7 @@ for path in ["assets/tooltips/tinyPot.png"]:
 #"""
 
 #""" Replace chroma with other image
-replace_image_path = "assets/overworldtiles/tinyFlower.png"
+replace_image_path = "assets/overworldtiles/bench.png"
 replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
 new_path = replace_image_path + " replaced.png"
 replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)

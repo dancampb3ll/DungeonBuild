@@ -3,6 +3,9 @@ Make shop only viewable when in buildmode (show B button hint)
 Make grass greyed/crossed out when none held
 Add quantity button to shop.
 Add remove building button
+    - Make player-built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
+    
+Sort out enemy knockback being stuck outside walls - modularise knockback into utils?
 
 place_building_get_coords
     - Hover should hover the whole building size
@@ -33,7 +36,7 @@ animate slime
 make skeleton with spear throw
 Make coin drops random/move a bit
 
-Sort out enemy knockback being stuck on walls
+
 
 
 Make enemies red when hit
@@ -50,9 +53,7 @@ Make underworld sprite dict?
 
 Make portal side collision work - why does it work from every side?
 
-
 Make enemies not walk on each other
-add knockback resistance to npcs
 
 ********************************************************************************
 List before completion
@@ -67,8 +68,6 @@ List before completion
 ********************************************************************************
 
 
-
-Make player-built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
 
 
 Create build/money logic

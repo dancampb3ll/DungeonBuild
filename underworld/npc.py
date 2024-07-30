@@ -88,7 +88,7 @@ class Npc(pygame.sprite.Sprite):
                 "coindrop_min": 4,
                 "coindrop_max": 8,
                 "attack_type": "ranged",
-                "attack_range": 150,
+                "attack_range": 220,
                 "animation_speed": 20,
                 "animation_frames_list": [1, 2]
             }
@@ -166,7 +166,7 @@ class Npc(pygame.sprite.Sprite):
 
     def move_projectile_with_player(self):
         if self.attack_type == "ranged":
-            self.projectile.update_weapon_position()
+            self.projectile.update_weapon_position_when_held_by_npc()
 
     def take_damage(self, weapon):
         weapon_damage = weapon.damage
@@ -351,17 +351,22 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = -999
         self.rect.y = -999
+        self.initial_throw_position = None
         self.in_thrown_state = False
         self.honing_coordinates = None
-        self.update_weapon_position()
+        self.update_weapon_position_when_held_by_npc()
         
         self.MAX_LIFE_TIMER = 40
         self.life_timer = 0
 
-        self.honing_speed = 1/20
+        self.honing_speed = 1/24
+        
+        self.sfx = pygame.mixer.Sound(f"assets/sfx/underworld/{self.parent.npc}/throw_projectile.mp3")
 
+    def play_projectile_thrown_sfx(self):
+        self.sfx.play()
 
-    def update_weapon_position(self):
+    def update_weapon_position_when_held_by_npc(self):
         if self.honing_coordinates == None:
             X_OFFSET_FROM_NPC = 8
             Y_OFFSET_FROM_NPC = -18
@@ -380,17 +385,20 @@ class Projectile(pygame.sprite.Sprite):
         if self.in_thrown_state:
             return
         self.in_thrown_state = True
+        self.initial_throw_position = self.rect.center
         self.honing_coordinates = (player.rect.center[0], player.rect.center[1])
         self.abs_x_diff = int(self.honing_speed * abs(self.rect.x - self.honing_coordinates[0]))
         self.abs_y_diff = int(self.honing_speed * abs(self.rect.y - self.honing_coordinates[1]))
+        self.play_projectile_thrown_sfx()
 
     def rotate_spear(self):
         if self.honing_coordinates:
+            initx1, inity1 = self.initial_throw_position
             x1, y1 = self.rect.center
             x2, y2 = self.honing_coordinates
             
             # Calculate the angle in radians
-            angle_radians = math.atan2(y2 - y1, x2 - x1)
+            angle_radians = math.atan2(y2 - inity1, x2 - initx1)
             
             # Convert to degrees
             angle_degrees = math.degrees(angle_radians) + 90
@@ -405,14 +413,14 @@ class Projectile(pygame.sprite.Sprite):
     def perform_throw_honing_movement(self):
         if self.honing_coordinates == None:
             return
-        #print(f"{self.parent.randomid} Honing to {self.honing_coordinates}. Xdiff: {self.abs_x_diff}")
-        if self.rect.centerx < self.honing_coordinates[0]:
+        PRECISENESS_DAMPNER = 2 #Stops shaky affect when at end of throw
+        if self.rect.centerx + PRECISENESS_DAMPNER < self.honing_coordinates[0]:
             self.rect.x += self.abs_x_diff
-        elif self.rect.centerx > self.honing_coordinates[0]:
+        elif self.rect.centerx - PRECISENESS_DAMPNER > self.honing_coordinates[0]:
             self.rect.x -= self.abs_x_diff
-        if self.rect.centery < self.honing_coordinates[1]:
+        if self.rect.centery + PRECISENESS_DAMPNER < self.honing_coordinates[1]:
             self.rect.y += self.abs_y_diff
-        elif self.rect.centery > self.honing_coordinates[1]:
+        elif self.rect.centery - PRECISENESS_DAMPNER > self.honing_coordinates[1]:
             self.rect.y -= self.abs_y_diff
         
         self.rotate_spear()
@@ -432,7 +440,6 @@ class Projectile(pygame.sprite.Sprite):
             return
         if self.life_timer < self.MAX_LIFE_TIMER:
             self.life_timer += 1
-            print(self.life_timer)
             return
         self.kill_custom()
 

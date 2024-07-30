@@ -79,6 +79,11 @@ class BuildHud(pygame.sprite.Sprite):
                 "imageLink": "assets/hud/buildThumbnails/cobblestone.png",
                 "inventory_quantity": None
             },
+            "bench": {
+                "item": "bench",
+                "imageLink": "assets/hud/buildThumbnails/bench.png",
+                "inventory_quantity": None
+            }
         }
 
         for key in self.buildings.keys():
@@ -764,6 +769,12 @@ class ShopMenu(pygame.sprite.Sprite):
                 "imageLink": "assets/overworldtiles/cobblestone.png",
                 "cost": 2,
                 "type": "primary",
+            },
+            5: {
+                "item": "bench",
+                "imageLink": "assets/hud/buildthumbnails/bench.png",
+                "cost": 8,
+                "type": "primary", 
             }
         }
         self.shop_item_count = len(self.shop_options.keys())
