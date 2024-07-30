@@ -6,9 +6,7 @@ import lighting
 WALKABLE = ["cobblestone", "cobblestoneMossy", "woodenPlank"]
 underworldmapdict = {}
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
-DARKNESS_PARAMETER = 0.6 #1 Max / #0.8 Recommended
 
-darkenmax = (255, 255, 255)
 
 class UnderworldTile(pygame.sprite.Sprite):
     """A tile is initialised with a gridx and gridy location. The true x and true y are then multiples of these by the tile size.\n
@@ -68,7 +66,8 @@ def generate_cobblestone_square_with_border(input_map, gridwidth, gridheight, st
     new_map = input_map
     for i in range(start_x - 1, start_x + gridwidth + 1): #Adding border around spawn room
         for j in range(start_y - 1, start_y + gridheight + 1):
-            new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
+            if input_map.get((i,j), [None])[0] != "cobblestone":
+                new_map[(i, j)] = ["border", DEFAULT_NO_TILE_PORTAL]
     for i in range(start_x, start_x + gridwidth):
         for j in range(start_y, start_y + gridheight):
             new_map[(i, j)] = ["cobblestone", DEFAULT_NO_TILE_PORTAL]
@@ -79,7 +78,10 @@ def generate_cobblestone_square_with_border(input_map, gridwidth, gridheight, st
 def generate_small_wooden_loot_island(map):
     WALKWAY_LENGTH = 6
     new_map = {}
-    start_tile_potentials = list(map.keys())
+    start_tile_potentials = []
+    for key, value in map.items():
+        if value[0] == "cobblestone":
+            start_tile_potentials.append(key)
     
     collision = True
 
@@ -88,12 +90,13 @@ def generate_small_wooden_loot_island(map):
         new_map = {}
         random_start_tile = start_tile_potentials[random.randint(0, len(start_tile_potentials) - 1)]
         topleftx = random_start_tile[0]
+        print(random_start_tile)
         toplefty = random_start_tile[1]
         
         #Making path
-        for i in range(0, WALKWAY_LENGTH):
-            new_map[(topleftx - 1, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
+        for i in range(1, WALKWAY_LENGTH):
             new_map[(topleftx, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
+            new_map[(topleftx + 1, toplefty + i)] = ["woodenPlank", DEFAULT_NO_TILE_PORTAL]
         
         #Making cross section
         for i in range(0,8):
@@ -137,7 +140,7 @@ def generate_cobblestone_walkway(input_map, gridwidth, gridheight, start_x, star
     new_map = input_map
     for i in range(start_x, start_x + gridwidth):
         for j in range(start_y, start_y + gridheight):
-            if new_map.get((i, j), None) == None or new_map.get((i, j), None)[0] == "border":
+            #if new_map.get((i, j), None) == None or new_map.get((i, j), None)[0] == "border":
                 new_map[(i, j)] = ["cobblestone", DEFAULT_NO_TILE_PORTAL]
     #Adding border
     for i in range(start_x - 1, start_x + gridwidth + 1):

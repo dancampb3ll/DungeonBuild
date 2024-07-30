@@ -96,8 +96,8 @@ def detect_building_worldmap_collision_place_and_changes(worldmapdict, overworld
                     "You must build grass here first.", colour=(255, 30, 50), font_size=12)
             return None
         if tilename not in BUILDABLE:
-            utils.FloatingText(utils.floating_text_group, topleftTile[0] * settings.OVERWORLD_TILE_SIZE, topleftTile[1] * settings.OVERWORLD_TILE_SIZE,
-                    "Cannot build on this material.", colour=(255, 30, 50), font_size=12)
+            #utils.FloatingText(utils.floating_text_group, topleftTile[0] * settings.OVERWORLD_TILE_SIZE, topleftTile[1] * settings.OVERWORLD_TILE_SIZE,
+            #        "Cannot build on this material.", colour=(255, 30, 50), font_size=12)
             #Returns the original worldmapdict (unedited) if any of the tiles in the coodinates to get built on are non-buildable tiles
             return None
         if coordinate in player_coords_list_to_avoid_building_on: #If player standing on any of the tiles in the coodinates to get built, don't build

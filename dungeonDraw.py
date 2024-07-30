@@ -49,7 +49,7 @@ material_colour_representations = {
     "woodenPlank": (30, 70, 70)
 }
 
-GENERATE_COUNT = 10
+GENERATE_COUNT = 100
 for i in range(GENERATE_COUNT):
     print(f"Printing image {i} ******************************************************")
     map, spawns = underworld.tiles.generate_new_map_dict_and_spawns()
