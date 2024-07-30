@@ -27,7 +27,7 @@ class GameState():
         self.overworldcamera = CameraGroup()
         self.overworldplayer_init_grid_x = 0
         self.overworldplayer_init_grid_y = 0
-        self.overworld_coincount = 123
+        self.overworld_coincount = 5
         self.in_overworld_pause_menu = False
         self.save_name = "NaN"
 

@@ -20,8 +20,6 @@ def apply_lighting_from_player(raw_image, self_mid_coords, player_mid_coords):
             image.fill(darkenmax, special_flags=pygame.BLEND_RGB_SUB)
             return image
         
-
-        
         darken1 = (50*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER, 60*DARKNESS_PARAMETER)
         darken2 = (70*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER, 80*DARKNESS_PARAMETER) 
         darken3 = (90*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER, 100*DARKNESS_PARAMETER)

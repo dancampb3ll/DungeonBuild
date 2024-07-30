@@ -1,11 +1,12 @@
 Short term
+Sort out enemy knockback being stuck outside walls - modularise knockback into utils?
+
 Make shop only viewable when in buildmode (show B button hint)
 Make grass greyed/crossed out when none held
 Add quantity button to shop.
 Add remove building button
     - Make player-built structures be stored somewhere (so they can later be removed and replaced with grass if wished)
     
-Sort out enemy knockback being stuck outside walls - modularise knockback into utils?
 
 place_building_get_coords
     - Hover should hover the whole building size
@@ -58,7 +59,7 @@ Make enemies not walk on each other
 ********************************************************************************
 List before completion
 ********************************************************************************
-1. Random dungeon generation (semi complete)
+    1. Random dungeon generation (semi complete)
     2. Inventory System
 3. Chest generation
     4. Coin drops/Coin pickup/Coin counter
