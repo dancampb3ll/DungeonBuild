@@ -1,4 +1,5 @@
 import pygame
+import math
 
 floating_text_group = pygame.sprite.Group()
 
@@ -25,6 +26,10 @@ def find_point_on_diagonal_line_between_two_points(x1, y1, x2, y2, xdistance=200
 
     return (x3, y3)
 
+def calculate_distance_pythagoras(point1: tuple, point2: tuple):
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 class FloatingText(pygame.sprite.Sprite):
         def __init__(self, pygame_group, startx, starty, value, time_limit=80, bold_choice=True, font_size=14, colour=(255,255,255)):

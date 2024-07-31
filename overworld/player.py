@@ -3,16 +3,12 @@ import pygame
 import overworld.buildings
 import overworld.tiles
 import settings
+import utils
 
 WALKABLE_TILES = overworld.tiles.WALKABLE
 PLAYERSPEED = 2
 BUILDING_TYPES = overworld.buildings.BUILDING_TYPES
 LIGHT_BLUE = (173, 216, 230)
-
-def calculate_distance_pythagoras(point1: tuple, point2: tuple):
-    x1, y1 = point1
-    x2, y2 = point2
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy):
@@ -274,6 +270,6 @@ class Player(pygame.sprite.Sprite):
 
     def get_shop_window_shown_bool(self, shopkeeper_coords):
         result = False
-        if calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < settings.OVERWORLD_SHOPKEEPER_WORKING_DISTANCE:
+        if utils.calculate_distance_pythagoras(self.rect.center, shopkeeper_coords) < settings.OVERWORLD_SHOPKEEPER_WORKING_DISTANCE:
             result = True
         return result

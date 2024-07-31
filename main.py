@@ -13,6 +13,7 @@ import copy
 from overworld.player import Player as OverworldPlayer
 from camera import CameraGroup
 import utils
+import sys
 
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
@@ -175,10 +176,6 @@ class GameState():
 
     def update_sprite_dict_and_drawn_map(self, camera_group, player_center):
         map = self.underworld_map_dict
-        def calculate_distance_pythagoras(point1: tuple, point2: tuple):
-            x1, y1 = point1
-            x2, y2 = point2
-            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         def determine_to_draw_dict(self, camera_group, player_center):
             player_gridx = player_center[0] // settings.UNDERWORLD_TILE_SIZE
             player_gridy = player_center[1] // settings.UNDERWORLD_TILE_SIZE
@@ -186,7 +183,7 @@ class GameState():
             for coord in map.keys():
                 gridx = coord[0]
                 gridy = coord[1]
-                distance = calculate_distance_pythagoras((gridx, gridy), (player_gridx, player_gridy))
+                distance = utils.calculate_distance_pythagoras((gridx, gridy), (player_gridx, player_gridy))
                 if distance < settings.UNDERWORLD_DRAW_DISTANCE:
                     self.underworld_todraw_tile_dict[(gridx, gridy)] = True
 
@@ -341,7 +338,8 @@ def update_pause_menu(screen, clock, gamestate, overworld_player):
         input_events = pygame.event.get()
         for event in input_events:
             if event.type == pygame.QUIT:
-                return False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     gamestate.toggle_overworld_pause_state()
@@ -362,7 +360,8 @@ def update_overworld(screen, clock, gamestate, overworld_player, overworld_camer
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
-            return False
+            pygame.quit()
+            sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 gamestate.toggle_overworld_pause_state()
@@ -450,9 +449,9 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
-            #FIX THIS
-            mainloop = False
-            gamestate.selected_world = False
+            pygame.quit()
+            sys.exit()
+            
 
 
     if gamestate.current_music != UNDERWORLD_TRACK:

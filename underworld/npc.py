@@ -17,16 +17,7 @@ def reset_groups():
     coin_group = pygame.sprite.Group()
     coin_drop_text_group = pygame.sprite.Group()
 
-
-def calculate_distance_pythagoras(point1: tuple, point2: tuple):
-    x1, y1 = point1
-    x2, y2 = point2
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-
-
-
 class Npc(pygame.sprite.Sprite):
-
     def __init__(self, pygame_group, gridx, gridy, npctype):
         super().__init__(pygame_group)
         self.type = "npc"
@@ -113,7 +104,6 @@ class Npc(pygame.sprite.Sprite):
         self.attack_range = self.attributes[self.npc]["attack_range"]
         self.projectile_type = self.attributes[self.npc].get("projectile_type", self.attributes["default"]["projectile_type"])
         
-
         self.knockbackx = None
         self.knockbacky = None
         
@@ -272,7 +262,7 @@ class Npc(pygame.sprite.Sprite):
             return
         player_rect = player.rect
         player_center_pos = player_rect.center
-        distance_from_player = calculate_distance_pythagoras(self.rect.center, player_center_pos)
+        distance_from_player = utils.calculate_distance_pythagoras(self.rect.center, player_center_pos)
         #print(f"Distance from player: {distance_from_player} attack range: {self.attack_range}")
         if distance_from_player <= self.attack_range:
             self.attack_sequence(player)
