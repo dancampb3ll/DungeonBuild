@@ -268,7 +268,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = sprite.portal_destination[1] * settings.OVERWORLD_TILE_SIZE
         self.gameworld = sprite.portal_type
 
-    def custom_update(self, input_events, left_tooltip_instance):
+    def custom_update(self):
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
 

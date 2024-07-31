@@ -21,7 +21,6 @@ def find_point_on_diagonal_line_between_two_points(x1, y1, x2, y2, xdistance=200
         xdistance *= -1
 
     x3 = x1 + xdistance
-    
     y3 = y1 + xdistance * m
 
     return (x3, y3)

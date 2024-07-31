@@ -87,7 +87,7 @@ class Npc(pygame.sprite.Sprite):
                 "damage": 20,
                 "knockback": 4,
                 "coindrop_min": 4,
-                "coindrop_max": 8,
+                "coindrop_max": 16,
                 "attack_type": "ranged",
                 "attack_range": 220,
                 "animation_speed": 20,

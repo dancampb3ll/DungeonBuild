@@ -1,7 +1,7 @@
 {
-    "playergridx": 30,
-    "playergridy": 20,
-    "overworld_coincount": 47,
+    "playergridx": 27,
+    "playergridy": 24,
+    "overworld_coincount": 76,
     "overworld_map_dict": {
         "(11, 11)": 4,
         "(11, 12)": 4,
@@ -524,14 +524,19 @@
         "(33, 23)": 4,
         "(33, 24)": 4,
         "(33, 25)": 4,
-        "(33, 26)": 4,
-        "(33, 27)": 4,
-        "(33, 28)": 4,
-        "(33, 29)": 4,
-        "(33, 30)": 4,
+        "(33, 26)": 2,
+        "(33, 27)": 2,
+        "(33, 28)": 2,
+        "(33, 29)": 2,
+        "(33, 30)": 2,
         "(33, 31)": 4,
         "(33, 32)": 4,
-        "(33, 33)": 4
+        "(33, 33)": 4,
+        "(34, 26)": 4,
+        "(34, 27)": 4,
+        "(34, 28)": 4,
+        "(34, 29)": 4,
+        "(34, 30)": 4
     },
     "overworld_tile_sprite_dict": {
         "(11, 11)": {
@@ -5747,7 +5752,7 @@
         "(33, 26)": {
             "gridx": 33,
             "gridy": 26,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5757,7 +5762,7 @@
         "(33, 27)": {
             "gridx": 33,
             "gridy": 27,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5767,7 +5772,7 @@
         "(33, 28)": {
             "gridx": 33,
             "gridy": 28,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5777,7 +5782,7 @@
         "(33, 29)": {
             "gridx": 33,
             "gridy": 29,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5787,7 +5792,7 @@
         "(33, 30)": {
             "gridx": 33,
             "gridy": 30,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5823,6 +5828,63 @@
                 null,
                 null
             ]
+        },
+        "(34, 26)": {
+            "gridx": 34,
+            "gridy": 26,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(34, 27)": {
+            "gridx": 34,
+            "gridy": 27,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(34, 28)": {
+            "gridx": 34,
+            "gridy": 28,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(34, 29)": {
+            "gridx": 34,
+            "gridy": 29,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(34, 30)": {
+            "gridx": 34,
+            "gridy": 30,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
         }
+    },
+    "build_inventory": {
+        "overgroundGrass": 0,
+        "tinyPot": 0,
+        "tinyFlower": 0,
+        "cobblestone": 0,
+        "bench": 0
     }
 }

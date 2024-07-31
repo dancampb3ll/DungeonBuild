@@ -1,5 +1,8 @@
 Short term
+Put @Classmethod, @Staticmethod where appropriate
+
 Sort out enemy knockback being stuck outside walls - modularise knockback into utils?
+Idea: save last position that was on a walkable tile. If out of tile, teleport back to tile
 
 Make shop only viewable when in buildmode (show B button hint)
 Make grass greyed/crossed out when none held

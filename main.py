@@ -17,6 +17,9 @@ import utils
 TILE_COUNT = settings.SCREEN_HEIGHT / settings.OVERWORLD_TILE_SIZE
 DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
+OVERWORLD_TRACK = "assets/music/overworld/Lost-Jungle.mp3"
+UNDERWORLD_TRACK = "assets/music/underworld/Realm-of-Fantasy.mp3"
+
 class GameState():
     def __init__(self):
         self.selected_world = "title"
@@ -39,7 +42,7 @@ class GameState():
             "bench": 0
             }
 
-        self.underworldcamera = CameraGroup()
+        self.underworld_camera = CameraGroup()
         self.underworld_map_dict = {}
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
@@ -285,269 +288,299 @@ def refresh_underworld_draw_order(camera_group, player):
                 camera_group.remove(sprite)
                 camera_group.add(sprite)
 
-def main():
+def initialise_game():
+    pygame.init()
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     pygame.display.set_caption('DungeonBuild')
-    pygame.init()
-
-    #Later to be modularised
     pygame.mixer.init()
-    overworld_track = "assets/music/overworld/Lost-Jungle.mp3"
-    pygame.mixer.music.load(overworld_track)
-    GRASS_SFX = pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3")
-    BUILDING_SFX = pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
+    pygame.mixer.music.load(OVERWORLD_TRACK)
     gamestate = GameState()
-    gamestate.current_music = "assets/music/overworld/Lost-Jungle.mp3"
+    gamestate.current_music = OVERWORLD_TRACK
+    sfx_bank = {
+        "GRASS_SFX": pygame.mixer.Sound("assets/sfx/GrassPlacement.mp3"),
+        "BUILDING_SFX": pygame.mixer.Sound("assets/sfx/BuildingPlacement.mp3")
+    }
+    floating_text_group = utils.floating_text_group #Creates plain text that floats upwards in any gameworld. 
+    return screen, clock, gamestate, sfx_bank, floating_text_group
 
-    floating_text_group = utils.floating_text_group
+def update_title_menu(screen, clock, gamestate):
+    title_screen = hud.TitleMenu()
+    while gamestate.selected_world == "title":
+        input_events = pygame.event.get()
+        screen.fill((0, 0, 0))
+        title_screen.custom_draw(screen, input_events)
+        title_screen_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
+        if title_screen_state == "loadgamefile":
+            selected_world = title_screen.get_selected_world_name()
+            if selected_world != "":
+                gamestate.load_game_file(selected_world)
+        elif title_screen_state == "newgamecreated":
+            gamestate.create_new_game_gamestate(title_screen.worldname_text_entered)
+        pygame.display.update()
+        clock.tick(60)
 
-    mainloop = True
-    while mainloop:
-        title_screen = hud.TitleMenu()
-        while gamestate.selected_world == "title":
-            input_events = pygame.event.get()
-            screen.fill((0, 0, 0))
-            title_screen.custom_draw(screen, input_events)
-            title_screen_state = title_screen.get_newgame_or_loadgame_or_loadgameselection_clicked(input_events)
-            if title_screen_state == "loadgamefile":
-                selected_world = title_screen.get_selected_world_name()
-                if selected_world != "":
-                    gamestate.load_game_file(selected_world)
-            elif title_screen_state == "newgamecreated":
-                gamestate.create_new_game_gamestate(title_screen.worldname_text_entered)
-            pygame.display.update()
-            clock.tick(60)
+def initialise_overworld(gamestate):
+    pygame.mixer.music.play(-1) #Repeat unlimited
+    overworld_camera = gamestate.overworldcamera
+    overworld_hudgroup = pygame.sprite.Group()
+    overworld_bottomhud = hud.OverworldBottomHud()
+    overworld_cointext = hud.OverworldCoinText(overworld_bottomhud.rect.topleft[0], overworld_bottomhud.rect.topleft[1], gamestate.overworld_coincount)
+    buildhud = hud.BuildHud()
+    overworld_hudgroup.add(overworld_cointext)
+    shopmenu_hud = hud.ShopMenu()
+    debugtext = hud.DebugText()
+    debugtext_group = pygame.sprite.Group()
+    debugtext_group.add(debugtext)
+    overworld_player = OverworldPlayer(overworld_camera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
+    return overworld_player, overworld_camera, buildhud, overworld_cointext, debugtext, debugtext_group, overworld_bottomhud, shopmenu_hud, overworld_hudgroup
 
-        ################################################################################################
-        # Pre-overworld initialisation                                                                 #
-        ################################################################################################
+def update_pause_menu(screen, clock, gamestate, overworld_player):
+    overworld_pause_menu = hud.OverworldPauseMenu()
+    while gamestate.in_overworld_pause_menu:
+        input_events = pygame.event.get()
+        for event in input_events:
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    gamestate.toggle_overworld_pause_state()
+        overworld_pause_menu.custom_draw(screen)
+        if gamestate.in_overworld_pause_menu:
+            gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
+        if gamestate.selected_world == "title":
+            pygame.mixer.music.stop()
+            gamestate.save_game_file(overworld_player.gridx, overworld_player.gridy)
+            title_screen = hud.TitleMenu()
+        pygame.display.update()
+        clock.tick(60)
+    overworld_pause_menu.kill()
+
+def update_overworld(screen, clock, gamestate, overworld_player, overworld_camera, buildhud, overworld_cointext,
+                      overworld_bottomhud, overworld_hudgroup, shopmenu_hud, floating_text_group, debugtext, debugtext_group, sfx_bank):
+    gamestate.selected_world = overworld_player.gameworld
+    input_events = pygame.event.get()
+    for event in input_events:
+        if event.type == pygame.QUIT:
+            return False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                gamestate.toggle_overworld_pause_state()
+
+    if gamestate.in_overworld_pause_menu:
+        update_pause_menu(screen, clock, gamestate, overworld_player)
         
-        #Camera must be the first Pygame object defined.
-        overworldcamera = gamestate.overworldcamera
 
-        #HUD is separate from the camera
-        overworld_hudgroup = pygame.sprite.Group()
-        overworld_bottomhud = hud.OverworldBottomHud()
-        overworld_cointext = hud.OverworldCoinText(overworld_bottomhud.rect.topleft[0], overworld_bottomhud.rect.topleft[1], gamestate.overworld_coincount)
-        buildhud = hud.BuildHud()
-        overworld_hudgroup.add(overworld_cointext)
-
-        shopmenu_hud = hud.ShopMenu()
-
-
-        underworld_hudgroup = pygame.sprite.Group()
-
-        debugtext = hud.DebugText()
-        screentext = pygame.sprite.Group()
-        screentext.add(debugtext)
-
+    if gamestate.current_music != OVERWORLD_TRACK:
+        pygame.mixer.music.load(OVERWORLD_TRACK)
         pygame.mixer.music.play(-1) #Repeat unlimited
-        player = OverworldPlayer(overworldcamera, gamestate.overworldplayer_init_grid_x, gamestate.overworldplayer_init_grid_y)
-        gamestate.reset_underworld_gamestate()
-        while gamestate.selected_world == "overworld":
-            gamestate.selected_world = player.gameworld
-            input_events = pygame.event.get()
-            for event in input_events:
-                if event.type == pygame.QUIT:
-                    mainloop = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        gamestate.toggle_overworld_pause_state()
+    gamestate.update_current_music(OVERWORLD_TRACK)
+    screen.fill((10, 10, 18))
+    
+    overworld_cointext.update_coin_count(gamestate.overworld_coincount)
 
-            if gamestate.in_overworld_pause_menu:
-                overworld_pause_menu = hud.OverworldPauseMenu()
-                while gamestate.in_overworld_pause_menu:
-                    input_events = pygame.event.get()
-                    for event in input_events:
-                        if event.type == pygame.QUIT:
-                            mainloop = False
-                        if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_ESCAPE:
-                                gamestate.toggle_overworld_pause_state()
-                    overworld_pause_menu.custom_draw(screen)
-                    if gamestate.in_overworld_pause_menu:
-                        gamestate.selected_world, gamestate.in_overworld_pause_menu = overworld_pause_menu.get_gamestate_world_and_pause_status_from_quit_button(input_events)
-                    if gamestate.selected_world == "title":
-                        pygame.mixer.music.stop()
-                        gamestate.save_game_file(player.gridx, player.gridy)
-                        title_screen = hud.TitleMenu()
-                    pygame.display.update()
-                    clock.tick(60)
-                overworld_pause_menu.kill()
+    #Test
+    shopkeeper_test_coords = settings.OVERWORLD_SHOPKEEPER_COORDS
+    player_in_shop_range = overworld_player.get_shop_window_shown_bool(shopkeeper_test_coords)
 
-            if gamestate.current_music != overworld_track:
-                pygame.mixer.music.load(overworld_track)
-                pygame.mixer.music.play(-1) #Repeat unlimited
-            gamestate.update_current_music(overworld_track)
-            screen.fill((10, 10, 18))
-            
-            overworld_cointext.update_coin_count(gamestate.overworld_coincount)
+    #overworldcamera contains tile sprites, which are used to detect collisions.
+    overworld_player.move_player(overworld_camera)
+    overworld_player.set_build_mode_from_input(input_events, buildhud, overworld_camera)
+    overworld_player.custom_update()
 
-            #Test
-            shopkeeper_test_coords = settings.OVERWORLD_SHOPKEEPER_COORDS
-            player_in_shop_range = player.get_shop_window_shown_bool(shopkeeper_test_coords)
+    #If none returned from get coords, nothing is changed on overworldmap dict
+    player_building_placement_coords_topleft = overworld_player.place_building_get_coords(input_events, overworld_camera)
+    player_corner_coords_list = overworld_player.get_player_corner_grid_locations()
+    build_and_perform_tiledict_spritedict_updates(gamestate, buildhud.selected_build_item, player_building_placement_coords_topleft, gamestate.build_inventory, player_corner_coords_list, sfx_bank["BUILDING_SFX"])
 
-            #overworldcamera contains tile sprites, which are used to detect collisions.
-            player.move_player(overworldcamera)
-            player.set_build_mode_from_input(input_events, buildhud, overworldcamera)
-            player.custom_update(input_events, "DELETE THIS")
+    #If none returned from get coords, nothing is changed on overworldmap dict
+    player_Grass_placement_coords = overworld_player.place_grass_block_get_coords(input_events, overworld_camera, gamestate.build_inventory)
+    valid_grass_build = build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, sfx_bank["GRASS_SFX"])
+    if valid_grass_build == 1:
+        gamestate.build_inventory["overgroundGrass"] -= 1
 
-            #If none returned from get coords, nothing is changed on overworldmap dict
-            player_building_placement_coords_topleft = player.place_building_get_coords(input_events, overworldcamera)
-            player_corner_coords_list = player.get_player_corner_grid_locations()
-            build_and_perform_tiledict_spritedict_updates(gamestate, buildhud.selected_build_item, player_building_placement_coords_topleft, gamestate.build_inventory, player_corner_coords_list, BUILDING_SFX)
+    overworld_camera.update()
+    overworld_camera.custom_draw(overworld_player)
+    
 
-            #If none returned from get coords, nothing is changed on overworldmap dict
-            player_Grass_placement_coords = player.place_grass_block_get_coords(input_events, overworldcamera, gamestate.build_inventory)
-            valid_grass_build = build_grass_block_and_perform_tile_sprite_updates(gamestate, player_Grass_placement_coords, GRASS_SFX)
-            if valid_grass_build == 1:
-                gamestate.build_inventory["overgroundGrass"] -= 1
+    ################################################################################################
+    # Overworld HUD
+    ################################################################################################
+    debugtext.update(overworld_player.gridx, overworld_player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
+    debugtext_group.draw(screen)
 
-            overworldcamera.update()
-            overworldcamera.custom_draw(player)
-            
+    buildhud.custom_update_and_draw(screen)
+    buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory, input_events)
+    overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
+    shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
+    gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
+    overworld_bottomhud.custom_draw(screen)
+    overworld_hudgroup.draw(screen)
+    overworld_camera.add(floating_text_group)
 
-            ################################################################################################
-            # Overworld HUD
-            ################################################################################################
-            debugtext.update(player.gridx, player.gridy, gamestate.overworld_map_dict, overworld.tiles.TILE_MAPPINGS)
-            screentext.draw(screen)
+    pygame.display.update()
+    clock.tick(60)
 
-            buildhud.custom_update_and_draw(screen)
-            buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory, input_events)
-            overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
-            shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
-            gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
-            overworld_bottomhud.custom_draw(screen)
-            overworld_hudgroup.draw(screen)
-            overworldcamera.add(floating_text_group)
+def initialise_underworld(gamestate, overworld_player):
+    overworld_player.kill()
+    underworld_hudgroup = pygame.sprite.Group()
+    gamestate.reset_underworld_gamestate()
+    gamestate.underworld_camera = CameraGroup()
+    underworld_camera = gamestate.underworld_camera
 
-            pygame.display.update()
-            clock.tick(60)
-        player.kill()
+    gamestate.generate_underworld_dungeon_and_update_map()
+
+    underworld.npc.reset_groups()
+    enemy_group = underworld.npc.enemy_group
+    coin_group = underworld.npc.coin_group
+    projectile_group = underworld.npc.projectile_group
+
+    gamestate.spawn_enemies_from_spawn_dict(enemy_group)
+    dagger = underworld.player.Weapon(underworld_camera, "dagger")
+    underworld_player = underworld.player.Player(underworld_camera)
+    underworld_hudbar = hud.UnderworldHud()
+    underworld_hudgroup.add(underworld_hudbar)
+
+    enemy_count = len(enemy_group)
+    enemies_killed = 0
+    return underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count, coin_group, underworld_hudbar, underworld_hudgroup, enemies_killed
+
+def update_underworld(screen, clock, gamestate, underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count,
+                    coin_group, floating_text_group, underworld_hudbar, underworld_hudgroup):
+    input_events = pygame.event.get()
+    for event in input_events:
+        if event.type == pygame.QUIT:
+            #FIX THIS
+            mainloop = False
+            gamestate.selected_world = False
 
 
-        ################################################################################################
-        # Pre-underworld initialisation                                                                 
-        ################################################################################################
-        gamestate.underworldcamera = CameraGroup()
-        underworldcamera = gamestate.underworldcamera
+    if gamestate.current_music != UNDERWORLD_TRACK:
+        pygame.mixer.music.load(UNDERWORLD_TRACK)
+        pygame.mixer.music.play(-1) #Repeat unlimited
+    gamestate.update_current_music(UNDERWORLD_TRACK)
+    screen.fill((0, 0, 0))
 
-        gamestate.generate_underworld_dungeon_and_update_map()
+    underworld_player.move_player(underworld_camera, gamestate.underworld_map_dict)
+    underworld_player.custom_update(underworld_camera, gamestate.underworld_map_dict)
 
-        underworld.npc.reset_groups()
-        enemy_group = underworld.npc.enemy_group
-        coin_group = underworld.npc.coin_group
-        projectile_group = underworld.npc.projectile_group
+    gamestate.update_sprite_dict_and_drawn_map(underworld_camera, underworld_player.rect.center)
 
-        gamestate.spawn_enemies_from_spawn_dict(enemy_group)
-        dagger = underworld.player.Weapon(underworldcamera, "dagger")
-        underworldplayer = underworld.player.Player(underworldcamera)
-        underworld_track = "assets/music/underworld/Realm-of-Fantasy.mp3"
-        underworld_hudbar = hud.UnderworldHud()
-        underworld_hudgroup.add(underworld_hudbar)
-
-        enemy_count = len(enemy_group)
-        enemies_killed = 0
-        while gamestate.selected_world == "underworld":
-            input_events = pygame.event.get()
-            for event in input_events:
-                if event.type == pygame.QUIT:
-                    mainloop = False
-                    gamestate.selected_world = False
+    dagger.update_weapon_position(underworld_player.rect, underworld_player.facing_direction, underworld_player.is_moving_x, underworld_player.is_moving_y)
 
 
-            if gamestate.current_music != underworld_track:
-                pygame.mixer.music.load(underworld_track)
-                pygame.mixer.music.play(-1) #Repeat unlimited
-            gamestate.update_current_music(underworld_track)
-            screen.fill((0, 0, 0))
+    refresh_underworld_draw_order(underworld_camera, underworld_player)
+    #*********************
+    underworld_camera.update()
+    underworld_camera.custom_draw(underworld_player)
+    
+    for enemy in enemy_group:
+        if enemy.alive:
+            enemy.custom_update(underworld_player, underworld_camera)
+    
+    #Applies lighting to projectile
+    for projectile in projectile_group:
+        projectile.custom_update(underworld_player.rect.center)
 
-            underworldplayer.move_player(underworldcamera, gamestate.underworld_map_dict)
-            underworldplayer.custom_update(underworldcamera, gamestate.underworld_map_dict)
+    enemies_killed = enemy_count - len(enemy_group)
 
-            gamestate.update_sprite_dict_and_drawn_map(underworldcamera, underworldplayer.rect.center)
+    dagger.update_attack_hitbox_and_detect_collisions(screen, underworld_camera, underworld_player.rect, underworld_player.facing_direction, input_events)
+    dagger.detect_enemy_weapon_collision(underworld_camera)
 
-            dagger.update_weapon_position(underworldplayer.rect, underworldplayer.facing_direction, underworldplayer.is_moving_x, underworldplayer.is_moving_y)
+    #TEMP *******************************************************************
+    underworld_camera.add(enemy_group)
+    underworld_camera.add(coin_group)
+    underworld_camera.add(projectile_group)
+    underworld_camera.add(floating_text_group)
+    for coin in coin_group:
+        coin.detect_coin_collision(underworld_player)
+    for projectile in projectile_group:
+        projectile.check_player_collision(underworld_player)
 
+    underworld_hudbar.update_coin_text(underworld_player.coins_collected)
+    #************************************************************************
 
-            refresh_underworld_draw_order(underworldcamera, underworldplayer)
-            #*********************
-            underworldcamera.update()
-            underworldcamera.custom_draw(underworldplayer)
-            
-            for enemy in enemy_group:
-                if enemy.alive:
-                    enemy.custom_update(underworldplayer, underworldcamera)
-            
-            #Applies lighting to projectile
-            for projectile in projectile_group:
-                projectile.custom_update(underworldplayer.rect.center)
+    if not settings.DARKNESS_DEBUG:
+        for key in gamestate.underworld_tile_sprite_dict.keys():
+            gamestate.underworld_tile_sprite_dict[key].custom_update(underworld_player.rect.center)
+    
+    underworld_hudgroup.draw(screen)
+    underworld_hudbar.custom_draw(screen)
+    underworld_hudbar.update_health_hud(underworld_player.health)
+    gamestate.selected_world = underworld_player.gameworld
+    
+    pygame.display.update()
+    clock.tick(60)
 
-            enemies_killed = enemy_count - len(enemy_group)
-
-            dagger.update_attack_hitbox_and_detect_collisions(screen, underworldcamera, underworldplayer.rect, underworldplayer.facing_direction, input_events)
-            dagger.detect_enemy_weapon_collision(underworldcamera)
-
-            #TEMP *******************************************************************
-            underworldcamera.add(enemy_group)
-            underworldcamera.add(coin_group)
-            underworldcamera.add(projectile_group)
-            underworldcamera.add(floating_text_group)
-            for coin in coin_group:
-                coin.detect_coin_collision(underworldplayer)
-            for projectile in projectile_group:
-                projectile.check_player_collision(underworldplayer)
-
-            underworld_hudbar.update_coin_text(underworldplayer.coins_collected)
-            #************************************************************************
-
-            if not settings.DARKNESS_DEBUG:
-                for key in gamestate.underworld_tile_sprite_dict.keys():
-                    gamestate.underworld_tile_sprite_dict[key].custom_update(underworldplayer.rect.center)
-            
-            underworld_hudgroup.draw(screen)
-            underworld_hudbar.custom_draw(screen)
-            underworld_hudbar.update_health_hud(underworldplayer.health)
-            gamestate.selected_world = underworldplayer.gameworld
-            
-            pygame.display.update()
-            clock.tick(60)
-
+def initialise_dungeon_complete_screen(underworld_hudbar, enemies_killed):
         dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
         dungeon_complete_rect = dungeon_complete.get_rect()
         dungeon_complete_texts = hud.DungeonCompleteText(underworld_hudbar.coins_earned_in_dungeon, enemies_killed)
-        while gamestate.selected_world == "dungeonComplete":
-            pygame.mixer.music.stop()
-            screen.fill((0, 0, 0))
-            dungeon_complete_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
-            screen.blit(dungeon_complete, dungeon_complete_rect.topleft)
-            dungeon_complete_texts.custom_draw(screen)
-            
-            input_events = pygame.event.get()
-            for event in input_events:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        gamestate.selected_world = "overworld"
-                        gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
-            pygame.display.update()
-            clock.tick(60)
+        return dungeon_complete, dungeon_complete_rect, dungeon_complete_texts
 
-        dungeon_death = pygame.image.load('assets/splashscreens/dungeonDeath.png').convert_alpha()
-        dungeon_death_rect = dungeon_death.get_rect()
+def update_dungeon_complete(clock, screen, gamestate, dungeon_complete, dungeon_complete_rect, dungeon_complete_texts, underworld_hudbar):
+    pygame.mixer.music.stop()
+    screen.fill((0, 0, 0))
+    dungeon_complete_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
+    screen.blit(dungeon_complete, dungeon_complete_rect.topleft)
+    dungeon_complete_texts.custom_draw(screen)
+    
+    input_events = pygame.event.get()
+    for event in input_events:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                gamestate.selected_world = "overworld"
+                gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
+    pygame.display.update()
+    clock.tick(60)
+
+def initialise_dungeon_death_screen():
+    dungeon_death = pygame.image.load('assets/splashscreens/dungeonDeath.png').convert_alpha()
+    dungeon_death_rect = dungeon_death.get_rect()
+    return dungeon_death, dungeon_death_rect
+
+def update_dungeon_death_screen(clock, screen, gamestate, dungeon_death, dungeon_death_rect):
+    pygame.mixer.music.stop()
+    screen.fill((0, 0, 0))
+    dungeon_death_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
+    screen.blit(dungeon_death, dungeon_death_rect.topleft)
+    input_events = pygame.event.get()
+    for event in input_events:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                gamestate.selected_world = "overworld"
+    pygame.display.update()
+    clock.tick(60)
+
+def main():
+    screen, clock, gamestate, sfx_bank, floating_text_group = initialise_game()
+    while True:
+        #Title
+        update_title_menu(screen, clock, gamestate)
+
+        #Overworld
+        (overworld_player, overworld_camera, buildhud, overworld_cointext, debugtext, debugtext_group,
+        overworld_bottomhud, shopmenu_hud, overworld_hudgroup) = initialise_overworld(gamestate)
+        while gamestate.selected_world == "overworld":
+            update_overworld(screen, clock, gamestate, overworld_player, overworld_camera, buildhud, overworld_cointext,
+                            overworld_bottomhud, overworld_hudgroup, shopmenu_hud, floating_text_group, debugtext, debugtext_group, sfx_bank)
+
+        #Underworld
+        (underworld_camera, underworld_player, dagger, enemy_group, projectile_group,
+        enemy_count, coin_group, underworld_hudbar, underworld_hudgroup, enemies_killed) = initialise_underworld(gamestate, overworld_player)
+        while gamestate.selected_world == "underworld":
+            update_underworld(screen, clock, gamestate, underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count,
+                    coin_group, floating_text_group, underworld_hudbar, underworld_hudgroup)
+
+        #Dungeon Complete
+        dungeon_complete, dungeon_complete_rect, dungeon_complete_texts = initialise_dungeon_complete_screen(underworld_hudbar, enemies_killed)
+        while gamestate.selected_world == "dungeonComplete":
+            update_dungeon_complete(clock, screen, gamestate, dungeon_complete, dungeon_complete_rect, dungeon_complete_texts, underworld_hudbar)
+
+        #Dungeon Death
+        dungeon_death, dungeon_death_rect = initialise_dungeon_death_screen()
         while gamestate.selected_world == "dungeonDeath":
-            pygame.mixer.music.stop()
-            screen.fill((0, 0, 0))
-            dungeon_death_rect.center = (settings.SCREEN_WIDTH // 2, settings.SCREEN_HEIGHT // 2)
-            screen.blit(dungeon_death, dungeon_death_rect.topleft)
-            input_events = pygame.event.get()
-            for event in input_events:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        gamestate.selected_world = "overworld"
-            pygame.display.update()
-            clock.tick(60)
+            update_dungeon_death_screen(clock, screen, gamestate, dungeon_death, dungeon_death_rect)
 
 if __name__ == "__main__":
     main()
