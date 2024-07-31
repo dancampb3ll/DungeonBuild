@@ -6,9 +6,11 @@ import settings
 import utils
 
 WALKABLE_TILES = overworld.tiles.WALKABLE
-PLAYERSPEED = 2
+FPS = settings.FPS
+PLAYERSPEED = 120
 BUILDING_TYPES = overworld.buildings.BUILDING_TYPES
 LIGHT_BLUE = (173, 216, 230)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pygame_group, gridx, gridy):
@@ -35,26 +37,26 @@ class Player(pygame.sprite.Sprite):
         self.selected_building = BUILDING_TYPES[self.selected_building_index]
         self.gameworld = "overworld"
 
-    def detect_tile_collisions(self, camera_group, xspeed, yspeed):
+    def detect_tile_collisions(self, camera_group, xspeed_dt, yspeed_dt):
         for sprite in camera_group:
             if sprite.type == "tile":
                 collide = sprite.rect.colliderect(self.rect)
                 if collide:
                     if sprite.tile not in WALKABLE_TILES:
-                        if xspeed > 0:
+                        if xspeed_dt > 0:
                             self.rect.right = sprite.rect.left
                             self.check_portal_collisions("right", sprite)
-                        elif xspeed < 0:
+                        elif xspeed_dt < 0:
                             self.rect.left = sprite.rect.right
                             self.check_portal_collisions("left", sprite)
-                        if yspeed > 0:
+                        if yspeed_dt > 0:
                             self.rect.bottom = sprite.rect.top
                             self.check_portal_collisions("bottom", sprite)
-                        elif yspeed < 0:
+                        elif yspeed_dt < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
 
-    def move_player(self, camera_group):
+    def move_player(self, camera_group, dt):
         direction_pressed = False #Used to check if player is walking
         if self.buildmode:
             return
@@ -76,26 +78,26 @@ class Player(pygame.sprite.Sprite):
         #left
         if key[pygame.K_a]:
             self.facing_direction = "left"
-            self.rect.x -= self.speed
-            self.detect_tile_collisions(camera_group, -self.speed, 0)
+            self.rect.x -= self.speed * dt
+            self.detect_tile_collisions(camera_group, -self.speed * dt, 0)
             direction_pressed = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
-            self.rect.x += self.speed
-            self.detect_tile_collisions(camera_group, self.speed, 0)
+            self.rect.x += self.speed * dt
+            self.detect_tile_collisions(camera_group, self.speed * dt, 0)
             direction_pressed = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
-            self.rect.y += self.speed
-            self.detect_tile_collisions(camera_group, 0, self.speed)
+            self.rect.y += self.speed * dt
+            self.detect_tile_collisions(camera_group, 0, self.speed * dt)
             direction_pressed = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
-            self.rect.y -= self.speed
-            self.detect_tile_collisions(camera_group, 0, -self.speed)
+            self.rect.y -= self.speed * dt
+            self.detect_tile_collisions(camera_group, 0, -self.speed * dt)
             direction_pressed = True
         
         #Changes the frame to the next frame in the current direction.

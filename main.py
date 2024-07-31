@@ -20,6 +20,7 @@ DEFAULT_NO_TILE_PORTAL = [None, None, None]
 
 OVERWORLD_TRACK = "assets/music/overworld/Lost-Jungle.mp3"
 UNDERWORLD_TRACK = "assets/music/underworld/Realm-of-Fantasy.mp3"
+FPS = settings.FPS
 
 class GameState():
     def __init__(self):
@@ -48,6 +49,9 @@ class GameState():
         self.underworld_npc_spawn_dict = {}
         self.underworld_tile_sprite_dict = {}
         self.underworld_todraw_tile_dict = {}
+
+        #Delta time
+        self.dt = None
 
     def add_inventory_minus_coincount_from_shop_purchases(self, shop_obj):
         result = shop_obj.get_purchased_items_and_cost()
@@ -287,7 +291,7 @@ def refresh_underworld_draw_order(camera_group, player):
 
 def initialise_game():
     pygame.init()
-    screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT), vsync=1)
     clock = pygame.time.Clock()
     pygame.display.set_caption('DungeonBuild')
     pygame.mixer.init()
@@ -315,7 +319,7 @@ def update_title_menu(screen, clock, gamestate):
         elif title_screen_state == "newgamecreated":
             gamestate.create_new_game_gamestate(title_screen.worldname_text_entered)
         pygame.display.update()
-        clock.tick(60)
+        gamestate.dt = clock.tick(FPS) / 1000
 
 def initialise_overworld(gamestate):
     pygame.mixer.music.play(-1) #Repeat unlimited
@@ -349,14 +353,15 @@ def update_pause_menu(screen, clock, gamestate, overworld_player):
         if gamestate.selected_world == "title":
             pygame.mixer.music.stop()
             gamestate.save_game_file(overworld_player.gridx, overworld_player.gridy)
-            title_screen = hud.TitleMenu()
         pygame.display.update()
-        clock.tick(60)
+        gamestate.dt = clock.tick(FPS) / 1000
     overworld_pause_menu.kill()
 
 def update_overworld(screen, clock, gamestate, overworld_player, overworld_camera, buildhud, overworld_cointext,
                       overworld_bottomhud, overworld_hudgroup, shopmenu_hud, floating_text_group, debugtext, debugtext_group, sfx_bank):
     gamestate.selected_world = overworld_player.gameworld
+    
+    print(gamestate.dt)
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
@@ -383,7 +388,7 @@ def update_overworld(screen, clock, gamestate, overworld_player, overworld_camer
     player_in_shop_range = overworld_player.get_shop_window_shown_bool(shopkeeper_test_coords)
 
     #overworldcamera contains tile sprites, which are used to detect collisions.
-    overworld_player.move_player(overworld_camera)
+    overworld_player.move_player(overworld_camera, gamestate.dt)
     overworld_player.set_build_mode_from_input(input_events, buildhud, overworld_camera)
     overworld_player.custom_update()
 
@@ -418,7 +423,7 @@ def update_overworld(screen, clock, gamestate, overworld_player, overworld_camer
     overworld_camera.add(floating_text_group)
 
     pygame.display.update()
-    clock.tick(60)
+    gamestate.dt = clock.tick(FPS) / 1000
 
 def initialise_underworld(gamestate, overworld_player):
     overworld_player.kill()
@@ -460,8 +465,8 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     gamestate.update_current_music(UNDERWORLD_TRACK)
     screen.fill((0, 0, 0))
 
-    underworld_player.move_player(underworld_camera, gamestate.underworld_map_dict)
-    underworld_player.custom_update(underworld_camera, gamestate.underworld_map_dict)
+    underworld_player.move_player(underworld_camera, gamestate.underworld_map_dict, gamestate.dt)
+    underworld_player.custom_update(underworld_camera, gamestate.underworld_map_dict, gamestate.dt)
 
     gamestate.update_sprite_dict_and_drawn_map(underworld_camera, underworld_player.rect.center)
 
@@ -475,11 +480,11 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     
     for enemy in enemy_group:
         if enemy.alive:
-            enemy.custom_update(underworld_player, underworld_camera)
+            enemy.custom_update(underworld_player, underworld_camera, gamestate.dt)
     
     #Applies lighting to projectile
     for projectile in projectile_group:
-        projectile.custom_update(underworld_player.rect.center)
+        projectile.custom_update(underworld_player.rect.center, gamestate.dt)
 
     enemies_killed = enemy_count - len(enemy_group)
 
@@ -509,7 +514,7 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     gamestate.selected_world = underworld_player.gameworld
     
     pygame.display.update()
-    clock.tick(60)
+    gamestate.dt = clock.tick(FPS) / 1000
 
 def initialise_dungeon_complete_screen(underworld_hudbar, enemies_killed):
         dungeon_complete = pygame.image.load('assets/splashscreens/dungeonComplete.png').convert_alpha()
@@ -531,7 +536,7 @@ def update_dungeon_complete(clock, screen, gamestate, dungeon_complete, dungeon_
                 gamestate.selected_world = "overworld"
                 gamestate.overworld_coincount += underworld_hudbar.coins_earned_in_dungeon
     pygame.display.update()
-    clock.tick(60)
+    gamestate.dt = clock.tick(FPS) / 1000
 
 def initialise_dungeon_death_screen():
     dungeon_death = pygame.image.load('assets/splashscreens/dungeonDeath.png').convert_alpha()
@@ -549,7 +554,7 @@ def update_dungeon_death_screen(clock, screen, gamestate, dungeon_death, dungeon
             if event.key == pygame.K_SPACE:
                 gamestate.selected_world = "overworld"
     pygame.display.update()
-    clock.tick(60)
+    gamestate.dt = clock.tick(FPS) / 1000
 
 def main():
     screen, clock, gamestate, sfx_bank, floating_text_group = initialise_game()

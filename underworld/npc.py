@@ -94,7 +94,7 @@ class Npc(pygame.sprite.Sprite):
         self.knockback_resistance = random.randint(self.knockback_resistance_min, self.knockback_resistance_max)
         self.speed_min = self.attributes[self.npc]["speed_min"]
         self.speed_max = self.attributes[self.npc]["speed_max"]
-        self.speed = random.randint(self.speed_min, self.speed_max) / 100
+        self.speed = (random.randint(self.speed_min, self.speed_max) / 100) * 60
         self.damage = self.attributes[self.npc]["damage"]
         self.knockback = self.attributes[self.npc]["knockback"]
         self.coindrop_min = self.attributes[self.npc]["coindrop_min"]
@@ -188,7 +188,7 @@ class Npc(pygame.sprite.Sprite):
         elif weapon_direction == "down":
             self.knockbacky = self.rect.y + knockback_effect
 
-    def perform_knockback(self, camera):
+    def perform_knockback(self, camera, dt):
         if self.knockbackx == None and self.knockbacky == None:
             self.knockback_timer = 0
             return
@@ -203,25 +203,25 @@ class Npc(pygame.sprite.Sprite):
 
         if self.knockbackx != None:
             if self.knockbackx > self.rect.x:
-                self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed)
+                self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed * dt)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, knockback_speed, 0)
+                    self.detect_tile_collisions(camera, knockback_speed * dt, 0)
             elif self.knockbackx < self.rect.x:
-                self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed)
+                self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed * dt)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, -knockback_speed, 0)
+                    self.detect_tile_collisions(camera, -knockback_speed * dt, 0)
             else:
                 self.knockbackx = None
 
         if self.knockbacky != None:
             if self.knockbacky > self.rect.y:
-                self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed)
+                self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed * dt)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, knockback_speed)
+                    self.detect_tile_collisions(camera, 0, knockback_speed * dt)
             elif self.knockbacky < self.rect.y:
-                self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed)
+                self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed * dt)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, -knockback_speed)
+                    self.detect_tile_collisions(camera, 0, -knockback_speed * dt)
             else:
                 self.knockbacky = None
 
@@ -257,7 +257,7 @@ class Npc(pygame.sprite.Sprite):
         sfx = pygame.mixer.Sound(f"assets/sfx/underworld/{self.npc}/{sfx_list[random_sfx_num]}")
         sfx.play()
 
-    def basic_pathfind(self, player, underworldcamera):
+    def basic_pathfind(self, player, underworldcamera, dt):
         if self.knockbackx != None or self.knockbacky != None:
             return
         player_rect = player.rect
@@ -269,21 +269,21 @@ class Npc(pygame.sprite.Sprite):
             return
         if distance_from_player < self.aggression_distance:
             if self.rect.x < player_center_pos[0]:
-                self.rect.x += self.speed
+                self.rect.x += self.speed * dt
                 self.direction = "right"
-                self.detect_tile_collisions(underworldcamera, self.speed, 0)
+                self.detect_tile_collisions(underworldcamera, self.speed * dt, 0)
             elif self.rect.x > player_center_pos[0]:
-                self.rect.x -= self.speed
+                self.rect.x -= self.speed * dt
                 self.direction = "left"
-                self.detect_tile_collisions(underworldcamera, -self.speed, 0)
+                self.detect_tile_collisions(underworldcamera, -self.speed * dt, 0)
             if self.rect.y < player_center_pos[1]:
-                self.rect.y += self.speed
+                self.rect.y += self.speed * dt
                 self.direction = "down"
-                self.detect_tile_collisions(underworldcamera, 0, self.speed)
+                self.detect_tile_collisions(underworldcamera, 0, self.speed * dt)
             elif self.rect.y > player_center_pos[1]:
-                self.rect.y -= self.speed
+                self.rect.y -= self.speed * dt
                 self.direction = "up"
-                self.detect_tile_collisions(underworldcamera, 0, -self.speed)
+                self.detect_tile_collisions(underworldcamera, 0, -self.speed * dt)
             self.update_animation_frame()
 
     def melee_attack(self, player):
@@ -304,9 +304,9 @@ class Npc(pygame.sprite.Sprite):
 
         #print("Attack sequence launched: ", self.randomid)
 
-    def custom_update(self, player, camera):
-        self.perform_knockback(camera)
-        self.basic_pathfind(player, camera)
+    def custom_update(self, player, camera, dt):
+        self.perform_knockback(camera, dt)
+        self.basic_pathfind(player, camera, dt)
         self.maintain_animation_facing_direction(player)
         self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.center, player.rect.center)
         
@@ -352,7 +352,7 @@ class Projectile(pygame.sprite.Sprite):
         self.MAX_LIFE_TIMER = 140
         self.life_timer = 0
 
-        self.honing_speed = 5.8
+        self.honing_speed = 348
         
         self.sfx = pygame.mixer.Sound(f"assets/sfx/underworld/{self.parent.npc}/throw_projectile.mp3")
 
@@ -388,9 +388,9 @@ class Projectile(pygame.sprite.Sprite):
         self.honingy_speedmod = dy/ventor_length
         self.play_projectile_thrown_sfx()
 
-    def accelerate_honing_spear(self):
-        ACCELERATE_PARAMETER = 0.05
-        self.honing_speed += ACCELERATE_PARAMETER
+    def accelerate_honing_spear(self, dt):
+        ACCELERATE_PARAMETER = 3
+        self.honing_speed += ACCELERATE_PARAMETER * dt
 
     def rotate_spear(self):
         if self.honing_coordinates:
@@ -411,21 +411,21 @@ class Projectile(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(center=(x1, y1))
         
 
-    def perform_throw_honing_movement(self):
+    def perform_throw_honing_movement(self, dt):
         if self.honing_coordinates == None:
             return
         PRECISENESS_DAMPNER = 2 #Stops shaky affect when at end of throw
         if self.rect.centerx + PRECISENESS_DAMPNER < self.honing_coordinates[0]:
-            self.rect.x += self.honing_speed * self.honingx_speedmod
+            self.rect.x += self.honing_speed * self.honingx_speedmod * dt
         elif self.rect.centerx - PRECISENESS_DAMPNER > self.honing_coordinates[0]:
-            self.rect.x += self.honing_speed * self.honingx_speedmod
+            self.rect.x += self.honing_speed * self.honingx_speedmod * dt
         if self.rect.centery + PRECISENESS_DAMPNER < self.honing_coordinates[1]:
-            self.rect.y += self.honing_speed * self.honingy_speedmod
+            self.rect.y += self.honing_speed * self.honingy_speedmod * dt
         elif self.rect.centery - PRECISENESS_DAMPNER > self.honing_coordinates[1]:
-            self.rect.y += self.honing_speed * self.honingy_speedmod
+            self.rect.y += self.honing_speed * self.honingy_speedmod * dt
         
         self.rotate_spear()
-        self.accelerate_honing_spear()
+        self.accelerate_honing_spear(dt)
 
     def kill_custom(self):
         #Needed to re-initialise spear in parent npc
@@ -441,12 +441,12 @@ class Projectile(pygame.sprite.Sprite):
         self.kill_custom()
 
     def update(self):
-        self.perform_throw_honing_movement()
-        self.update_life_timer()
+        pass
     
-    def custom_update(self, player_mid_coords):
+    def custom_update(self, player_mid_coords, dt):
         self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.center, player_mid_coords)
-
+        self.perform_throw_honing_movement(dt)
+        self.update_life_timer()
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, pygame_group, startx, starty, value):
