@@ -337,6 +337,7 @@ def initialise_overworld(gamestate):
     return overworld_player, overworld_camera, buildhud, overworld_cointext, debugtext, debugtext_group, overworld_bottomhud, shopmenu_hud, overworld_hudgroup
 
 def update_pause_menu(screen, clock, gamestate, overworld_player):
+    pygame.mouse.set_visible(True)
     overworld_pause_menu = hud.OverworldPauseMenu()
     while gamestate.in_overworld_pause_menu:
         input_events = pygame.event.get()
@@ -360,7 +361,7 @@ def update_pause_menu(screen, clock, gamestate, overworld_player):
 def update_overworld(screen, clock, gamestate, overworld_player, overworld_camera, buildhud, overworld_cointext,
                       overworld_bottomhud, overworld_hudgroup, shopmenu_hud, floating_text_group, debugtext, debugtext_group, sfx_bank):
     gamestate.selected_world = overworld_player.gameworld
-    
+    pygame.mouse.set_visible(overworld_player.buildmode)
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
@@ -455,8 +456,8 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-            
-
+    
+    pygame.mouse.set_visible(False)
 
     if gamestate.current_music != UNDERWORLD_TRACK:
         pygame.mixer.music.load(UNDERWORLD_TRACK)

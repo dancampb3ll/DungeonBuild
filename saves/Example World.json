@@ -1,6 +1,6 @@
 {
-    "playergridx": 28,
-    "playergridy": 25,
+    "playergridx": 35,
+    "playergridy": 27,
     "overworld_coincount": 0,
     "overworld_map_dict": {
         "(11, 11)": 4,
@@ -523,25 +523,46 @@
         "(33, 22)": 4,
         "(33, 23)": 4,
         "(33, 24)": 4,
-        "(33, 25)": 4,
-        "(33, 26)": 7,
-        "(33, 27)": 18,
+        "(33, 25)": 2,
+        "(33, 26)": 2,
+        "(33, 27)": 2,
         "(33, 28)": 2,
-        "(33, 29)": 2,
-        "(33, 30)": 2,
-        "(33, 31)": 2,
-        "(33, 32)": 2,
+        "(33, 29)": 4,
+        "(33, 30)": 4,
+        "(33, 31)": 4,
+        "(33, 32)": 4,
         "(33, 33)": 4,
+        "(34, 25)": 2,
+        "(34, 24)": 4,
+        "(35, 25)": 2,
         "(34, 26)": 2,
-        "(34, 27)": 19,
-        "(34, 28)": 4,
+        "(35, 24)": 4,
+        "(36, 25)": 7,
+        "(35, 26)": 2,
+        "(36, 24)": 4,
+        "(37, 25)": 7,
+        "(36, 26)": 18,
+        "(37, 24)": 4,
+        "(38, 25)": 4,
+        "(37, 26)": 19,
+        "(34, 27)": 2,
+        "(35, 27)": 2,
+        "(36, 27)": 2,
+        "(38, 26)": 4,
+        "(37, 27)": 2,
+        "(38, 27)": 4,
+        "(37, 28)": 2,
+        "(36, 28)": 2,
+        "(35, 28)": 2,
+        "(34, 28)": 2,
         "(34, 29)": 4,
-        "(34, 30)": 4,
-        "(34, 31)": 4,
-        "(34, 32)": 4,
-        "(34, 25)": 4,
-        "(35, 26)": 4,
-        "(35, 27)": 4
+        "(35, 29)": 4,
+        "(36, 29)": 18,
+        "(38, 28)": 4,
+        "(37, 29)": 19,
+        "(38, 29)": 4,
+        "(37, 30)": 4,
+        "(36, 30)": 4
     },
     "overworld_tile_sprite_dict": {
         "(11, 11)": {
@@ -5747,7 +5768,7 @@
         "(33, 25)": {
             "gridx": 33,
             "gridy": 25,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5757,7 +5778,7 @@
         "(33, 26)": {
             "gridx": 33,
             "gridy": 26,
-            "tile": "tinyPot",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5767,7 +5788,7 @@
         "(33, 27)": {
             "gridx": 33,
             "gridy": 27,
-            "tile": "benchLeft",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5787,7 +5808,7 @@
         "(33, 29)": {
             "gridx": 33,
             "gridy": 29,
-            "tile": "overgroundGrass",
+            "tile": "overgroundBorder",
             "portal_information": [
                 null,
                 null,
@@ -5797,7 +5818,7 @@
         "(33, 30)": {
             "gridx": 33,
             "gridy": 30,
-            "tile": "overgroundGrass",
+            "tile": "overgroundBorder",
             "portal_information": [
                 null,
                 null,
@@ -5807,7 +5828,7 @@
         "(33, 31)": {
             "gridx": 33,
             "gridy": 31,
-            "tile": "overgroundGrass",
+            "tile": "overgroundBorder",
             "portal_information": [
                 null,
                 null,
@@ -5817,7 +5838,7 @@
         "(33, 32)": {
             "gridx": 33,
             "gridy": 32,
-            "tile": "overgroundGrass",
+            "tile": "overgroundBorder",
             "portal_information": [
                 null,
                 null,
@@ -5834,6 +5855,36 @@
                 null
             ]
         },
+        "(34, 25)": {
+            "gridx": 34,
+            "gridy": 25,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(34, 24)": {
+            "gridx": 34,
+            "gridy": 24,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(35, 25)": {
+            "gridx": 35,
+            "gridy": 25,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
         "(34, 26)": {
             "gridx": 34,
             "gridy": 26,
@@ -5844,10 +5895,180 @@
                 null
             ]
         },
+        "(35, 24)": {
+            "gridx": 35,
+            "gridy": 24,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 25)": {
+            "gridx": 36,
+            "gridy": 25,
+            "tile": "tinyPot",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(35, 26)": {
+            "gridx": 35,
+            "gridy": 26,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 24)": {
+            "gridx": 36,
+            "gridy": 24,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 25)": {
+            "gridx": 37,
+            "gridy": 25,
+            "tile": "tinyPot",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 26)": {
+            "gridx": 36,
+            "gridy": 26,
+            "tile": "benchLeft",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 24)": {
+            "gridx": 37,
+            "gridy": 24,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(38, 25)": {
+            "gridx": 38,
+            "gridy": 25,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 26)": {
+            "gridx": 37,
+            "gridy": 26,
+            "tile": "benchRight",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
         "(34, 27)": {
             "gridx": 34,
             "gridy": 27,
-            "tile": "benchRight",
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(35, 27)": {
+            "gridx": 35,
+            "gridy": 27,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 27)": {
+            "gridx": 36,
+            "gridy": 27,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(38, 26)": {
+            "gridx": 38,
+            "gridy": 26,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 27)": {
+            "gridx": 37,
+            "gridy": 27,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(38, 27)": {
+            "gridx": 38,
+            "gridy": 27,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 28)": {
+            "gridx": 37,
+            "gridy": 28,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 28)": {
+            "gridx": 36,
+            "gridy": 28,
+            "tile": "overgroundGrass",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(35, 28)": {
+            "gridx": 35,
+            "gridy": 28,
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5857,7 +6078,7 @@
         "(34, 28)": {
             "gridx": 34,
             "gridy": 28,
-            "tile": "overgroundBorder",
+            "tile": "overgroundGrass",
             "portal_information": [
                 null,
                 null,
@@ -5874,8 +6095,58 @@
                 null
             ]
         },
-        "(34, 30)": {
-            "gridx": 34,
+        "(35, 29)": {
+            "gridx": 35,
+            "gridy": 29,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(36, 29)": {
+            "gridx": 36,
+            "gridy": 29,
+            "tile": "benchLeft",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(38, 28)": {
+            "gridx": 38,
+            "gridy": 28,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 29)": {
+            "gridx": 37,
+            "gridy": 29,
+            "tile": "benchRight",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(38, 29)": {
+            "gridx": 38,
+            "gridy": 29,
+            "tile": "overgroundBorder",
+            "portal_information": [
+                null,
+                null,
+                null
+            ]
+        },
+        "(37, 30)": {
+            "gridx": 37,
             "gridy": 30,
             "tile": "overgroundBorder",
             "portal_information": [
@@ -5884,49 +6155,9 @@
                 null
             ]
         },
-        "(34, 31)": {
-            "gridx": 34,
-            "gridy": 31,
-            "tile": "overgroundBorder",
-            "portal_information": [
-                null,
-                null,
-                null
-            ]
-        },
-        "(34, 32)": {
-            "gridx": 34,
-            "gridy": 32,
-            "tile": "overgroundBorder",
-            "portal_information": [
-                null,
-                null,
-                null
-            ]
-        },
-        "(34, 25)": {
-            "gridx": 34,
-            "gridy": 25,
-            "tile": "overgroundBorder",
-            "portal_information": [
-                null,
-                null,
-                null
-            ]
-        },
-        "(35, 26)": {
-            "gridx": 35,
-            "gridy": 26,
-            "tile": "overgroundBorder",
-            "portal_information": [
-                null,
-                null,
-                null
-            ]
-        },
-        "(35, 27)": {
-            "gridx": 35,
-            "gridy": 27,
+        "(36, 30)": {
+            "gridx": 36,
+            "gridy": 30,
             "tile": "overgroundBorder",
             "portal_information": [
                 null,

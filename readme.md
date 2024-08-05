@@ -14,6 +14,9 @@ A python-based game in which players can defeat monsters in procedurally generat
 - [Acknowledgements](#acknowledgements)
 
 ## Video Showcase
+[Youtube Link:]((https://www.youtube.com/watch?v=tZJ1gr_GUmo))
+
+[![DungeonBuild Demo Aug2024](https://img.youtube.com/vi/tZJ1gr_GUmo/maxresdefault.jpg)](https://www.youtube.com/watch?v=tZJ1gr_GUmo)
 
 ## Installation
 
@@ -77,7 +80,7 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
 - Dungeon Generation
     - Uses a set of rules in `underworld/tiles.py` to randomly generate a spawn room, square rooms, walkways, enemy spawn points, and a final exit room.
     - `dungeonDraw.py` uses Pillow to rapidly draw hundreds of dungeon images from the dungeon generation algorithm and the map data structures it produces. This allows for a rapid prototyping of changes made to the generation algorithm.
-    
+
         ![Example 1](misc/readme/example_dungeon_image1.png)
         
         ![Example 2](misc/readme/example_dungeon_image2.png)
@@ -96,14 +99,14 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
 
 ## Controls
 - Overworld:
-    - Arrow Keys: Move player.
+    - WASD: Move player.
     - B: Open/close build menu.
     - Left Click: Place selected block (in build mode).
     - Right Click: Place grass block (in build mode).
     - Scroll Wheel: Cycle through held build items (in build mode). 
     - Number Keys: Purchase items (when in shop). 
 - Dungeon:
-    - Arrow keys: Move player.
+    - WASD: Move player.
     - Spacebar: Swipe sword to attack.
 
 ## Acknowledgements
