@@ -58,7 +58,6 @@ class Player(pygame.sprite.Sprite):
                 if collide:
                     if sprite.tile not in underworld.tiles.WALKABLE:
                         #right
-                        print("tile colliding with: ", (sprite.gridx, sprite.gridy), " : ", sprite.tile)
                         if xspeed_dt > 0:
                             self.rect.right = sprite.rect.left
                             self.check_portal_collisions("right", sprite)
@@ -89,9 +88,6 @@ class Player(pygame.sprite.Sprite):
         else:
             check_tile_one = (tile_sprite.gridx + 1, tile_sprite.gridy)
             check_tile_two = (tile_sprite.gridx - 1, tile_sprite.gridy)
-        
-        print("Check tile one coords:", underworld_map_dict.get(check_tile_one, None))
-        print("Check tile two coords:", underworld_map_dict.get(check_tile_two, None))
         
         #No need to snap the player to tile if not a 1 by 1 opening:
         if (underworld_map_dict.get(check_tile_one, ["border"])[0] != "border" and underworld_map_dict.get(check_tile_two, ["border"])[0] != "border"):
@@ -130,15 +126,12 @@ class Player(pygame.sprite.Sprite):
 
     def take_damage(self, npc):
         if self.invincibility_state:
-            print("invincible")
             return
         self.health -= npc.damage
         self.play_random_damage_sfx_from_list()
-        print("damage taken")
         self.invincibility_state = True
         self.invincibility_timer = 0
         
-        ##Audit
         self.set_knockback_position(npc.direction, npc.knockback)
 
     def set_knockback_position(self, enemy_direction, enemy_knockback):

@@ -90,17 +90,18 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
-#Replace chroma with transparency
-for path in ["assets/hud/purchaseMenu/B.png"]:
-    replace_image_path = path
-    output_path = path
-    make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
+# #Replace chroma with transparency
+# for path in ["assets/hud/purchaseMenu/B.png"]:
+#     replace_image_path = path
+#     output_path = path
+#     make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
 
-# #Replace chroma with other image
-# replace_image_path = "assets/overworldtiles/bench.png"
-# replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
-# new_path = replace_image_path + " replaced.png"
-# replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
+#Replace chroma with other image
+replace_image_paths = ["assets/overworldtiles/overgroundSmallDungeonLeft.png", "assets/overworldtiles/overgroundSmallDungeonRight.png"]
+replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
+for replace_image_path in replace_image_paths:
+    new_path = replace_image_path# + " replaced.png"
+    replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 
 #split_image("assets/Unused/Outdoor hut.png", "assets/overworldtiles/", "shopHut", 16)
 

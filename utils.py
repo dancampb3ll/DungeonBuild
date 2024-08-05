@@ -11,10 +11,8 @@ def find_point_on_diagonal_line_between_two_points(x1, y1, x2, y2, xdistance=200
     #Prevents errors with both points being the same
     if x2 == x1:
         x2 += 1
-        print("run1")
     if y2 == y1:
         y2 += 1
-        print("run2")
     
     m = (y2 - y1) / (x2 - x1)
 

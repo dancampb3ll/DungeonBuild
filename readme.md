@@ -77,7 +77,10 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
 - Dungeon Generation
     - Uses a set of rules in `underworld/tiles.py` to randomly generate a spawn room, square rooms, walkways, enemy spawn points, and a final exit room.
     - `dungeonDraw.py` uses Pillow to rapidly draw hundreds of dungeon images from the dungeon generation algorithm and the map data structures it produces. This allows for a rapid prototyping of changes made to the generation algorithm.
-    ![Example 1](misc/readme/example_dungeon_image1.png) ![Example 2](misc/readme/example_dungeon_image2.png)
+    
+        ![Example 1](misc/readme/example_dungeon_image1.png)
+        
+        ![Example 2](misc/readme/example_dungeon_image2.png)
 - Lighting
     - Lights up tiles, npcs, and projectiles in the underworld dependent on the distance from the player. In `lighting.py`
 - Save games
