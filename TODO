@@ -39,9 +39,6 @@ animate slime
 make skeleton with spear throw
 Make coin drops random/move a bit
 
-
-
-
 Make enemies red when hit
 
 Work on dungeon generation.
@@ -69,14 +66,6 @@ List before completion
     6. Save game
 7. Dungeon entry generation system (in overworld)
 ********************************************************************************
-
-
-
-
-Create build/money logic
-Add some free music to randomly play https://soundimage.org/fantasywonder/
-Free coin sounds
-    - https://soundimage.org/sfx-coins/
 
 Long term
 Portal collisions are active on every corner. Fix this.

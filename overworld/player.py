@@ -126,14 +126,14 @@ class Player(pygame.sprite.Sprite):
                     self.B_key_down = False
 
     def toggle_border_alpha(self, camera_group, buildmode):
-        """Stops the background border colour from being black to make it slightly visible when in build mode.
+        """Stops the border colour from being ignored to make it slightly visible when in build mode.
         """
         for sprite in camera_group.sprites():
             if sprite.type == "tile":
                 if sprite.tile == "overgroundBorder":
                     if buildmode:
                         sprite.image = sprite.raw_image.copy()
-                        sprite.ignorecolour = (123, 123, 123) #This is a random colour
+                        sprite.ignorecolour = (123, 123, 123) #This is a random colour (different to 0,0,0) to make the border tiles visible in build mode.
                         sprite.image.set_colorkey(sprite.ignorecolour)
                     else:
                         sprite.image = sprite.raw_image.copy()
@@ -146,8 +146,8 @@ class Player(pygame.sprite.Sprite):
             self.toggle_border_alpha(camera_group, self.buildmode)
         else:
             self.buildmode = False
-            self.toggle_border_alpha(camera_group, self.buildmode)
             self.reset_tile_highlights(camera_group)
+            self.toggle_border_alpha(camera_group, self.buildmode)
             self.right_mouse_button_held = False
         buildhud.player_in_buildmode = self.buildmode
 

@@ -1,6 +1,6 @@
 {
-    "playergridx": 26,
-    "playergridy": 26,
+    "playergridx": 28,
+    "playergridy": 25,
     "overworld_coincount": 0,
     "overworld_map_dict": {
         "(11, 11)": 4,

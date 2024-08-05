@@ -35,7 +35,6 @@ def split_image(image_path, output_folder, filename, start_number_blockid):
 
     print("Image successfully split into 16x16 chunks.")
 
-
 def replace_chroma_color(image_path, chroma_color, replacement_image_path, new_save_path):
     # Open the original image
     original_image = Image.open(image_path)
@@ -91,40 +90,32 @@ def make_png_colour_transparent(r, g, b, image_input_path, image_output_path):
 
     img.save(image_output_path)
 
-"""Replace chroma with transparency
-for path in ["assets/tooltips/tinyPot.png"]:
+#Replace chroma with transparency
+for path in ["assets/hud/purchaseMenu/B.png"]:
     replace_image_path = path
     output_path = path
     make_png_colour_transparent(255, 0, 255, replace_image_path, output_path)
-#"""
 
-#""" Replace chroma with other image
-replace_image_path = "assets/overworldtiles/bench.png"
-replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
-new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
-#"""
+# #Replace chroma with other image
+# replace_image_path = "assets/overworldtiles/bench.png"
+# replacement_texture_path = "assets/overworldtiles/overgroundGrass.png"
+# new_path = replace_image_path + " replaced.png"
+# replace_chroma_color(replace_image_path, (255, 0, 255), replacement_texture_path, new_path)
 
 #split_image("assets/Unused/Outdoor hut.png", "assets/overworldtiles/", "shopHut", 16)
 
-"""
-files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
-for filename in files:
-    imagepath = f"assets/player/overworld/{filename}.png"
-    outputpath = f"assets/player/underworld/{filename}.png"
-    resize_image(imagepath, outputpath, 32, 32)
-"""
+# files = ["down1", "down2", "down3", "down4", "left1", "left2", "left3", "left4", "right1", "right2", "right3", "right4", "up1", "up2", "up3", "up4"]
+# for filename in files:
+#     imagepath = f"assets/player/overworld/{filename}.png"
+#     outputpath = f"assets/player/underworld/{filename}.png"
+#     resize_image(imagepath, outputpath, 32, 32)
 
-"""
-replace_image_path = "assets/underworldtiles/stairs.png"
-stone_texture_path = "assets/underworldtiles/cobblestone.png"
-new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 255, 255), stone_texture_path, new_path)
-"""
+# replace_image_path = "assets/underworldtiles/stairs.png"
+# stone_texture_path = "assets/underworldtiles/cobblestone.png"
+# new_path = replace_image_path + " replaced.png"
+# replace_chroma_color(replace_image_path, (255, 255, 255), stone_texture_path, new_path)
 
-"""
-replace_image_path = "assets/overworldtiles/skullGrass.png"
-grass_texture_path = "assets/overworldtiles/overgroundGrass.png"
-new_path = replace_image_path + " replaced.png"
-replace_chroma_color(replace_image_path, (255, 0, 255), grass_texture_path, new_path)
-#"""
+# replace_image_path = "assets/overworldtiles/skullGrass.png"
+# grass_texture_path = "assets/overworldtiles/overgroundGrass.png"
+# new_path = replace_image_path + " replaced.png"
+# replace_chroma_color(replace_image_path, (255, 0, 255), grass_texture_path, new_path)
