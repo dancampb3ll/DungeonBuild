@@ -361,7 +361,6 @@ def update_overworld(screen, clock, gamestate, overworld_player, overworld_camer
                       overworld_bottomhud, overworld_hudgroup, shopmenu_hud, floating_text_group, debugtext, debugtext_group, sfx_bank):
     gamestate.selected_world = overworld_player.gameworld
     
-    print(gamestate.dt)
     input_events = pygame.event.get()
     for event in input_events:
         if event.type == pygame.QUIT:
@@ -416,7 +415,7 @@ def update_overworld(screen, clock, gamestate, overworld_player, overworld_camer
     buildhud.custom_update_and_draw(screen)
     buildhud.set_items_from_gamestate_inventory(gamestate.build_inventory, input_events)
     overworld_bottomhud.set_current_grass_count(gamestate.build_inventory)
-    shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount)
+    shopmenu_hud.custom_update_and_draw(player_in_shop_range, screen, input_events, gamestate.overworld_coincount, overworld_player.buildmode, overworld_camera.offset)
     gamestate.add_inventory_minus_coincount_from_shop_purchases(shopmenu_hud)
     overworld_bottomhud.custom_draw(screen)
     overworld_hudgroup.draw(screen)

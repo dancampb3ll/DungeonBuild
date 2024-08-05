@@ -739,8 +739,9 @@ class ShopMenu(pygame.sprite.Sprite):
         self.shop_menu_rect.x = settings.SCREEN_WIDTH // 2 - self.shop_menu_rect.width // 2
         self.shop_menu_rect.y = settings.SCREEN_HEIGHT // 2 - self.shop_menu_rect.height // 2
 
-        self.sound_played = False
-        
+        self.hover_sound_played = False
+        self.open_sound_played = False
+
         self.ITEMS_PER_ROW = 3
         self.MAX_ITEM_WIDTHHEIGHT = 40
         self.SPACE_BETWEEN_OPTIONS = (self.shop_menu_rect.width - 3 * self.MAX_ITEM_WIDTHHEIGHT) // (1 + self.ITEMS_PER_ROW)
@@ -791,6 +792,10 @@ class ShopMenu(pygame.sprite.Sprite):
 
         self.coin_cost_font_size = 11
         self.coin_cost_font = pygame.font.SysFont("Courier New", self.coin_cost_font_size, bold=True)
+
+        self.b_button = pygame.image.load('assets/hud/purchaseMenu/B.png').convert_alpha()
+        self.b_button_rect = self.b_button.get_rect()
+        self.b_button_rect.topleft = settings.OVERWORLD_SHOPKEEPER_COORDS
 
         item_count = 0
         for key in self.shop_options.keys():
@@ -893,13 +898,28 @@ class ShopMenu(pygame.sprite.Sprite):
 
         return result
 
-    def custom_update_and_draw(self, player_in_shop_range, screen, input_events, player_coins):
-        if not player_in_shop_range:
-            self.sound_played = False
-            return
-        if not self.sound_played:
+    def _draw_b_menu_button_near_shop(self, screen, camera_offset):
+        xplacement = self.b_button_rect.x - camera_offset[0] - 20
+        yplacement = self.b_button_rect.y - camera_offset[1] - 50
+        screen.blit(self.b_button, (xplacement, yplacement))
+        if not self.hover_sound_played:
             self.play_menu_open_sfx()
-        self.sound_played = True
+            self.hover_sound_played = True
+
+    def custom_update_and_draw(self, player_in_shop_range, screen, input_events, player_coins, player_in_build_mode, camera_offset):
+        if not player_in_shop_range:
+            self.hover_sound_played = False
+            self.open_sound_played = False
+            return
+        
+        if not player_in_build_mode:
+            self._draw_b_menu_button_near_shop(screen, camera_offset)
+            return
+
+        if not self.open_sound_played:
+            self.play_menu_open_sfx()
+            self.open_sound_played = True
+        
         screen.blit(self.shop_menu, self.shop_menu_rect.topleft)
         self.draw_available_shop_options(screen)
         self.detect_player_shop_keydown(input_events, player_coins)
