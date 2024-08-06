@@ -6,11 +6,8 @@ A python-based game in which players can defeat monsters in procedurally generat
 - [Video Showcase](#video-showcase)
 - [Installation](#installation)
 - [Features](#features)
-- [Technologies](#technologies)
 - [Controls](#controls)
-- [Usage](#usage)
 - [License](#license)
-- [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
 
 ## Video Showcase
@@ -81,12 +78,12 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
     - Uses a set of rules in `underworld/tiles.py` to randomly generate a spawn room, square rooms, walkways, enemy spawn points, and a final exit room.
     - `dungeonDraw.py` uses Pillow to rapidly draw hundreds of dungeon images from the dungeon generation algorithm and the map data structures it produces. This allows for a rapid prototyping of changes made to the generation algorithm.
 
-        ![Example 1](misc/readme/example_dungeon_image1.png)
+        ![Dungeon Example 1](misc/readme/example_dungeon_image1.png)
         
-        ![Example 2](misc/readme/example_dungeon_image2.png)
+        ![Dungeon Example 2](misc/readme/example_dungeon_image2.png)
 - Lighting
     - Lights up tiles, npcs, and projectiles in the underworld dependent on the distance from the player. In `lighting.py`
-- Save games
+- Save Games & Load Menu
     - The player can save the game from the overworld.
 - Building
     - All overworld tiles adhere to a 16x16 grid system.
@@ -96,6 +93,12 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
     - Melee based.
     - NPCs can use projectiles.
     - Knockback.
+        ![Combat Demo](https://imgur.com/a/0wR5CzZ)
+
+- Shop & Inventory System
+    - The player can use coins to purchase buildings and blocks from the shop.
+    - These then fill the inventory.
+
 
 ## Controls
 - Overworld:
@@ -108,6 +111,11 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
 - Dungeon:
     - WASD: Move player.
     - Spacebar: Swipe sword to attack.
+
+## License
+This project is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. See the [LICENSE](LICENSE) file for details.
+
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 ## Acknowledgements
 - OpenGameArt.org for some drawings used.
