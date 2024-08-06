@@ -8,7 +8,7 @@ UNDERWORLD_PLAYERSPEED = 180
 LIGHT_BLUE = (173, 216, 230)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pygame_group):
+    def __init__(self, pygame_group, underworld_map_dict):
         super().__init__(pygame_group)
         self.type = "player"
         self.facing_direction = "down"
@@ -46,13 +46,16 @@ class Player(pygame.sprite.Sprite):
 
         self.damage_sfx = ["take_damage1.mp3"]
 
+        self.underworld_map_dict = underworld_map_dict
+        self.previous_valid_grid_position = None
+
     def play_random_damage_sfx_from_list(self):
         sfx_list = self.damage_sfx
         random_sfx_num = random.randint(0, len(sfx_list) - 1)
         sfx = pygame.mixer.Sound(f"assets/sfx/player/{sfx_list[random_sfx_num]}")
         sfx.play()
 
-    def detect_tile_collisions(self, camera_group, xspeed_dt, yspeed_dt, underworld_map_dict, dt):
+    def detect_tile_collisions(self, camera_group, xspeed_dt, yspeed_dt, dt):
         for sprite in camera_group:
             if sprite.type == "tile":
                 collide = sprite.rect.colliderect(self.rect)
@@ -62,24 +65,24 @@ class Player(pygame.sprite.Sprite):
                         if xspeed_dt > 0:
                             self.rect.right = sprite.rect.left
                             self.check_portal_collisions("right", sprite)
-                            self.snap_to_1by1_tile("right", sprite, underworld_map_dict, dt)
+                            self.snap_to_1by1_tile("right", sprite, dt)
                         #left
                         elif xspeed_dt < 0:
                             self.rect.left = sprite.rect.right
                             self.check_portal_collisions("left", sprite)
-                            self.snap_to_1by1_tile("left", sprite, underworld_map_dict, dt)
+                            self.snap_to_1by1_tile("left", sprite, dt)
                         #down
                         if yspeed_dt > 0:
                             self.rect.bottom = sprite.rect.top
                             self.check_portal_collisions("bottom", sprite)
-                            self.snap_to_1by1_tile("down", sprite, underworld_map_dict, dt)
+                            self.snap_to_1by1_tile("down", sprite, dt)
                         #up
                         elif yspeed_dt < 0:
                             self.rect.top = sprite.rect.bottom
                             self.check_portal_collisions("top", sprite)
-                            self.snap_to_1by1_tile("up", sprite, underworld_map_dict, dt)
+                            self.snap_to_1by1_tile("up", sprite, dt)
 
-    def snap_to_1by1_tile(self, direction, tile_sprite, underworld_map_dict, dt):
+    def snap_to_1by1_tile(self, direction, tile_sprite, dt):
         
         SNAP_RANGE = 8
 
@@ -91,7 +94,7 @@ class Player(pygame.sprite.Sprite):
             check_tile_two = (tile_sprite.gridx - 1, tile_sprite.gridy)
         
         #No need to snap the player to tile if not a 1 by 1 opening:
-        if (underworld_map_dict.get(check_tile_one, ["border"])[0] != "border" and underworld_map_dict.get(check_tile_two, ["border"])[0] != "border"):
+        if (self.underworld_map_dict.get(check_tile_one, ["border"])[0] != "border" and self.underworld_map_dict.get(check_tile_two, ["border"])[0] != "border"):
             return
         if direction == "left" or direction == "right":
             for check in [check_tile_one, check_tile_two]:
@@ -114,8 +117,6 @@ class Player(pygame.sprite.Sprite):
                         self.rect.y += self.speed * dt
                     return
 
-
-
     def update_invincibility_state(self):
         if not self.invincibility_state:
             return
@@ -123,7 +124,6 @@ class Player(pygame.sprite.Sprite):
         if self.invincibility_timer > self.INVINCIBILITY_MAX_TIME:
             self.invincibility_timer
             self.invincibility_state = False
-
 
     def take_damage(self, npc):
         if self.invincibility_state:
@@ -147,7 +147,7 @@ class Player(pygame.sprite.Sprite):
         elif enemy_direction == "down":
             self.knockbacky = self.rect.y + knockback_effect
 
-    def perform_knockback(self, camera, underworld_map_dict, dt):
+    def perform_knockback(self, camera, dt):
         if self.knockbackx == None and self.knockbacky == None:
             self.knockback_timer = 0
             return
@@ -164,11 +164,11 @@ class Player(pygame.sprite.Sprite):
             if self.knockbackx > self.rect.x:
                 self.rect.x = min(self.knockbackx, self.rect.x + knockback_speed * dt)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, knockback_speed * dt, 0, underworld_map_dict, dt)
+                    self.detect_tile_collisions(camera, knockback_speed * dt, 0, dt)
             elif self.knockbackx < self.rect.x:
                 self.rect.x = max(self.knockbackx, self.rect.x - knockback_speed * dt)
                 if self.rect.x != self.knockbackx:
-                    self.detect_tile_collisions(camera, -knockback_speed * dt, 0, underworld_map_dict, dt)
+                    self.detect_tile_collisions(camera, -knockback_speed * dt, 0, dt)
             else:
                 self.knockbackx = None
 
@@ -176,15 +176,15 @@ class Player(pygame.sprite.Sprite):
             if self.knockbacky > self.rect.y:
                 self.rect.y = min(self.knockbacky, self.rect.y + knockback_speed * dt)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, knockback_speed * dt, underworld_map_dict, dt)
+                    self.detect_tile_collisions(camera, 0, knockback_speed * dt, dt)
             elif self.knockbacky < self.rect.y:
                 self.rect.y = max(self.knockbacky, self.rect.y - knockback_speed * dt)
                 if self.rect.y != self.knockbacky:
-                    self.detect_tile_collisions(camera, 0, -knockback_speed * dt, underworld_map_dict, dt)
+                    self.detect_tile_collisions(camera, 0, -knockback_speed * dt, dt)
             else:
                 self.knockbacky = None
 
-    def move_player(self, camera_group, underworld_map_dict, dt):
+    def move_player(self, camera_group, dt):
         self.is_moving = False #Used to check if player is walking
         self.is_moving_x = False
         self.is_moving_y = False
@@ -207,28 +207,28 @@ class Player(pygame.sprite.Sprite):
         if key[pygame.K_a]:
             self.facing_direction = "left"
             self.rect.x -= speed * dt
-            self.detect_tile_collisions(camera_group, -speed * dt, 0, underworld_map_dict, dt)
+            self.detect_tile_collisions(camera_group, -speed * dt, 0, dt)
             self.is_moving = True
             self.is_moving_x = True
         #right
         elif key[pygame.K_d]:
             self.facing_direction = "right"
             self.rect.x += speed * dt
-            self.detect_tile_collisions(camera_group, speed * dt, 0, underworld_map_dict, dt)
+            self.detect_tile_collisions(camera_group, speed * dt, 0, dt)
             self.is_moving = True
             self.is_moving_x = True
         #down
         if key[pygame.K_s]:
             self.facing_direction = "down"
             self.rect.y += speed * dt
-            self.detect_tile_collisions(camera_group, 0, speed * dt, underworld_map_dict, dt)
+            self.detect_tile_collisions(camera_group, 0, speed * dt, dt)
             self.is_moving = True
             self.is_moving_y = True
         #up
         elif key[pygame.K_w]:
             self.facing_direction = "up"
             self.rect.y -= speed * dt
-            self.detect_tile_collisions(camera_group, 0, -speed * dt, underworld_map_dict, dt)
+            self.detect_tile_collisions(camera_group, 0, -speed * dt, dt)
             self.is_moving = True
             self.is_moving_y = True
         
@@ -280,13 +280,23 @@ class Player(pygame.sprite.Sprite):
         if self.health <= 0:
             self.gameworld = "dungeonDeath"
 
-    def custom_update(self, camera, underworld_map_dict, dt):
+    def check_out_of_bounds(self):
+        gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
+        gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
+        if self.underworld_map_dict.get((gridx, gridy), [None])[0] in underworld.tiles.WALKABLE:
+            self.previous_valid_grid_position = (gridx, gridy)
+            return
+        self.rect.x = self.previous_valid_grid_position[0] * settings.UNDERWORLD_TILE_SIZE
+        self.rect.y = self.previous_valid_grid_position[1] * settings.UNDERWORLD_TILE_SIZE
+
+    def custom_update(self, camera, dt):
         self.update_invincibility_state()
-        self.perform_knockback(camera, underworld_map_dict, dt)
+        self.perform_knockback(camera, dt)
         self.update_grid_locations()
         self.update_player_image_from_direction_and_aniframe()
+        self.check_out_of_bounds()
         self.update_death_status()
-
+        
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, pygame_group, weapon_name):

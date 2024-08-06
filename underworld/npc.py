@@ -18,7 +18,7 @@ def reset_groups():
     coin_drop_text_group = pygame.sprite.Group()
 
 class Npc(pygame.sprite.Sprite):
-    def __init__(self, pygame_group, gridx, gridy, npctype):
+    def __init__(self, pygame_group, gridx, gridy, npctype, tile_dict):
         super().__init__(pygame_group)
         self.type = "npc"
         self.npc = npctype
@@ -40,7 +40,6 @@ class Npc(pygame.sprite.Sprite):
         self.projectile_timer = 0
 
         self.holding_projectile = False
-
 
         self.attributes = {
             "default": {
@@ -121,6 +120,18 @@ class Npc(pygame.sprite.Sprite):
         self.animation_frame = 0
         self.animation_timer = 0
         self.animation_facing_direction = "left"
+
+        self.tile_dict = tile_dict
+        self.previous_valid_grid_position = None
+
+    def check_out_of_bounds(self):
+        gridx = self.rect.x // settings.UNDERWORLD_TILE_SIZE
+        gridy = self.rect.y // settings.UNDERWORLD_TILE_SIZE
+        if self.tile_dict.get((gridx, gridy), [None])[0] in underworld.tiles.WALKABLE:
+            self.previous_valid_grid_position = (gridx, gridy)
+            return
+        self.rect.x = self.previous_valid_grid_position[0] * settings.UNDERWORLD_TILE_SIZE
+        self.rect.y = self.previous_valid_grid_position[1] * settings.UNDERWORLD_TILE_SIZE
 
     def maintain_animation_facing_direction(self, player):
         if player.rect.x < self.rect.x:
@@ -320,6 +331,7 @@ class Npc(pygame.sprite.Sprite):
         self.manage_invincibility_state()
         self.check_projectile_held_and_create()
         self.move_projectile_with_player()
+        self.check_out_of_bounds()
         #print("alive ", self.randomid)
         
         #self.image_flash_refresh()
@@ -439,9 +451,6 @@ class Projectile(pygame.sprite.Sprite):
             self.life_timer += 1
             return
         self.kill_custom()
-
-    def update(self):
-        pass
     
     def custom_update(self, player_mid_coords, dt):
         self.image = lighting.apply_lighting_from_player(self.raw_image, self.rect.center, player_mid_coords)

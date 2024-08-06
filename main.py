@@ -176,7 +176,7 @@ class GameState():
     def spawn_enemies_from_spawn_dict(self, sprite_group):
         for coord in self.underworld_npc_spawn_dict:
             enemy_type = self.underworld_npc_spawn_dict[coord]
-            underworld.npc.Npc(sprite_group, coord[0], coord[1], enemy_type)
+            underworld.npc.Npc(sprite_group, coord[0], coord[1], enemy_type, self.underworld_map_dict)
 
     def update_sprite_dict_and_drawn_map(self, camera_group, player_center):
         map = self.underworld_map_dict
@@ -441,7 +441,7 @@ def initialise_underworld(gamestate, overworld_player):
 
     gamestate.spawn_enemies_from_spawn_dict(enemy_group)
     dagger = underworld.player.Weapon(underworld_camera, "dagger")
-    underworld_player = underworld.player.Player(underworld_camera)
+    underworld_player = underworld.player.Player(underworld_camera, gamestate.underworld_map_dict)
     underworld_hudbar = hud.UnderworldHud()
     underworld_hudgroup.add(underworld_hudbar)
 
@@ -464,8 +464,8 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     gamestate.update_current_music(UNDERWORLD_TRACK)
     screen.fill((0, 0, 0))
 
-    underworld_player.move_player(underworld_camera, gamestate.underworld_map_dict, gamestate.dt)
-    underworld_player.custom_update(underworld_camera, gamestate.underworld_map_dict, gamestate.dt)
+    underworld_player.move_player(underworld_camera, gamestate.dt)
+    underworld_player.custom_update(underworld_camera, gamestate.dt)
 
     gamestate.update_sprite_dict_and_drawn_map(underworld_camera, underworld_player.rect.center)
 
