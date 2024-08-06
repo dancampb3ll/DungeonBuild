@@ -94,7 +94,7 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
     - NPCs can use projectiles.
     - Knockback.
     
-    ![Combat Demo](https://i.imgur.com/704My8O.gif)
+    ![Combat Demo](misc/readme/skeleton_spear.gif)
 
 - Shop & Inventory System
     - The player can use coins to purchase buildings and blocks from the shop.
