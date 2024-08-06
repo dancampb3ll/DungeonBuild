@@ -95,7 +95,7 @@ Make sure you have Python 3.12.4 installed on your system. You can download it f
 - Combat
     - Melee based.
     - NPCs can use projectiles.
-    - Knockback
+    - Knockback.
 
 ## Controls
 - Overworld:
