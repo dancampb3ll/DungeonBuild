@@ -446,8 +446,7 @@ def initialise_underworld(gamestate, overworld_player):
     underworld_hudgroup.add(underworld_hudbar)
 
     enemy_count = len(enemy_group)
-    enemies_killed = 0
-    return underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count, coin_group, underworld_hudbar, underworld_hudgroup, enemies_killed
+    return underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count, coin_group, underworld_hudbar, underworld_hudgroup
 
 def update_underworld(screen, clock, gamestate, underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count,
                     coin_group, floating_text_group, underworld_hudbar, underworld_hudgroup):
@@ -486,7 +485,7 @@ def update_underworld(screen, clock, gamestate, underworld_camera, underworld_pl
     for projectile in projectile_group:
         projectile.custom_update(underworld_player.rect.center, gamestate.dt)
 
-    enemies_killed = enemy_count - len(enemy_group)
+    underworld_player.enemies_killed = enemy_count - len(enemy_group)
 
     dagger.update_attack_hitbox_and_detect_collisions(screen, underworld_camera, underworld_player.rect, underworld_player.facing_direction, input_events)
     dagger.detect_enemy_weapon_collision(underworld_camera)
@@ -571,13 +570,13 @@ def main():
 
         #Underworld
         (underworld_camera, underworld_player, dagger, enemy_group, projectile_group,
-        enemy_count, coin_group, underworld_hudbar, underworld_hudgroup, enemies_killed) = initialise_underworld(gamestate, overworld_player)
+        enemy_count, coin_group, underworld_hudbar, underworld_hudgroup) = initialise_underworld(gamestate, overworld_player)
         while gamestate.selected_world == "underworld":
             update_underworld(screen, clock, gamestate, underworld_camera, underworld_player, dagger, enemy_group, projectile_group, enemy_count,
                     coin_group, floating_text_group, underworld_hudbar, underworld_hudgroup)
 
         #Dungeon Complete
-        dungeon_complete, dungeon_complete_rect, dungeon_complete_texts = initialise_dungeon_complete_screen(underworld_hudbar, enemies_killed)
+        dungeon_complete, dungeon_complete_rect, dungeon_complete_texts = initialise_dungeon_complete_screen(underworld_hudbar, underworld_player.enemies_killed)
         while gamestate.selected_world == "dungeonComplete":
             update_dungeon_complete(clock, screen, gamestate, dungeon_complete, dungeon_complete_rect, dungeon_complete_texts, underworld_hudbar)
 

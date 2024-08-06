@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.health = 100
         self.speed = UNDERWORLD_PLAYERSPEED
         self.coins_collected = 0
+        self.enemies_killed = 0
 
         self.gameworld = "underworld"
 
